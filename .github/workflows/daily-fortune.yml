@@ -1,0 +1,86 @@
+name: Daily Fortune
+
+on:
+  schedule:
+    # Runs at 6am Eastern Time (11am UTC during EST, 10am UTC during EDT)
+    # Using 11am UTC to cover EST (UTC-5)
+    - cron: '0 11 * * *'
+  workflow_dispatch: # Allows manual triggering for testing
+
+permissions:
+  contents: write
+
+jobs:
+  update-fortune:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install goose
+        run: |
+          curl -fsSL https://github.com/block/goose/releases/download/stable/goose-x86_64-unknown-linux-gnu.tar.bz2 -o goose.tar.bz2
+          tar -xjf goose.tar.bz2
+          mkdir -p ~/.local/bin
+          mv goose ~/.local/bin/
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Setup Goose Config
+        run: |
+          mkdir -p ~/.config/goose
+
+          # Create config file for OpenRouter
+          cat > ~/.config/goose/config.yaml << 'EOF'
+          GOOSE_PROVIDER: "openrouter"
+          GOOSE_MODEL: "anthropic/claude-sonnet-4"
+          keyring: false
+
+          extensions:
+            developer:
+              bundled: true
+              enabled: true
+              name: developer
+              timeout: 300
+              type: builtin
+          EOF
+
+          # Verify config was created
+          echo "Config file contents:"
+          cat ~/.config/goose/config.yaml
+
+      - name: Generate fortune and update README
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: |
+          # Generate a random mood for variety
+          MOODS=("sarcastic" "wise" "introspective" "grumpy" "poetic")
+          MOOD=${MOODS[$RANDOM % ${#MOODS[@]}]}
+
+          echo "Today's fortune mood: $MOOD"
+
+          # Create prompt file to avoid quoting issues
+          cat > /tmp/prompt.txt << 'PROMPT_EOF'
+          Create a Python script called generate_fortune.py that generates a fortune from a fictional fortune teller with a MOOD_PLACEHOLDER mood. The fortune should be visually appealing leveraging ascii art. Since it's MOOD_PLACEHOLDER, draw a sassy goose in ascii art with the fortune above it. The whole thing should have an ascii border and there should be a divider between the sassy goose and fortune. The Python script should write the output to README.md in the current directory. Then run the Python script with the mood parameter.
+          PROMPT_EOF
+
+          # Replace placeholder with actual mood
+          sed -i "s/MOOD_PLACEHOLDER/$MOOD/g" /tmp/prompt.txt
+
+          # Run goose with the prompt from file, suppress its output
+          ~/.local/bin/goose run --no-session -i /tmp/prompt.txt > /dev/null 2>&1
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add README.md
+          git diff --staged --quiet || git commit -m "🔮 Update daily fortune - $(date +'%Y-%m-%d')"
+          git push origin HEAD:main
