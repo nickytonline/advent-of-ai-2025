@@ -5,7 +5,8 @@
 The Winter Festival needs an interactive storytelling experience to replace their Storyteller (who has laryngitis). This PRD outlines requirements for a browser-based, 8-bit style choose-your-own-adventure game with visual gameplay elements.
 
 **Technology Decision**: Phaser.js game engine (final implementation using standard CDN version)
-**Status**: ✅ **FULLY IMPLEMENTED AND WORKING**
+**Status**: ⚠️ **REGRESSION - DEBUGGING IN PROGRESS**
+**Last Updated**: December 3, 2025, 10:01 AM
 
 ---
 
@@ -103,6 +104,58 @@ The Winter Festival needs an interactive storytelling experience to replace thei
 - **Issue**: Elf sprite appeared behind portals
 - **Solution**: Added `player.setDepth(1000)` to ensure elf always on top
 - **Result**: Proper visual hierarchy maintained
+
+**Universal Auto-Enter Feature**
+- **Implementation**: Portals auto-enter after ~0.53 seconds when within 50px
+- **Trigger**: Both portal sprite OR text label proximity
+- **Status**: ✅ Working on all devices (desktop and mobile)
+- **Bypass**: SPACE key for instant entry still available
+
+**Responsive Canvas**
+- **Implementation**: Dynamic canvas sizing with aspect ratio preservation
+- **Range**: 320x240px (minimum) to 800x600px (maximum)
+- **Status**: ✅ Working across all screen sizes
+
+**ES Module Scope Isolation Bug Fix (December 3, 2025)**
+- **Issue**: Infinite console errors (`game is not defined` - 2000+ errors)
+- **Root Cause**: `type="module"` created isolated scope, preventing mobile controls from accessing game variables
+- **Impact**: 
+  - Save system couldn't persist data (scope isolation)
+  - Mobile D-pad never appeared (script errors blocked execution)
+  - Game completely broken on mobile devices
+- **Solution**: 
+  - Removed `type="module"` from main game script
+  - Made critical variables globally accessible: `window.game`, `window.player`, `window.portals`, `window.spaceKey`, `window.saveManager`
+  - Simplified mobile controls to use direct velocity updates
+- **Result**: 
+  - ✅ Zero console errors
+  - ✅ Save/load system fully functional
+  - ✅ Mobile D-pad visible and responsive
+  - ✅ Game playable on all platforms
+
+**Mobile Touch Controls Implementation**
+- **Implementation**: Virtual D-pad for touch devices
+- **Display Logic**: Shows on screens < 768px width OR touch-capable devices
+- **Controls**: Touch/click arrow buttons + restart button
+- **Status**: ✅ Fully functional after scope isolation fix
+- **Movement**: Character velocity controlled by button press/release (no infinite movement)
+
+### ⚠️ Current Known Issues
+
+**Active Bug (December 3, 2025 - 10:01 AM):**
+1. **Game functionality regression** - Something broke in recent refactor
+   - Save data EXISTS in localStorage (confirmed)
+   - Save data has correct structure
+   - BUT: Game not loading/functioning properly
+   - **Investigation needed:** Console errors, Phaser initialization, load dialog
+
+**Previous Known Issues (FIXED):**
+1. ~~Save System Not Persisting Data~~ ✅ **FIXED** - Scope isolation resolved
+2. ~~Mobile Virtual D-Pad Not Visible~~ ✅ **FIXED** - Script errors eliminated
+3. ~~ES Module Scope Isolation~~ ✅ **FIXED** - Removed module type, added global variables
+4. ~~Keyboard/Mobile Control Conflicts~~ ✅ **FIXED** - Gated mobile control application
+
+**Current Status:** ⚠️ **REGRESSION - Debugging in progress**
 
 ---
 
@@ -344,14 +397,15 @@ The Winter Festival needs an interactive storytelling experience to replace thei
 
 - ~~Sound effects and music~~ ✅ **IMPLEMENTED** - Background music with settings menu
 - ~~Save game functionality~~ ✅ **IMPLEMENTED** - Complete save/load system with stats
+- ~~Mobile touch controls~~ ✅ **IMPLEMENTED** - Virtual D-pad with touch support
 - Sound effects for interactions (portal entry, endings)
 - Multiple character sprites
 - Additional story branches
 - Multiplayer features
-- Mobile touch controls
 - Achievements system (stats tracking already implemented)
 - Graphics quality settings
 - Accessibility options (colorblind mode, larger text)
+- Gamepad/controller support
 
 ---
 

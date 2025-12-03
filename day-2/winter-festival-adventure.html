@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -272,11 +271,135 @@
             font-style: italic;
         }
 
+        /* Mobile Touch Controls */
+        #mobile-controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px), (pointer: coarse) {
+            #mobile-controls {
+                display: flex;
+            }
+        }
+
+        .dpad-container {
+            position: relative;
+            width: 150px;
+            height: 150px;
+        }
+
+        .dpad-button {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: rgba(79, 195, 247, 0.3);
+            backdrop-filter: blur(10px);
+            border: 2px solid #4fc3f7;
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            touch-action: none;
+            transition: all 0.1s ease;
+            box-shadow: 0 4px 12px rgba(31, 38, 135, 0.3);
+        }
+
+        .dpad-button:active, .dpad-button.active {
+            background: rgba(79, 195, 247, 0.6);
+            transform: scale(0.95);
+            box-shadow: 0 2px 8px rgba(79, 195, 247, 0.6);
+        }
+
+        .dpad-up {
+            top: 0;
+            left: 50px;
+        }
+
+        .dpad-down {
+            bottom: 0;
+            left: 50px;
+        }
+
+        .dpad-left {
+            top: 50px;
+            left: 0;
+        }
+
+        .dpad-right {
+            top: 50px;
+            right: 0;
+        }
+
+        .dpad-center {
+            top: 50px;
+            left: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+            pointer-events: none;
+        }
+
+        .mobile-restart-btn {
+            background: rgba(239, 83, 80, 0.3);
+            backdrop-filter: blur(10px);
+            border: 2px solid #ef5350;
+            color: #ffffff;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            user-select: none;
+            touch-action: manipulation;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(135, 0.3);
+        }
+
+        .mobile-restart-btn:active {
+            background: rgba(239, 83, 80, 0.6);
+            transform: scale(0.95);
+            box-shadow: 0 2px 8px rgba(239, 83, 80, 0.6);
+        }
+
+        .portal-hint {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(79, 195, 247, 0.95);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            font-weight: bold;
+            z-index: 2000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        .portal-hint.show {
+            opacity: 1;
+        }
+
     </style>
 </head>
 <body>
     <h1>❄️ Winter Festival Adventure ❄️</h1>
-
+    
     <!-- Settings Menu -->
     <div id="settings-menu">
         <button id="settings-toggle" title="Settings">⚙️</button>
@@ -299,7 +422,7 @@
                 </div>
                 <div class="keyboard-hint">Press M to toggle</div>
             </div>
-
+            
             <div class="settings-section">
                 <h3>
                     <span>💾</span>
@@ -315,26 +438,43 @@
             </div>
         </div>
     </div>
-
+    
     <div id="game-container">
         <div id="phaser-game"></div>
     </div>
 
     <div id="story-panel">
         <div id="story-text">
-            Welcome to the Winter Festival! The magical Festival Star has gone missing,
-            and the celebration cannot begin without it. Use the arrow keys to move your elf
-            and walk into a portal to begin your adventure. Press SPACE to enter!
+            Welcome to the Winter Festival! The magical Festival Star has gone missing, 
+            and the celebration cannot begin without it. Use the arrow keys to move your elf 
+            and walk into a portal to begin your adventure. Get close and it will auto-enter!
         </div>
         <div class="instructions">
-            🎮 Arrow Keys: Move | SPACE: Interact | R: Restart
+            🎮 Arrow Keys: Move | Walk to Portal (auto-enters) | SPACE: Quick Enter | R: Restart
         </div>
+    </div>
+    
+    <!-- Mobile Touch Controls -->
+    <div id="mobile-controls">
+        <div class="dpad-container">
+            <div class="dpad-button dpad-up" id="btn-up">⬆️</div>
+            <div class="dpad-button dpad-down" id="btn-down">⬇️</div>
+            <div class="dpad-button dpad-left" id="btn-left">⬅️</div>
+            <div class="dpad-button dpad-right" id="btn-right">➡️</div>
+            <div class="dpad-center"></div>
+        </div>
+        <button class="mobile-restart-btn" id="mobile-restart">🔄 Restart</button>
+    </div>
+    
+    <!-- Portal Proximity Hint -->
+    <div id="portal-hint" class="portal-hint">
+        📍 Near portal! Walk closer to enter
     </div>
 
     <!-- Magic Snowflakes Library -->
     <script type="module">
         import { Snowflakes } from 'https://cdn.jsdelivr.net/npm/magic-snowflakes@6.0.0/dist/snowflakes.esm.min.js';
-
+        
         // Create background snowflakes
         const snowflakes = new Snowflakes({
             count: 50,
@@ -349,7 +489,7 @@
 
     <!-- Main Game Script with Phaser.js -->
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.min.js"></script>
-    <script type="module">
+    <script>
         // Phaser is now available globally
         const Phaser = window.Phaser;
 
@@ -359,7 +499,7 @@
                 this.saveKey = 'winterFestivalSaveData';
                 this.statsKey = 'winterFestivalStats';
             }
-
+            
             saveGame(sceneKey, playerX, playerY) {
                 const saveData = {
                     currentScene: sceneKey,
@@ -367,45 +507,87 @@
                     timestamp: Date.now(),
                     sceneName: this.getSceneName(sceneKey)
                 };
-
+                
+                console.log('=== SAVE GAME DEBUG ===');
                 console.log('Saving game:', saveData);
-                localStorage.setItem(this.saveKey, JSON.stringify(saveData));
-                console.log('Save written to localStorage');
-
+                console.log('saveKey:', this.saveKey);
+                
+                try {
+                    localStorage.setItem(this.saveKey, JSON.stringify(saveData));
+                    console.log('localStorage.setItem() completed');
+                    
+                    // Verify the save was written
+                    const verification = localStorage.getItem(this.saveKey);
+                    console.log('Verification read from localStorage:', verification);
+                    
+                    if (verification) {
+                        console.log('✅ Save successfully written and verified!');
+                    } else {
+                        console.error('❌ Save write failed - verification returned null');
+                    }
+                } catch (e) {
+                    console.error('❌ localStorage.setItem() threw error:', e);
+                }
+                
                 // Update stats
                 this.updateStats(sceneKey);
-
+                
                 return saveData;
             }
-
+            
             loadGame() {
+                console.log('=== loadGame() called ===');
+                console.log('Looking for key:', this.saveKey);
                 const savedData = localStorage.getItem(this.saveKey);
-                if (!savedData) return null;
-
+                console.log('localStorage.getItem() returned:', savedData);
+                console.log('Type:', typeof savedData);
+                console.log('Truthy?', !!savedData);
+                
+                if (!savedData) {
+                    console.log('❌ No saved data found, returning null');
+                    return null;
+                }
+                
                 try {
-                    return JSON.parse(savedData);
+                    const parsed = JSON.parse(savedData);
+                    console.log('✅ Successfully parsed:', parsed);
+                    return parsed;
                 } catch (e) {
-                    console.error('Failed to load save data:', e);
+                    console.error('❌ Failed to parse save data:', e);
                     return null;
                 }
             }
-
+            
             deleteSave() {
+                console.log('=== deleteSave() called ===');
+                console.log('TIMESTAMP:', new Date().toISOString());
+                console.trace('Call stack:');
+                
+                // Check if save exists before deleting
+                const existingData = localStorage.getItem(this.saveKey);
+                console.log('Data being deleted:', existingData);
+                
+                // Actually delete the save
                 localStorage.removeItem(this.saveKey);
+                console.log('✅ Save deleted from localStorage');
+                
+                // Verify deletion
+                const verification = localStorage.getItem(this.saveKey);
+                console.log('Post-delete verification:', verification);
             }
-
+            
             hasSave() {
                 return localStorage.getItem(this.saveKey) !== null;
             }
-
+            
             updateStats(sceneKey) {
                 let stats = this.getStats();
-
+                
                 // Track visited scenes
                 if (!stats.visitedScenes.includes(sceneKey)) {
                     stats.visitedScenes.push(sceneKey);
                 }
-
+                
                 // Track completed endings
                 const storyNode = storyData[sceneKey];
                 if (storyNode && storyNode.isEnding) {
@@ -414,14 +596,14 @@
                         stats.completedEndings.push(endingId);
                     }
                 }
-
+                
                 // Update play count
                 stats.playCount++;
                 stats.lastPlayed = Date.now();
-
+                
                 localStorage.setItem(this.statsKey, JSON.stringify(stats));
             }
-
+            
             getStats() {
                 const statsData = localStorage.getItem(this.statsKey);
                 if (!statsData) {
@@ -432,7 +614,7 @@
                         lastPlayed: null
                     };
                 }
-
+                
                 try {
                     return JSON.parse(statsData);
                 } catch (e) {
@@ -445,7 +627,7 @@
                     };
                 }
             }
-
+            
             getSceneName(sceneKey) {
                 const sceneNames = {
                     'start': 'Festival Entrance',
@@ -459,27 +641,42 @@
                     'demandStar': 'Defeat: Trust Lost',
                     'rushCave': 'Defeat: Hasty Decision'
                 };
-
+                
                 return sceneNames[sceneKey] || sceneKey;
             }
-
+            
             getTimeSince(timestamp) {
                 const now = Date.now();
                 const diff = now - timestamp;
-
+                
                 const minutes = Math.floor(diff / 60000);
                 const hours = Math.floor(minutes / 60);
                 const days = Math.floor(hours / 24);
-
+                
                 if (days > 0) return `${days} day${days > 1 ? 's' : ''} ago`;
                 if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
                 if (minutes > 0) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
                 return 'Just now';
             }
         }
-
-        // Initialize Save Manager
+        
+        // Initialize Save Manager and make it globally available
         const saveManager = new SaveManager();
+        window.saveManager = saveManager;
+        
+        // DIAGNOSTIC TEST - Check localStorage on page load
+        console.log('=== DIAGNOSTIC TEST ===');
+        console.log('localStorage available?', typeof localStorage !== 'undefined');
+        try {
+            localStorage.setItem('test', 'value');
+            console.log('localStorage.setItem() works:', localStorage.getItem('test') === 'value');
+            localStorage.removeItem('test');
+        } catch (e) {
+            console.error('localStorage is BLOCKED or DISABLED:', e);
+        }
+        console.log('All localStorage keys:', Object.keys(localStorage));
+        console.log('winterFestivalSaveData exists?', localStorage.getItem('winterFestivalSaveData'));
+        console.log('======================');
 
         // Story data structure
         const storyData = {
@@ -546,11 +743,46 @@
             }
         };
 
+        // Calculate responsive game dimensions
+        function getGameDimensions() {
+            const baseWidth = 800;
+            const baseHeight = 600;
+            const aspectRatio = baseWidth / baseHeight;
+            
+            // Get available space
+            const maxWidth = Math.min(window.innerWidth - 40, 800); // 20px padding each side
+            const maxHeight = Math.min(window.innerHeight - 300, 600); // Account for UI elements
+            
+            let gameWidth = maxWidth;
+            let gameHeight = gameWidth / aspectRatio;
+            
+            // If height is too large, scale by height instead
+            if (gameHeight > maxHeight) {
+                gameHeight = maxHeight;
+                gameWidth = gameHeight * aspectRatio;
+            }
+            
+            // Ensure minimum size for playability
+            const minWidth = 320;
+            const minHeight = 240;
+            
+            gameWidth = Math.max(gameWidth, minWidth);
+            gameHeight = Math.max(gameHeight, minHeight);
+            
+            return {
+                width: Math.floor(gameWidth),
+                height: Math.floor(gameHeight),
+                scale: gameWidth / baseWidth
+            };
+        }
+        
+        const gameDimensions = getGameDimensions();
+        
         // Phaser Game Configuration
         const config = {
             type: Phaser.AUTO,
-            width: 800,
-            height: 600,
+            width: gameDimensions.width,
+            height: gameDimensions.height,
             parent: 'phaser-game',
             backgroundColor: '#0f3460',
             pixelArt: true,
@@ -573,6 +805,11 @@
         };
 
         const game = new Phaser.Game(config);
+        // Make game globally accessible for mobile controls
+        window.game = game;
+        
+        // Store the scale factor for positioning calculations
+        const GAME_SCALE = gameDimensions.scale;
 
         let player;
         let cursors;
@@ -581,6 +818,11 @@
         let spaceKey;
         let rKey;
         let snowEmitter;
+        
+        // Make these globally accessible for mobile controls
+        window.player = player;
+        window.portals = portals;
+        window.spaceKey = spaceKey;
 
         function preload() {
             // No external assets needed - we'll draw everything programmatically
@@ -611,22 +853,35 @@
 
             // Create Christmas Elf Player
             createElfSprite(scene);
+            
+            // Update global references
+            window.player = player;
 
             // Set up keyboard controls
             cursors = this.input.keyboard.createCursorKeys();
             spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
             rKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
+            
+            // Update global references for keyboard
+            window.spaceKey = spaceKey;
 
             // Check for saved game
             const savedGame = saveManager.loadGame();
+            console.log('=== CREATE FUNCTION - LOAD CHECK ===');
             console.log('Loaded save game:', savedGame);
-
+            console.log('savedGame exists?', !!savedGame);
+            if (savedGame) {
+                console.log('savedGame.currentScene:', savedGame.currentScene);
+                console.log('Is start scene?', savedGame.currentScene === 'start');
+            }
+            console.log('====================================');
+            
             if (savedGame && savedGame.currentScene !== 'start') {
-                console.log('Showing load dialog for scene:', savedGame.currentScene);
+                console.log('✅ Showing load dialog for scene:', savedGame.currentScene);
                 // Show Continue/New Game dialog
                 showLoadDialog(scene, savedGame);
             } else {
-                console.log('No valid save found, loading start scene');
+                console.log('❌ No valid save found or save is at start, loading start scene');
                 // Load initial scene normally
                 loadStoryScene(scene, currentScene);
             }
@@ -636,18 +891,18 @@
                 restartGame(scene);
             });
         }
-
+        
         function showLoadDialog(scene, savedGame) {
             // Create semi-transparent overlay
             const overlay = scene.add.rectangle(400, 300, 800, 600, 0x000000, 0.7);
             overlay.setDepth(1500);
             overlay.setInteractive();
-
+            
             // Dialog box
             const dialogBox = scene.add.rectangle(400, 300, 500, 300, 0x0f3460, 1);
             dialogBox.setDepth(1501);
             dialogBox.setStrokeStyle(3, 0x4fc3f7);
-
+            
             // Title
             const title = scene.add.text(400, 200, '💾 Continue Adventure?', {
                 fontSize: '24px',
@@ -657,9 +912,9 @@
             });
             title.setOrigin(0.5);
             title.setDepth(1502);
-
+            
             // Save info
-            const saveInfo = scene.add.text(400, 250,
+            const saveInfo = scene.add.text(400, 250, 
                 `Last saved at:\n${savedGame.sceneName}\n${saveManager.getTimeSince(savedGame.timestamp)}`, {
                 fontSize: '14px',
                 fontFamily: 'Courier New',
@@ -668,7 +923,7 @@
             });
             saveInfo.setOrigin(0.5);
             saveInfo.setDepth(1502);
-
+            
             // Continue button
             const continueBtn = createDialogButton(scene, 300, 350, 'Continue', 0x66bb6a, () => {
                 // Load saved game
@@ -677,7 +932,7 @@
                 loadStoryScene(scene, currentScene);
                 closeDialog();
             });
-
+            
             // New Game button
             const newGameBtn = createDialogButton(scene, 500, 350, 'New Game', 0xef5350, () => {
                 // Start new game
@@ -687,7 +942,7 @@
                 loadStoryScene(scene, currentScene);
                 closeDialog();
             });
-
+            
             function closeDialog() {
                 overlay.destroy();
                 dialogBox.destroy();
@@ -699,13 +954,13 @@
                 newGameBtn.text.destroy();
             }
         }
-
+        
         function createDialogButton(scene, x, y, text, color, callback) {
             const bg = scene.add.rectangle(x, y, 140, 45, color, 0.8);
             bg.setDepth(1502);
             bg.setStrokeStyle(2, 0xffffff);
             bg.setInteractive();
-
+            
             const label = scene.add.text(x, y, text, {
                 fontSize: '16px',
                 fontFamily: 'Courier New',
@@ -714,7 +969,7 @@
             });
             label.setOrigin(0.5);
             label.setDepth(1503);
-
+            
             // Hover effects
             bg.on('pointerover', () => {
                 bg.setFillStyle(color, 1);
@@ -724,7 +979,7 @@
                     duration: 100
                 });
             });
-
+            
             bg.on('pointerout', () => {
                 bg.setFillStyle(color, 0.8);
                 scene.tweens.add({
@@ -733,16 +988,16 @@
                     duration: 100
                 });
             });
-
+            
             bg.on('pointerdown', callback);
-
+            
             return { bg, text: label };
         }
 
         function createElfSprite(scene) {
             // Create elf character using graphics
             const elfGraphics = scene.make.graphics({ x: 0, y: 0, add: false });
-
+            
             // Santa Hat (red with white trim)
             elfGraphics.fillStyle(0xdc143c, 1); // Red
             elfGraphics.fillTriangle(8, 2, 16, 16, 0, 16);
@@ -753,12 +1008,12 @@
             // Face (peach)
             elfGraphics.fillStyle(0xffd4a3, 1);
             elfGraphics.fillCircle(8, 20, 6);
-
+            
             // Eyes
             elfGraphics.fillStyle(0x000000, 1);
             elfGraphics.fillCircle(6, 19, 1);
             elfGraphics.fillCircle(10, 19, 1);
-
+            
             // Rosy cheeks
             elfGraphics.fillStyle(0xff8a80, 0.6);
             elfGraphics.fillCircle(5, 21, 1.5);
@@ -767,11 +1022,11 @@
             // Green tunic
             elfGraphics.fillStyle(0x2e7d32, 1);
             elfGraphics.fillRect(2, 26, 12, 12);
-
+            
             // Red belt
             elfGraphics.fillStyle(0xdc143c, 1);
             elfGraphics.fillRect(2, 32, 12, 2);
-
+            
             // Brown boots
             elfGraphics.fillStyle(0x5d4037, 1);
             elfGraphics.fillRect(3, 38, 4, 6);
@@ -789,10 +1044,10 @@
 
         function loadStoryScene(scene, sceneKey) {
             const storyNode = storyData[sceneKey];
-
+            
             // Update story text
             updateStoryText(storyNode.text);
-
+            
             // Clear existing portals
             portals.forEach(portal => {
                 portal.sprite.destroy();
@@ -824,7 +1079,7 @@
 
             const portalSprite = scene.physics.add.sprite(portalData.x, portalData.y, 'portal_' + portalData.label);
             portalSprite.setScale(1.5);
-
+            
             // Add pulsing animation
             scene.tweens.add({
                 targets: portalSprite,
@@ -867,11 +1122,11 @@
         function showEnding(scene, storyNode) {
             // Create ending overlay
             const overlay = scene.add.rectangle(400, 300, 800, 600, storyNode.endingType === 'good' ? 0x66bb6a : 0xef5350, 0.3);
-
+            
             // Create ending text box
             const endingBox = scene.add.rectangle(400, 300, 600, 300, 0x000000, 0.8);
             endingBox.setStrokeStyle(4, storyNode.endingType === 'good' ? 0x66bb6a : 0xef5350);
-
+            
             const endingTitle = scene.add.text(400, 200, storyNode.endingType === 'good' ? '🌟 SUCCESS! 🌟' : '💔 OH NO! 💔', {
                 fontSize: '32px',
                 fontFamily: 'Courier New',
@@ -901,6 +1156,10 @@
             portals.push({ sprite: overlay, label: endingBox }, { sprite: endingTitle, label: endingText }, { sprite: restartText, label: scene.add.text(0, 0, '') });
         }
 
+        // Global portal auto-enter tracking
+        let globalPortalTimeout = null;
+        let globalNearPortal = null;
+
         function update() {
             if (!player) return;
 
@@ -908,7 +1167,7 @@
 
             // Player movement
             const speed = 150;
-
+            
             if (cursors.left.isDown) {
                 player.setVelocityX(-speed);
             } else if (cursors.right.isDown) {
@@ -925,13 +1184,30 @@
                 player.setVelocityY(0);
             }
 
-            // Check portal collisions
+            // Check portal collisions with auto-enter
+            let closestPortal = null;
+            let closestDistance = Infinity;
+            
             portals.forEach(portal => {
                 if (portal.sprite && portal.next) {
-                    const distance = Phaser.Math.Distance.Between(
+                    const distanceToSprite = Phaser.Math.Distance.Between(
                         player.x, player.y,
                         portal.sprite.x, portal.sprite.y
                     );
+                    
+                    // Also check distance to label text
+                    const distanceToLabel = Phaser.Math.Distance.Between(
+                        player.x, player.y,
+                        portal.label.x, portal.label.y
+                    );
+                    
+                    // Use the closer of the two distances
+                    const distance = Math.min(distanceToSprite, distanceToLabel);
+                    
+                    if (distance < closestDistance) {
+                        closestDistance = distance;
+                        closestPortal = portal;
+                    }
 
                     if (distance < 60) {
                         // Player is near portal - show interaction hint
@@ -940,9 +1216,15 @@
                             portal.hintShown = true;
                         }
 
-                        // Check for space key press
+                        // Check for space key press (still works!)
                         if (Phaser.Input.Keyboard.JustDown(spaceKey)) {
-                            console.log('Entering portal:', portal.next);
+                            console.log('Entering portal (space key):', portal.next);
+                            // Clear any auto-enter timeout
+                            if (globalPortalTimeout) {
+                                clearTimeout(globalPortalTimeout);
+                                globalPortalTimeout = null;
+                            }
+                            globalNearPortal = null;
                             enterPortal(scene, portal.next);
                         }
                     } else {
@@ -953,23 +1235,61 @@
                     }
                 }
             });
+            
+            // Auto-enter portal logic (works for everyone!)
+            // Increased trigger distance to 50px to account for label size
+            if (closestDistance < 50 && closestPortal && closestPortal.next) {
+                if (globalNearPortal !== closestPortal.next) {
+                    // New portal approached
+                    globalNearPortal = closestPortal.next;
+                    
+                    // Clear any existing timeout
+                    if (globalPortalTimeout) {
+                        clearTimeout(globalPortalTimeout);
+                    }
+                    
+                    // Set timeout to auto-enter portal after ~0.53 seconds
+                    globalPortalTimeout = setTimeout(() => {
+                        if (globalNearPortal && closestPortal && closestPortal.next === globalNearPortal) {
+                            console.log('Auto-entering portal:', globalNearPortal);
+                            enterPortal(scene, globalNearPortal);
+                            globalNearPortal = null;
+                            globalPortalTimeout = null;
+                        }
+                    }, 533); // ~0.53 second delay (reduced by 1/3)
+                }
+            } else if (closestDistance >= 70) {
+                // Moved away from portal
+                if (globalPortalTimeout) {
+                    clearTimeout(globalPortalTimeout);
+                    globalPortalTimeout = null;
+                }
+                if (globalNearPortal) {
+                    globalNearPortal = null;
+                }
+            }
         }
 
         function enterPortal(scene, nextSceneKey) {
             currentScene = nextSceneKey;
-
+            
             // Auto-save progress
             saveManager.saveGame(nextSceneKey, player.x, player.y);
             showSaveNotification(scene);
-
+            
+            // Update save info UI if it exists (Settings menu might be open)
+            if (typeof updateSaveInfo === 'function') {
+                updateSaveInfo();
+            }
+            
             // Reset player position
             player.setPosition(400, 500);
             player.setVelocity(0, 0);
-
+            
             // Load new scene
             loadStoryScene(scene, nextSceneKey);
         }
-
+        
         function showSaveNotification(scene) {
             // Create save notification
             const saveText = scene.add.text(700, 30, '💾 Saved!', {
@@ -981,7 +1301,7 @@
             });
             saveText.setDepth(2000);
             saveText.setAlpha(0);
-
+            
             // Fade in and out
             scene.tweens.add({
                 targets: saveText,
@@ -996,10 +1316,13 @@
         }
 
         function restartGame(scene) {
+            console.log('=== restartGame() called - NOT deleting save ===');
             currentScene = 'start';
             player.setPosition(400, 500);
             player.setVelocity(0, 0);
-            saveManager.deleteSave(); // Clear save on restart
+            // NOTE: We do NOT delete the save on restart
+            // User can explicitly delete via Settings menu if desired
+            // Or click "New Game" on the Continue dialog
             loadStoryScene(scene, 'start');
         }
 
@@ -1020,7 +1343,7 @@
                 this.currentNoteIndex = 0;
                 this.intervalId = null;
                 this.volume = 0.7;
-
+                
                 // Festive winter melody - "Jingle Bells" inspired
                 // Notes: C4, D4, E4, F4, G4, A4, B4, C5
                 this.melody = [
@@ -1035,7 +1358,7 @@
                     { note: 'C4', duration: 0.25 },
                     { note: 'D4', duration: 0.25 },
                     { note: 'E4', duration: 1 },
-
+                    
                     { note: 'F4', duration: 0.25 },
                     { note: 'F4', duration: 0.25 },
                     { note: 'F4', duration: 0.25 },
@@ -1051,7 +1374,7 @@
                     { note: 'D4', duration: 0.5 },
                     { note: 'G4', duration: 0.5 },
                 ];
-
+                
                 // Note frequencies in Hz
                 this.noteFrequencies = {
                     'C4': 261.63,
@@ -1063,11 +1386,11 @@
                     'B4': 493.88,
                     'C5': 523.25
                 };
-
+                
                 this.initAudioContext();
                 this.loadPreferences();
             }
-
+            
             initAudioContext() {
                 // Create audio context on first user interaction
           if (!this.audioContext) {
@@ -1077,74 +1400,74 @@
                     this.masterGainNode.gain.value = this.volume;
                 }
             }
-
+            
             playNote(frequency, duration) {
                 if (!this.audioContext || !this.isPlaying) return;
-
+                
                 const now = this.audioContext.currentTime;
-
+                
                 // Create oscillator for the note
                 const oscillator = this.audioContext.createOscillator();
                 const gainNode = this.audioContext.createGain();
-
+                
                 // Use a softer sine wave for a bell-like sound
                 oscillator.type = 'sine';
                 oscillator.frequency.setValueAtTime(frequency, now);
-
+                
                 // Envelope for natural sound (ADSR)
                 gainNode.gain.setValueAtTime(0, now);
                 gainNode.gain.linearRampToValueAtTime(0.3, now + 0.01); // Attack
                 gainNode.gain.exponentialRampToValueAtTime(0.2, now + 0.1); // Decay
                 gainNode.gain.setValueAtTime(0.2, now + duration - 0.1); // Sustain
                 gainNode.gain.exponentialRampToValueAtTime(0.01, now + duration); // Release
-
+                
                 oscillator.connect(gainNode);
                 gainNode.connect(this.masterGainNode);
-
+                
                 oscillator.start(now);
                 oscillator.stop(now + duration);
             }
-
+            
             playMelody() {
                 if (!this.isPlaying || this.currentNoteIndex >= this.melody.length) {
                     this.currentNoteIndex = 0; // Loop melody
                     if (!this.isPlaying) return;
                 }
-
+                
                 const currentNote = this.melody[this.currentNoteIndex];
                 const frequency = this.noteFrequencies[currentNote.note];
-
+                
                 this.playNote(frequency, currentNote.duration);
-
+                
                 this.currentNoteIndex++;
-
+                
                 // Schedule next note
                 const nextDelay = currentNote.duration * 1000; // Convert to milliseconds
                 setTimeout(() => this.playMelody(), nextDelay);
             }
-
+            
             start() {
                 if (this.isPlaying) return;
-
+                
                 this.initAudioContext();
-
+                
                 // Resume audio context (needed for some browsers)
                 if (this.audioContext.state === 'suspended') {
                     this.audioContext.resume();
                 }
-
+                
                 this.isPlaying = true;
                 this.currentNoteIndex = 0;
                 this.playMelody();
                 this.savePreferences();
             }
-
+            
             stop() {
                 this.isPlaying = false;
                 this.currentNoteIndex = 0;
                 this.savePreferences();
             }
-
+            
             setVolume(value) {
                 this.volume = value;
                 if (this.masterGainNode) {
@@ -1152,28 +1475,28 @@
                 }
                 this.savePreferences();
             }
-
+            
             savePreferences() {
                 localStorage.setItem('winterFestivalMusicPlaying', this.isPlaying);
                 localStorage.setItem('winterFestivalMusicVolume', this.volume);
             }
-
+            
             loadPreferences() {
                 const savedPlaying = localStorage.getItem('winterFestivalMusicPlaying');
                 const savedVolume = localStorage.getItem('winterFestivalMusicVolume');
-
+                
                 if (savedVolume !== null) {
                     this.volume = parseFloat(savedVolume);
                 }
-
+                
                 // Don't auto-play on load, let user start music
                 this.isPlaying = false;
             }
         }
-
+        
         // Initialize music player
         const musicPlayer = new WinterMusicPlayer();
-
+        
         // UI Elements
         const settingsToggle = document.getElementById('settings-toggle');
         const settingsPanel = document.getElementById('settings-panel');
@@ -1183,14 +1506,14 @@
         const volumeSlider = document.getElementById('volume-slider');
         const volumeValue = document.getElementById('volume-value');
         const musicIcon = document.getElementById('music-icon');
-
+        
         // Set initial volume from saved preferences
         volumeSlider.value = Math.round(musicPlayer.volume * 100);
         volumeValue.textContent = Math.round(musicPlayer.volume * 100) + '%';
-
+        
         // Settings Menu Toggle
         let settingsOpen = false;
-
+        
         settingsToggle.addEventListener('click', () => {
             settingsOpen = !settingsOpen;
             if (settingsOpen) {
@@ -1201,7 +1524,7 @@
                 settingsToggle.classList.remove('active');
             }
         });
-
+        
         // Close settings when clicking outside
         document.addEventListener('click', (e) => {
             const settingsMenu = document.getElementById('settings-menu');
@@ -1211,7 +1534,7 @@
                 settingsOpen = false;
             }
         });
-
+        
         // Toggle music playback
         function toggleMusic() {
             if (musicPlayer.isPlaying) {
@@ -1228,16 +1551,16 @@
                 musicIcon.classList.add('music-indicator');
             }
         }
-
+        
         // Event Listeners
         toggleButton.addEventListener('click', toggleMusic);
-
+        
         volumeSlider.addEventListener('input', (e) => {
             const volume = e.target.value / 100;
             musicPlayer.setVolume(volume);
             volumeValue.textContent = e.target.value + '%';
         });
-
+        
         // Keyboard shortcut: M key
         document.addEventListener('keydown', (e) => {
             if (e.key === 'm' || e.key === 'M') {
@@ -1247,27 +1570,34 @@
                 }
             }
         });
-
+        
         // Save/Load UI Management
         const saveInfoElement = document.getElementById('save-info');
         const deleteSaveButton = document.getElementById('delete-save');
-
+        
         function updateSaveInfo() {
-            const savedGame = saveManager.loadGame();
+            console.log('=== updateSaveInfo called ===');
+            console.log('window.saveManager exists?', !!window.saveManager);
+            console.log('saveManager exists?', typeof saveManager !== 'undefined');
+            
+            // Use window.saveManager to ensure we're accessing the global instance
+            const savedGame = window.saveManager ? window.saveManager.loadGame() : null;
+            console.log('Loaded save data:', savedGame);
+            
             if (savedGame) {
-                saveInfoElement.innerHTML = `Saved at:<br>${savedGame.sceneName}<br><span style="color: #4fc3f7;">${saveManager.getTimeSince(savedGame.timestamp)}</span>`;
+                saveInfoElement.innerHTML = `Saved at:<br>${savedGame.sceneName}<br><span style="color: #4fc3f7;">${window.saveManager.getTimeSince(savedGame.timestamp)}</span>`;
                 deleteSaveButton.style.display = 'flex';
             } else {
                 saveInfoElement.textContent = 'No save data';
                 deleteSaveButton.style.display = 'none';
             }
         }
-
+        
         deleteSaveButton.addEventListener('click', () => {
             if (confirm('Delete your save data? This cannot be undone!')) {
                 saveManager.deleteSave();
                 updateSaveInfo();
-
+                
                 // Show notification
                 const notification = document.createElement('div');
                 notification.style.cssText = `
@@ -1286,24 +1616,24 @@
                 `;
                 notification.textContent = '🗑️ Save deleted!';
                 document.body.appendChild(notification);
-
+                
                 setTimeout(() => {
                     notification.style.animation = 'slideOutRight 0.5s ease-in';
                     setTimeout(() => notification.remove(), 500);
                 }, 2000);
             }
         });
-
+        
         // Update save info when settings menu opens
         settingsToggle.addEventListener('click', () => {
             if (!settingsOpen) {
                 updateSaveInfo();
             }
         });
-
+        
         // Initial save info update
         updateSaveInfo();
-
+        
         // Show a small notification on first load
         if (!localStorage.getItem('winterFestivalMusicNotificationShown')) {
             setTimeout(() => {
@@ -1324,16 +1654,16 @@
                 `;
                 notification.innerHTML = '⚙️ Click settings (top-right) for music!';
                 document.body.appendChild(notification);
-
+                
                 setTimeout(() => {
                     notification.style.animation = 'slideOutRight 0.5s ease-in';
                     setTimeout(() => notification.remove(), 500);
                 }, 4000);
-
+                
                 localStorage.setItem('winterFestivalMusicNotificationShown', 'true');
             }, 2000);
         }
-
+        
         // Add animation keyframes
         const style = document.createElement('style');
         style.textContent = `
@@ -1359,6 +1689,201 @@
             }
         `;
         document.head.appendChild(style);
+    </script>
+    
+    <!-- Mobile Touch Controls Script -->
+    <script>
+        // Mobile touch control state
+        const mobileControls = {
+            up: false,
+            down: false,
+            left: false,
+            right: false
+        };
+        
+        let portalProximityTimeout = null;
+        let nearPortal = null;
+        
+        // Get mobile control buttons
+        const btnUp = document.getElementById('btn-up');
+        const btnDown = document.getElementById('btn-down');
+        const btnLeft = document.getElementById('btn-left');
+        const btnRight = document.getElementById('btn-right');
+        const btnRestart = document.getElementById('mobile-restart');
+        const portalHint = document.getElementById('portal-hint');
+        
+        // Function to handle touch start
+        function handleTouchStart(direction) {
+            return (e) => {
+                e.preventDefault();
+                mobileControls[direction] = true;
+                e.target.classList.add('active');
+            };
+        }
+        
+        // Function to handle touch end
+        function handleTouchEnd(direction) {
+            return (e) => {
+                e.preventDefault();
+                mobileControls[direction] = false;
+                e.target.classList.remove('active');
+            };
+        }
+        
+        // Add touch event listeners to D-pad buttons
+        ['touchstart', 'mousedown'].forEach(eventType => {
+            btnUp.addEventListener(eventType, handleTouchStart('up'));
+            btnDown.addEventListener(eventType, handleTouchStart('down'));
+            btnLeft.addEventListener(eventType, handleTouchStart('left'));
+            btnRight.addEventListener(eventType, handleTouchStart('right'));
+        });
+        
+        ['touchend', 'mouseup', 'touchcancel'].forEach(eventType => {
+            btnUp.addEventListener(eventType, handleTouchEnd('up'));
+            btnDown.addEventListener(eventType, handleTouchEnd('down'));
+            btnLeft.addEventListener(eventType, handleTouchEnd('left'));
+            btnRight.addEventListener(eventType, handleTouchEnd('right'));
+        });
+        
+        // Mobile restart button
+        ['touchstart', 'click'].forEach(eventType => {
+            btnRestart.addEventListener(eventType, (e) => {
+                e.preventDefault();
+                // Trigger R key press for restart
+                const rKeyEvent = new KeyboardEvent('keydown', { key: 'r', keyCode: 82 });
+                document.dispatchEvent(rKeyEvent);
+            });
+        });
+        
+        // Integrate mobile controls with Phaser game loop
+        // Apply mobile control velocities every frame
+        setInterval(() => {
+            if (!window.player) return;
+            
+            // Only apply mobile controls if any mobile button is pressed
+            // Otherwise, let the keyboard controls in update() handle movement
+            if (mobileControls.up || mobileControls.down || mobileControls.left || mobileControls.right) {
+                const speed = 150;
+                let velocityX = 0;
+                let velocityY = 0;
+                
+                // Calculate velocity based on which buttons are pressed
+                if (mobileControls.left) velocityX = -speed;
+                if (mobileControls.right) velocityX = speed;
+                if (mobileControls.up) velocityY = -speed;
+                if (mobileControls.down) velocityY = speed;
+                
+                // Set velocity for mobile controls
+                window.player.setVelocity(velocityX, velocityY);
+            }
+            // If no mobile controls pressed, do nothing - let keyboard handle it
+            
+        }, 1000 / 60); // 60 FPS
+        
+        function checkPortalProximityMobile(scene) {
+            if (!player || !portals || portals.length === 0) return;
+            
+            let closestPortal = null;
+            let closestDistance = Infinity;
+            
+            portals.forEach(portal => {
+                if (portal.sprite && portal.next) {
+                    const distance = Phaser.Math.Distance.Between(
+                        player.x, player.y,
+                        portal.sprite.x, portal.sprite.y
+                    );
+                    
+                    if (distance < closestDistance) {
+                        closestDistance = distance;
+                        closestPortal = portal;
+                    }
+                }
+            });
+            
+            // If very close to portal (within 40px), auto-enter after brief delay
+            if (closestDistance < 40 && closestPortal && closestPortal.next) {
+                if (nearPortal !== closestPortal.next) {
+                    // New portal approached
+                    nearPortal = closestPortal.next;
+                    showPortalHint();
+                    
+                    // Clear any existing timeout
+                    if (portalProximityTimeout) {
+                        clearTimeout(portalProximityTimeout);
+                    }
+                    
+                    // Set timeout to auto-enter portal after 0.8 seconds
+                    portalProximityTimeout = setTimeout(() => {
+                        if (nearPortal && closestPortal && closestPortal.next === nearPortal) {
+                            console.log('Auto-entering portal:', nearPortal);
+                            // Simulate space key press
+                            const spaceEvent = new KeyboardEvent('keydown', { 
+                                key: ' ',
+                                keyCode: 32,
+                                code: 'Space'
+                            });
+                            document.dispatchEvent(spaceEvent);
+                            
+                            // Also trigger Phaser's space key directly
+                            if (spaceKey && spaceKey.isDown !== undefined) {
+                                // Create a manual trigger
+                                enterPortal(scene, nearPortal);
+                            }
+                            
+                            hidePortalHint();
+                            nearPortal = null;
+                            portalProximityTimeout = null;
+                        }
+                    }, 800); // 0.8 second delay
+                }
+            } else if (closestDistance >= 70) {
+                // Moved away from portal
+                if (portalProximityTimeout) {
+                    clearTimeout(portalProximityTimeout);
+                    portalProximityTimeout = null;
+                }
+                if (nearPortal) {
+                    nearPortal = null;
+                    hidePortalHint();
+                }
+            }
+        }
+        
+        function showPortalHint() {
+            if (portalHint) {
+                portalHint.classList.add('show');
+            }
+        }
+        
+        function hidePortalHint() {
+            if (portalHint) {
+                portalHint.classList.remove('show');
+            }
+        }
+        
+        // Prevent default touch behavior on mobile controls to avoid scrolling
+        document.getElementById('mobile-controls').addEventListener('touchmove', (e) => {
+            e.preventDefault();
+        }, { passive: false });
+        
+        // Hide mobile controls on desktop (additional check)
+        function checkIfMobile() {
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+            const isSmallScreen = window.innerWidth <= 768;
+            
+            return isMobile || (isTouchDevice && isSmallScreen);
+        }
+        
+        // Show controls on mobile, hide on desktop
+        if (checkIfMobile()) {
+            document.getElementById('mobile-controls').style.display = 'flex';
+            // Update instructions for mobile
+            const instructions = document.querySelector('.instructions');
+            if (instructions) {
+                instructions.textContent = '🎮 Use D-Pad to Move | Walk to Portal to Enter | 🔄 Restart';
+            }
+        }
     </script>
 </body>
 </html>
