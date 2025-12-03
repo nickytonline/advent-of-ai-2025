@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Winter Festival Adventure ❄️</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px #4fc3f7, 0 0 20px #81d4fa;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 10px #4fc3f7, 0 0 20px #81d4fa; }
+            to { text-shadow: 0 0 20px #4fc3f7, 0 0 40px #81d4fa, 0 0 60px #4fc3f7; }
+        }
+
+        #game-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            margin-bottom: 20px;
+        }
+
+        #story-panel {
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        #story-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .controls {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #81d4fa;
+        }
+
+        /* Snowflakes background */
+        .snowflake {
+            position: fixed;
+            top: -10px;
+            z-index: 1;
+            color: white;
+            font-size: 1em;
+            font-family: Arial, sans-serif;
+            text-shadow: 0 0 5px #ffffff;
+            pointer-events: none;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh);
+            }
+        }
+
+        .instructions {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #b3e5fc;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>❄️ Winter Festival Adventure ❄️</h1>
+    
+    <div id="game-container">
+        <div id="phaser-game"></div>
+    </div>
+
+    <div id="story-panel">
+        <div id="story-text">
+            Welcome to the Winter Festival! The magical Festival Star has gone missing, 
+            and the celebration cannot begin without it. Use the arrow keys to move your elf 
+            and walk into a portal to begin your adventure. Press SPACE to enter!
+        </div>
+        <div class="instructions">
+            🎮 Arrow Keys: Move | SPACE: Interact | R: Restart
+        </div>
+    </div>
+
+    <!-- Magic Snowflakes Library -->
+    <script type="module">
+        import { Snowflakes } from 'https://cdn.jsdelivr.net/npm/magic-snowflakes@6.0.0/dist/snowflakes.esm.min.js';
+        
+        // Create background snowflakes
+        const snowflakes = new Snowflakes({
+            count: 50,
+            minSize: 8,
+            maxSize: 18,
+            speed: 1.5,
+            wind: true,
+            rotation: true,
+            color: '#ffffff'
+        });
+    </script>
+
+    <!-- Main Game Script with Phaser.js -->
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.min.js"></script>
+    <script type="module">
+        // Phaser is now available globally
+        const Phaser = window.Phaser;
+
+        // Story data structure
+        const storyData = {
+            start: {
+                text: "The Festival Star has vanished! Three mysterious paths have appeared. Which will you choose?",
+                portals: [
+                    { x: 200, y: 300, color: 0x4fc3f7, label: "Clock Tower", next: "clockTower" },
+                    { x: 400, y: 300, color: 0x66bb6a, label: "Whispering Woods", next: "woods" },
+                    { x: 600, y: 300, color: 0xba68c8, label: "Magician's Tent", next: "magician" }
+                ]
+            },
+            clockTower: {
+                text: "At the ancient Clock Tower, a shimmering sprite appears. 'I know where the Star is,' she whispers, 'but I need your trust.' Will you trust her completely, or demand proof first?",
+                portals: [
+                    { x: 300, y: 300, color: 0x66bb6a, label: "Trust the Sprite", next: "trustSprite" },
+                    { x: 500, y: 300, color: 0xef5350, label: "Demand the Star", next: "demandStar" }
+                ]
+            },
+            woods: {
+                text: "In the Whispering Woods, you find an injured silver fox with glowing eyes. 'Help me,' it pleads, 'and I will guide you to the Star.' But you also see a cave entrance that pulses with magical light...",
+                portals: [
+                    { x: 300, y: 300, color: 0x66bb6a, label: "Heal the Fox", next: "healFox" },
+                    { x: 500, y: 300, color: 0xef5350, label: "Rush to Cave", next: "rushCave" }
+                ]
+            },
+            magician: {
+                text: "The Magician's tent shimmers with starlight. Inside, a mysterious figure offers you a deal: 'I can reveal the Star's location, but you must promise me something in return.' Will you accept the deal or offer something else?",
+                portals: [
+                    { x: 300, y: 300, color: 0x66bb6a, label: "Accept the Deal", next: "acceptDeal" },
+                    { x: 500, y: 300, color: 0x66bb6a, label: "Offer Your Honor", next: "offerHonor" }
+                ]
+            },
+            // Good Endings
+            trustSprite: {
+                text: "The sprite's eyes fill with tears of joy. 'You trusted me when others wouldn't,' she says. She transforms into a radiant guardian angel and leads you to the Star hidden in the clock's mechanism. Your faith has saved the Festival! ⭐",
+                isEnding: true,
+                endingType: "good"
+            },
+            healFox: {
+                text: "The fox's wounds close as you tend to them with magical winter herbs. 'You have a kind heart,' it says, transforming into a Forest Spirit. 'The Star fell into my realm. I've been protecting it!' The fox leads you to the glowing Star nestled in snow. Compassion saves the day! ⭐",
+                isEnding: true,
+                endingType: "good"
+            },
+            acceptDeal: {
+                text: "The Magician smiles warmly. 'You were wise to trust in negotiation. The deal is simple: spread joy at the Festival.' The tent vanishes, revealing the Star floating above. The Magician was testing your openness to collaboration! ⭐",
+                isEnding: true,
+                endingType: "good"
+            },
+            offerHonor: {
+                text: "The Magician nods with respect. 'Your honor is worth more than any deal. You've proven yourself.' He reveals he was the Festival's founder, and the Star was never lost—this was a test! He grants you the Star and names you Guardian of the Festival! ⭐",
+                isEnding: true,
+                endingType: "good"
+            },
+            // Bad Endings
+            demandStar: {
+                text: "The sprite's face falls. 'You don't trust me...' She fades away sadly, and the Clock Tower's magic seals itself. Without her help, you search for hours but never find the Star. The Festival is cancelled. Trust must be earned, but also given. ❌",
+                isEnding: true,
+                endingType: "bad"
+            },
+            rushCave: {
+                text: "You rush past the fox into the glowing cave. The entrance collapses behind you! The 'magic' was a trap set by mischievous sprites. You're stuck in an ice cavern, and the fox—who knew the way out—limps away. Haste makes waste! ❌",
+                isEnding: true,
+                endingType: "bad"
+            }
+        };
+
+        // Phaser Game Configuration
+        const config = {
+            type: Phaser.AUTO,
+            width: 800,
+            height: 600,
+            parent: 'phaser-game',
+            backgroundColor: '#0f3460',
+            pixelArt: true,
+            scale: {
+                mode: Phaser.Scale.FIT,
+                autoCenter: Phaser.Scale.CENTER_BOTH
+            },
+            physics: {
+                default: 'arcade',
+                arcade: {
+                    gravity: { y: 0 },
+                    debug: false
+                }
+            },
+            scene: {
+                preload: preload,
+                create: create,
+                update: update
+            }
+        };
+
+        const game = new Phaser.Game(config);
+
+        let player;
+        let cursors;
+        let currentScene = 'start';
+        let portals = [];
+        let spaceKey;
+        let rKey;
+        let snowEmitter;
+
+        function preload() {
+            // No external assets needed - we'll draw everything programmatically
+        }
+
+        function create() {
+            const scene = this;
+
+            // Create snowflake texture FIRST
+            const graphics = this.make.graphics({ x: 0, y: 0, add: false });
+            graphics.fillStyle(0xffffff, 1);
+            graphics.fillCircle(4, 4, 4);
+            graphics.generateTexture('particle', 8, 8);
+            graphics.destroy();
+
+            // Now create snow particle effect
+            const particles = this.add.particles(0, 0, 'particle', {
+                x: { min: 0, max: 800 },
+                y: -20,
+                lifespan: 8000,
+                speedY: { min: 20, max: 60 },
+                speedX: { min: -10, max: 10 },
+                scale: { start: 0.3, end: 0.8 },
+                alpha: { start: 0.8, end: 0.2 },
+                frequency: 100,
+                blendMode: 'ADD'
+            });
+
+            // Create Christmas Elf Player
+            createElfSprite(scene);
+
+            // Set up keyboard controls
+            cursors = this.input.keyboard.createCursorKeys();
+            spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+            rKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
+
+            // Load initial scene
+            loadStoryScene(scene, currentScene);
+
+            // Handle restart
+            rKey.on('down', () => {
+                restartGame(scene);
+            });
+        }
+
+        function createElfSprite(scene) {
+            // Create elf character using graphics
+            const elfGraphics = scene.make.graphics({ x: 0, y: 0, add: false });
+            
+            // Santa Hat (red with white trim)
+            elfGraphics.fillStyle(0xdc143c, 1); // Red
+            elfGraphics.fillTriangle(8, 2, 16, 16, 0, 16);
+            elfGraphics.fillStyle(0xffffff, 1); // White trim
+            elfGraphics.fillRect(0, 14, 16, 3);
+            elfGraphics.fillCircle(8, 2, 2); // Pompom
+
+            // Face (peach)
+            elfGraphics.fillStyle(0xffd4a3, 1);
+            elfGraphics.fillCircle(8, 20, 6);
+            
+            // Eyes
+            elfGraphics.fillStyle(0x000000, 1);
+            elfGraphics.fillCircle(6, 19, 1);
+            elfGraphics.fillCircle(10, 19, 1);
+            
+            // Rosy cheeks
+            elfGraphics.fillStyle(0xff8a80, 0.6);
+            elfGraphics.fillCircle(5, 21, 1.5);
+            elfGraphics.fillCircle(11, 21, 1.5);
+
+            // Green tunic
+            elfGraphics.fillStyle(0x2e7d32, 1);
+            elfGraphics.fillRect(2, 26, 12, 12);
+            
+            // Red belt
+            elfGraphics.fillStyle(0xdc143c, 1);
+            elfGraphics.fillRect(2, 32, 12, 2);
+            
+            // Brown boots
+            elfGraphics.fillStyle(0x5d4037, 1);
+            elfGraphics.fillRect(3, 38, 4, 6);
+            elfGraphics.fillRect(9, 38, 4, 6);
+
+            elfGraphics.generateTexture('elf', 16, 44);
+            elfGraphics.destroy();
+
+            // Create player sprite
+            player = scene.physics.add.sprite(400, 500, 'elf');
+            player.setScale(2); // 2x size for better visibility
+            player.setCollideWorldBounds(true);
+            player.setDepth(1000); // Always on top of everything
+        }
+
+        function loadStoryScene(scene, sceneKey) {
+            const storyNode = storyData[sceneKey];
+            
+            // Update story text
+            updateStoryText(storyNode.text);
+            
+            // Clear existing portals
+            portals.forEach(portal => {
+                portal.sprite.destroy();
+                portal.label.destroy();
+                if (portal.particles) portal.particles.destroy();
+            });
+            portals = [];
+
+            if (storyNode.isEnding) {
+                // Show ending
+                showEnding(scene, storyNode);
+            } else {
+                // Create portals for choices
+                storyNode.portals.forEach(portalData => {
+                    createPortal(scene, portalData);
+                });
+            }
+        }
+
+        function createPortal(scene, portalData) {
+            // Create portal sprite
+            const portalGraphics = scene.make.graphics({ x: 0, y: 0, add: false });
+            portalGraphics.fillStyle(portalData.color, 0.8);
+            portalGraphics.fillCircle(25, 25, 25);
+            portalGraphics.lineStyle(3, 0xffffff, 1);
+            portalGraphics.strokeCircle(25, 25, 25);
+            portalGraphics.generateTexture('portal_' + portalData.label, 50, 50);
+            portalGraphics.destroy();
+
+            const portalSprite = scene.physics.add.sprite(portalData.x, portalData.y, 'portal_' + portalData.label);
+            portalSprite.setScale(1.5);
+            
+            // Add pulsing animation
+            scene.tweens.add({
+                targets: portalSprite,
+                scale: 1.7,
+                duration: 1000,
+                yoyo: true,
+                repeat: -1,
+                ease: 'Sine.easeInOut'
+            });
+
+            // Create label
+            const label = scene.add.text(portalData.x, portalData.y + 60, portalData.label, {
+                fontSize: '14px',
+                fontFamily: 'Courier New',
+                color: '#ffffff',
+                backgroundColor: '#000000',
+                padding: { x: 8, y: 4 }
+            });
+            label.setOrigin(0.5);
+
+            // Add glow particles around portal
+            const particles = scene.add.particles(portalData.x, portalData.y, 'particle', {
+                speed: 20,
+                scale: { start: 0.3, end: 0 },
+                blendMode: 'ADD',
+                lifespan: 1000,
+                frequency: 150,
+                tint: portalData.color
+            });
+
+            portals.push({
+                sprite: portalSprite,
+                label: label,
+                particles: particles,
+                next: portalData.next,
+                data: portalData
+            });
+        }
+
+        function showEnding(scene, storyNode) {
+            // Create ending overlay
+            const overlay = scene.add.rectangle(400, 300, 800, 600, storyNode.endingType === 'good' ? 0x66bb6a : 0xef5350, 0.3);
+            
+            // Create ending text box
+            const endingBox = scene.add.rectangle(400, 300, 600, 300, 0x000000, 0.8);
+            endingBox.setStrokeStyle(4, storyNode.endingType === 'good' ? 0x66bb6a : 0xef5350);
+            
+            const endingTitle = scene.add.text(400, 200, storyNode.endingType === 'good' ? '🌟 SUCCESS! 🌟' : '💔 OH NO! 💔', {
+                fontSize: '32px',
+                fontFamily: 'Courier New',
+                color: storyNode.endingType === 'good' ? '#66bb6a' : '#ef5350',
+                fontStyle: 'bold'
+            });
+            endingTitle.setOrigin(0.5);
+
+            const endingText = scene.add.text(400, 300, storyNode.text, {
+                fontSize: '16px',
+                fontFamily: 'Courier New',
+                color: '#ffffff',
+                align: 'center',
+                wordWrap: { width: 550 }
+            });
+            endingText.setOrigin(0.5);
+
+            const restartText = scene.add.text(400, 420, 'Press R to Restart', {
+                fontSize: '18px',
+                fontFamily: 'Courier New',
+                color: '#81d4fa',
+                fontStyle: 'bold'
+            });
+            restartText.setOrigin(0.5);
+
+            // Add to portals array for cleanup
+            portals.push({ sprite: overlay, label: endingBox }, { sprite: endingTitle, label: endingText }, { sprite: restartText, label: scene.add.text(0, 0, '') });
+        }
+
+        function update() {
+            if (!player) return;
+
+            const scene = this;
+
+            // Player movement
+            const speed = 150;
+            
+            if (cursors.left.isDown) {
+                player.setVelocityX(-speed);
+            } else if (cursors.right.isDown) {
+                player.setVelocityX(speed);
+            } else {
+                player.setVelocityX(0);
+            }
+
+            if (cursors.up.isDown) {
+                player.setVelocityY(-speed);
+            } else if (cursors.down.isDown) {
+                player.setVelocityY(speed);
+            } else {
+                player.setVelocityY(0);
+            }
+
+            // Check portal collisions
+            portals.forEach(portal => {
+                if (portal.sprite && portal.next) {
+                    const distance = Phaser.Math.Distance.Between(
+                        player.x, player.y,
+                        portal.sprite.x, portal.sprite.y
+                    );
+
+                    if (distance < 60) {
+                        // Player is near portal - show interaction hint
+                        if (!portal.hintShown) {
+                            portal.label.setStyle({ backgroundColor: '#4fc3f7' });
+                            portal.hintShown = true;
+                        }
+
+                        // Check for space key press
+                        if (Phaser.Input.Keyboard.JustDown(spaceKey)) {
+                            console.log('Entering portal:', portal.next);
+                            enterPortal(scene, portal.next);
+                        }
+                    } else {
+                        if (portal.hintShown) {
+                            portal.label.setStyle({ backgroundColor: '#000000' });
+                            portal.hintShown = false;
+                        }
+                    }
+                }
+            });
+        }
+
+        function enterPortal(scene, nextSceneKey) {
+            currentScene = nextSceneKey;
+            
+            // Reset player position
+            player.setPosition(400, 500);
+            player.setVelocity(0, 0);
+            
+            // Load new scene
+            loadStoryScene(scene, nextSceneKey);
+        }
+
+        function restartGame(scene) {
+            currentScene = 'start';
+            player.setPosition(400, 500);
+            player.setVelocity(0, 0);
+            loadStoryScene(scene, 'start');
+        }
+
+        function updateStoryText(text) {
+            const storyTextElement = document.getElementById('story-text');
+            storyTextElement.textContent = text;
+        }
+    </script>
+</body>
+</html>
