@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -98,87 +99,242 @@
             margin-top: 10px;
         }
 
-        .save-status {
-            text-align: center;
-            font-size: 0.8rem;
-            color: #4caf50;
-            margin-top: 8px;
-            padding: 5px 10px;
-            background: rgba(76, 175, 80, 0.2);
-            border-radius: 15px;
-            border: 1px solid rgba(76, 175, 80, 0.3);
-            animation: saveGlow 2s ease-in-out;
-        }
-
-        @keyframes saveGlow {
-            0% { opacity: 0; transform: translateY(10px); }
-            50% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(-10px); }
-        }
-
-        .restore-panel {
-            text-align: center;
-            margin-top: 15px;
-        }
-
-        .restore-btn {
-            background: linear-gradient(135deg, #4fc3f7 0%, #2196f3 100%);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 20px;
+        /* Settings Menu */
+        #settings-menu {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
             font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
-            font-weight: bold;
+        }
+
+        #settings-toggle {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: #ffffff;
             cursor: pointer;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(79, 195, 247, 0.3);
+            position: relative;
         }
 
-        .restore-btn:hover {
-            background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+        #settings-toggle:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: rotate(90deg);
+            box-shadow: 0 12px 40px rgba(79, 195, 247, 0.4);
+        }
+
+        #settings-toggle.active {
+            background: rgba(79, 195, 247, 0.3);
+            border-color: #4fc3f7;
+            transform: rotate(90deg);
+        }
+
+        #settings-panel {
+            position: absolute;
+            top: 60px;
+            right: 0;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            min-width: 250px;
+            opacity: 0;
+            transform: translateY(-20px);
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+
+        #settings-panel.open {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: all;
+        }
+
+        .settings-section {
+            margin-bottom: 20px;
+        }
+
+        .settings-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .settings-section h3 {
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+            color: #81d4fa;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .music-btn {
+            background: rgba(79, 195, 247, 0.3);
+            border: 2px solid #4fc3f7;
+            color: #ffffff;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .music-btn:hover {
+            background: rgba(79, 195, 247, 0.5);
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+            box-shadow: 0 4px 12px rgba(79, 195, 247, 0.4);
         }
 
-        .restore-btn:active {
+        .music-btn:active {
             transform: translateY(0);
         }
 
-        /* Hidden class */
-        .hidden {
-            display: none;
+        .music-btn.playing {
+            background: rgba(102, 187, 106, 0.4);
+            border-color: #66bb6a;
         }
+
+        #volume-control {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        #volume-slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        #volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #4fc3f7;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(79, 195, 247, 0.5);
+        }
+
+        #volume-slider::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #4fc3f7;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 10px rgba(79, 195, 247, 0.5);
+        }
+
+        .volume-label {
+            font-size: 0.75rem;
+            color: #b3e5fc;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .music-indicator {
+            display: inline-block;
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .keyboard-hint {
+            font-size: 0.7rem;
+            color: #81d4fa;
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+        }
+
     </style>
 </head>
 <body>
     <h1>❄️ Winter Festival Adventure ❄️</h1>
-    
+
+    <!-- Settings Menu -->
+    <div id="settings-menu">
+        <button id="settings-toggle" title="Settings">⚙️</button>
+        <div id="settings-panel">
+            <div class="settings-section">
+                <h3>
+                    <span id="music-icon">🎵</span>
+                    Music
+                </h3>
+                <button id="toggle-music" class="music-btn">
+                    <span id="play-icon">▶️</span>
+                    <span id="music-status">Play</span>
+                </button>
+                <div id="volume-control">
+                    <div class="volume-label">
+                        <span>Volume</span>
+                        <span id="volume-value">70%</span>
+                    </div>
+                    <input type="range" id="volume-slider" min="0" max="100" value="70">
+                </div>
+                <div class="keyboard-hint">Press M to toggle</div>
+            </div>
+
+            <div class="settings-section">
+                <h3>
+                    <span>💾</span>
+                    Game
+                </h3>
+                <div id="save-info" style="font-size: 0.75rem; color: #b3e5fc; margin-bottom: 10px; text-align: center;">
+                    No save data
+                </div>
+                <button id="delete-save" class="music-btn" style="border-color: #ef5350; display: none;">
+                    <span>🗑️</span>
+                    <span>Delete Save</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div id="game-container">
         <div id="phaser-game"></div>
     </div>
 
     <div id="story-panel">
         <div id="story-text">
-            Welcome to the Winter Festival! The magical Festival Star has gone missing, 
-            and the celebration cannot begin without it. Use the arrow keys to move your elf 
+            Welcome to the Winter Festival! The magical Festival Star has gone missing,
+            and the celebration cannot begin without it. Use the arrow keys to move your elf
             and walk into a portal to begin your adventure. Press SPACE to enter!
         </div>
         <div class="instructions">
-            🎮 Arrow Keys: Move | SPACE: Interact | R: Restart | L: Load Save
-        </div>
-        <div id="save-status" class="save-status hidden">
-            💾 Game Auto-Saved
-        </div>
-        <div id="restore-panel" class="restore-panel hidden">
-            <button id="restore-btn" class="restore-btn">🔄 Restore Session</button>
+            🎮 Arrow Keys: Move | SPACE: Interact | R: Restart
         </div>
     </div>
 
     <!-- Magic Snowflakes Library -->
     <script type="module">
         import { Snowflakes } from 'https://cdn.jsdelivr.net/npm/magic-snowflakes@6.0.0/dist/snowflakes.esm.min.js';
-        
+
         // Create background snowflakes
         const snowflakes = new Snowflakes({
             count: 50,
@@ -196,6 +352,134 @@
     <script type="module">
         // Phaser is now available globally
         const Phaser = window.Phaser;
+
+        // Save Manager Class
+        class SaveManager {
+            constructor() {
+                this.saveKey = 'winterFestivalSaveData';
+                this.statsKey = 'winterFestivalStats';
+            }
+
+            saveGame(sceneKey, playerX, playerY) {
+                const saveData = {
+                    currentScene: sceneKey,
+                    playerPosition: { x: playerX, y: playerY },
+                    timestamp: Date.now(),
+                    sceneName: this.getSceneName(sceneKey)
+                };
+
+                console.log('Saving game:', saveData);
+                localStorage.setItem(this.saveKey, JSON.stringify(saveData));
+                console.log('Save written to localStorage');
+
+                // Update stats
+                this.updateStats(sceneKey);
+
+                return saveData;
+            }
+
+            loadGame() {
+                const savedData = localStorage.getItem(this.saveKey);
+                if (!savedData) return null;
+
+                try {
+                    return JSON.parse(savedData);
+                } catch (e) {
+                    console.error('Failed to load save data:', e);
+                    return null;
+                }
+            }
+
+            deleteSave() {
+                localStorage.removeItem(this.saveKey);
+            }
+
+            hasSave() {
+                return localStorage.getItem(this.saveKey) !== null;
+            }
+
+            updateStats(sceneKey) {
+                let stats = this.getStats();
+
+                // Track visited scenes
+                if (!stats.visitedScenes.includes(sceneKey)) {
+                    stats.visitedScenes.push(sceneKey);
+                }
+
+                // Track completed endings
+                const storyNode = storyData[sceneKey];
+                if (storyNode && storyNode.isEnding) {
+                    const endingId = `${sceneKey}_${storyNode.endingType}`;
+                    if (!stats.completedEndings.includes(endingId)) {
+                        stats.completedEndings.push(endingId);
+                    }
+                }
+
+                // Update play count
+                stats.playCount++;
+                stats.lastPlayed = Date.now();
+
+                localStorage.setItem(this.statsKey, JSON.stringify(stats));
+            }
+
+            getStats() {
+                const statsData = localStorage.getItem(this.statsKey);
+                if (!statsData) {
+                    return {
+                        visitedScenes: [],
+                        completedEndings: [],
+                        playCount: 0,
+                        lastPlayed: null
+                    };
+                }
+
+                try {
+                    return JSON.parse(statsData);
+                } catch (e) {
+                    console.error('Failed to load stats:', e);
+                    return {
+                        visitedScenes: [],
+                        completedEndings: [],
+                        playCount: 0,
+                        lastPlayed: null
+                    };
+                }
+            }
+
+            getSceneName(sceneKey) {
+                const sceneNames = {
+                    'start': 'Festival Entrance',
+                    'clockTower': 'Clock Tower',
+                    'woods': 'Whispering Woods',
+                    'magician': "Magician's Tent",
+                    'trustSprite': 'Victory: Faith Rewarded',
+                    'healFox': 'Victory: Compassion Triumphs',
+                    'acceptDeal': 'Victory: Wise Negotiation',
+                    'offerHonor': 'Victory: Guardian of Festival',
+                    'demandStar': 'Defeat: Trust Lost',
+                    'rushCave': 'Defeat: Hasty Decision'
+                };
+
+                return sceneNames[sceneKey] || sceneKey;
+            }
+
+            getTimeSince(timestamp) {
+                const now = Date.now();
+                const diff = now - timestamp;
+
+                const minutes = Math.floor(diff / 60000);
+                const hours = Math.floor(minutes / 60);
+                const days = Math.floor(hours / 24);
+
+                if (days > 0) return `${days} day${days > 1 ? 's' : ''} ago`;
+                if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+                if (minutes > 0) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+                return 'Just now';
+            }
+        }
+
+        // Initialize Save Manager
+        const saveManager = new SaveManager();
 
         // Story data structure
         const storyData = {
@@ -296,116 +580,7 @@
         let portals = [];
         let spaceKey;
         let rKey;
-        let lKey; // Load save key
         let snowEmitter;
-        let gameScene; // Reference to the Phaser scene
-
-        // Save/Load functionality
-        const SAVE_KEY = 'winterFestivalSave';
-
-        function saveGame() {
-            if (!player || !gameScene) return;
-            
-            const saveData = {
-                currentScene: currentScene,
-                playerX: player.x,
-                playerY: player.y,
-                timestamp: Date.now()
-            };
-            
-            localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
-            showSaveIndicator();
-            console.log('Game saved:', saveData);
-        }
-
-        function loadGame() {
-            const savedData = localStorage.getItem(SAVE_KEY);
-            if (!savedData || !gameScene) {
-                console.log('No saved game found');
-                return false;
-            }
-            
-            try {
-                const saveData = JSON.parse(savedData);
-                console.log('Loading game:', saveData);
-                
-                // Restore game state
-                currentScene = saveData.currentScene;
-                
-                // Set player position
-                if (player) {
-                    player.setPosition(saveData.playerX || 400, saveData.playerY || 500);
-                    player.setVelocity(0, 0);
-                }
-                
-                // Load the saved scene
-                loadStoryScene(gameScene, currentScene);
-                
-                // Show feedback
-                showLoadIndicator();
-                return true;
-            } catch (error) {
-                console.error('Error loading save:', error);
-                return false;
-            }
-        }
-
-        function hasSavedGame() {
-            const savedData = localStorage.getItem(SAVE_KEY);
-            return savedData !== null;
-        }
-
-        function clearSave() {
-            localStorage.removeItem(SAVE_KEY);
-            hideRestoreButton();
-        }
-
-        function showSaveIndicator() {
-            console.log('Showing save indicator');
-            const saveStatus = document.getElementById('save-status');
-            if (saveStatus) {
-                saveStatus.classList.remove('hidden');
-                setTimeout(() => {
-                    saveStatus.classList.add('hidden');
-                }, 2000);
-            }
-        }
-
-        function showLoadIndicator() {
-            console.log('Showing load indicator');
-            const saveStatus = document.getElementById('save-status');
-            if (saveStatus) {
-                saveStatus.textContent = '📂 Game Loaded';
-                saveStatus.style.color = '#2196f3';
-                saveStatus.style.backgroundColor = 'rgba(33, 150, 243, 0.2)';
-                saveStatus.style.borderColor = 'rgba(33, 150, 243, 0.3)';
-                saveStatus.classList.remove('hidden');
-                setTimeout(() => {
-                    saveStatus.classList.add('hidden');
-                    // Reset to save style
-                    saveStatus.textContent = '💾 Game Auto-Saved';
-                    saveStatus.style.color = '#4caf50';
-                    saveStatus.style.backgroundColor = 'rgba(76, 175, 80, 0.2)';
-                    saveStatus.style.borderColor = 'rgba(76, 175, 80, 0.3)';
-                }, 2000);
-            }
-        }
-
-        function showRestoreButton() {
-            console.log('Showing restore button');
-            const restorePanel = document.getElementById('restore-panel');
-            if (restorePanel) {
-                restorePanel.classList.remove('hidden');
-            }
-        }
-
-        function hideRestoreButton() {
-            console.log('Hiding restore button');
-            const restorePanel = document.getElementById('restore-panel');
-            if (restorePanel) {
-                restorePanel.classList.add('hidden');
-            }
-        }
 
         function preload() {
             // No external assets needed - we'll draw everything programmatically
@@ -413,7 +588,6 @@
 
         function create() {
             const scene = this;
-            gameScene = scene; // Store scene reference
 
             // Create snowflake texture FIRST
             const graphics = this.make.graphics({ x: 0, y: 0, add: false });
@@ -442,49 +616,133 @@
             cursors = this.input.keyboard.createCursorKeys();
             spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
             rKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
-            lKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.L);
 
-            // Initialize save system after a small delay to ensure DOM is ready
-            setTimeout(() => {
-                console.log('Initializing save system...');
-                if (hasSavedGame()) {
-                    console.log('Found saved game, showing restore button');
-                    showRestoreButton();
-                }
-                
-                // Set up restore button click handler
-                const restoreBtn = document.getElementById('restore-btn');
-                if (restoreBtn) {
-                    restoreBtn.addEventListener('click', () => {
-                        console.log('Restore button clicked');
-                        loadGame();
-                    });
-                    console.log('Restore button event listener added');
-                } else {
-                    console.error('Restore button not found!');
-                }
-            }, 100);
+            // Check for saved game
+            const savedGame = saveManager.loadGame();
+            console.log('Loaded save game:', savedGame);
 
-            // Load initial scene
-            loadStoryScene(scene, currentScene);
+            if (savedGame && savedGame.currentScene !== 'start') {
+                console.log('Showing load dialog for scene:', savedGame.currentScene);
+                // Show Continue/New Game dialog
+                showLoadDialog(scene, savedGame);
+            } else {
+                console.log('No valid save found, loading start scene');
+                // Load initial scene normally
+                loadStoryScene(scene, currentScene);
+            }
 
             // Handle restart
             rKey.on('down', () => {
-                console.log('R key pressed - restarting game');
                 restartGame(scene);
             });
+        }
 
-            // Handle load save
-            lKey.on('down', () => {
-                console.log('L key pressed - loading game');
-                loadGame();
+        function showLoadDialog(scene, savedGame) {
+            // Create semi-transparent overlay
+            const overlay = scene.add.rectangle(400, 300, 800, 600, 0x000000, 0.7);
+            overlay.setDepth(1500);
+            overlay.setInteractive();
+
+            // Dialog box
+            const dialogBox = scene.add.rectangle(400, 300, 500, 300, 0x0f3460, 1);
+            dialogBox.setDepth(1501);
+            dialogBox.setStrokeStyle(3, 0x4fc3f7);
+
+            // Title
+            const title = scene.add.text(400, 200, '💾 Continue Adventure?', {
+                fontSize: '24px',
+                fontFamily: 'Courier New',
+                color: '#4fc3f7',
+                fontStyle: 'bold'
             });
+            title.setOrigin(0.5);
+            title.setDepth(1502);
+
+            // Save info
+            const saveInfo = scene.add.text(400, 250,
+                `Last saved at:\n${savedGame.sceneName}\n${saveManager.getTimeSince(savedGame.timestamp)}`, {
+                fontSize: '14px',
+                fontFamily: 'Courier New',
+                color: '#ffffff',
+                align: 'center'
+            });
+            saveInfo.setOrigin(0.5);
+            saveInfo.setDepth(1502);
+
+            // Continue button
+            const continueBtn = createDialogButton(scene, 300, 350, 'Continue', 0x66bb6a, () => {
+                // Load saved game
+                currentScene = savedGame.currentScene;
+                player.setPosition(savedGame.playerPosition.x, savedGame.playerPosition.y);
+                loadStoryScene(scene, currentScene);
+                closeDialog();
+            });
+
+            // New Game button
+            const newGameBtn = createDialogButton(scene, 500, 350, 'New Game', 0xef5350, () => {
+                // Start new game
+                saveManager.deleteSave();
+                currentScene = 'start';
+                player.setPosition(400, 500);
+                loadStoryScene(scene, currentScene);
+                closeDialog();
+            });
+
+            function closeDialog() {
+                overlay.destroy();
+                dialogBox.destroy();
+                title.destroy();
+                saveInfo.destroy();
+                continueBtn.bg.destroy();
+                continueBtn.text.destroy();
+                newGameBtn.bg.destroy();
+                newGameBtn.text.destroy();
+            }
+        }
+
+        function createDialogButton(scene, x, y, text, color, callback) {
+            const bg = scene.add.rectangle(x, y, 140, 45, color, 0.8);
+            bg.setDepth(1502);
+            bg.setStrokeStyle(2, 0xffffff);
+            bg.setInteractive();
+
+            const label = scene.add.text(x, y, text, {
+                fontSize: '16px',
+                fontFamily: 'Courier New',
+                color: '#ffffff',
+                fontStyle: 'bold'
+            });
+            label.setOrigin(0.5);
+            label.setDepth(1503);
+
+            // Hover effects
+            bg.on('pointerover', () => {
+                bg.setFillStyle(color, 1);
+                scene.tweens.add({
+                    targets: [bg, label],
+                    scale: 1.1,
+                    duration: 100
+                });
+            });
+
+            bg.on('pointerout', () => {
+                bg.setFillStyle(color, 0.8);
+                scene.tweens.add({
+                    targets: [bg, label],
+                    scale: 1,
+                    duration: 100
+                });
+            });
+
+            bg.on('pointerdown', callback);
+
+            return { bg, text: label };
         }
 
         function createElfSprite(scene) {
             // Create elf character using graphics
             const elfGraphics = scene.make.graphics({ x: 0, y: 0, add: false });
-            
+
             // Santa Hat (red with white trim)
             elfGraphics.fillStyle(0xdc143c, 1); // Red
             elfGraphics.fillTriangle(8, 2, 16, 16, 0, 16);
@@ -495,12 +753,12 @@
             // Face (peach)
             elfGraphics.fillStyle(0xffd4a3, 1);
             elfGraphics.fillCircle(8, 20, 6);
-            
+
             // Eyes
             elfGraphics.fillStyle(0x000000, 1);
             elfGraphics.fillCircle(6, 19, 1);
             elfGraphics.fillCircle(10, 19, 1);
-            
+
             // Rosy cheeks
             elfGraphics.fillStyle(0xff8a80, 0.6);
             elfGraphics.fillCircle(5, 21, 1.5);
@@ -509,11 +767,11 @@
             // Green tunic
             elfGraphics.fillStyle(0x2e7d32, 1);
             elfGraphics.fillRect(2, 26, 12, 12);
-            
+
             // Red belt
             elfGraphics.fillStyle(0xdc143c, 1);
             elfGraphics.fillRect(2, 32, 12, 2);
-            
+
             // Brown boots
             elfGraphics.fillStyle(0x5d4037, 1);
             elfGraphics.fillRect(3, 38, 4, 6);
@@ -531,10 +789,10 @@
 
         function loadStoryScene(scene, sceneKey) {
             const storyNode = storyData[sceneKey];
-            
+
             // Update story text
             updateStoryText(storyNode.text);
-            
+
             // Clear existing portals
             portals.forEach(portal => {
                 portal.sprite.destroy();
@@ -566,7 +824,7 @@
 
             const portalSprite = scene.physics.add.sprite(portalData.x, portalData.y, 'portal_' + portalData.label);
             portalSprite.setScale(1.5);
-            
+
             // Add pulsing animation
             scene.tweens.add({
                 targets: portalSprite,
@@ -609,11 +867,11 @@
         function showEnding(scene, storyNode) {
             // Create ending overlay
             const overlay = scene.add.rectangle(400, 300, 800, 600, storyNode.endingType === 'good' ? 0x66bb6a : 0xef5350, 0.3);
-            
+
             // Create ending text box
             const endingBox = scene.add.rectangle(400, 300, 600, 300, 0x000000, 0.8);
             endingBox.setStrokeStyle(4, storyNode.endingType === 'good' ? 0x66bb6a : 0xef5350);
-            
+
             const endingTitle = scene.add.text(400, 200, storyNode.endingType === 'good' ? '🌟 SUCCESS! 🌟' : '💔 OH NO! 💔', {
                 fontSize: '32px',
                 fontFamily: 'Courier New',
@@ -650,7 +908,7 @@
 
             // Player movement
             const speed = 150;
-            
+
             if (cursors.left.isDown) {
                 player.setVelocityX(-speed);
             } else if (cursors.right.isDown) {
@@ -699,38 +957,408 @@
 
         function enterPortal(scene, nextSceneKey) {
             currentScene = nextSceneKey;
-            
+
+            // Auto-save progress
+            saveManager.saveGame(nextSceneKey, player.x, player.y);
+            showSaveNotification(scene);
+
             // Reset player position
             player.setPosition(400, 500);
             player.setVelocity(0, 0);
-            
+
             // Load new scene
             loadStoryScene(scene, nextSceneKey);
-            
-            // Auto-save progress (only for non-ending scenes)
-            if (!storyData[nextSceneKey].isEnding) {
-                saveGame();
-                showRestoreButton();
-            } else {
-                // Clear save when reaching an ending
-                clearSave();
-            }
+        }
+
+        function showSaveNotification(scene) {
+            // Create save notification
+            const saveText = scene.add.text(700, 30, '💾 Saved!', {
+                fontSize: '16px',
+                fontFamily: 'Courier New',
+                color: '#66bb6a',
+                backgroundColor: '#000000',
+                padding: { x: 10, y: 5 }
+            });
+            saveText.setDepth(2000);
+            saveText.setAlpha(0);
+
+            // Fade in and out
+            scene.tweens.add({
+                targets: saveText,
+                alpha: 1,
+                duration: 300,
+                yoyo: true,
+                hold: 1500,
+                onComplete: () => {
+                    saveText.destroy();
+                }
+            });
         }
 
         function restartGame(scene) {
             currentScene = 'start';
             player.setPosition(400, 500);
             player.setVelocity(0, 0);
+            saveManager.deleteSave(); // Clear save on restart
             loadStoryScene(scene, 'start');
-            
-            // Clear any existing save when starting fresh
-            clearSave();
         }
 
         function updateStoryText(text) {
             const storyTextElement = document.getElementById('story-text');
             storyTextElement.textContent = text;
         }
+    </script>
+
+    <!-- Background Music System -->
+    <script>
+        // Winter Festival Music System with Web Audio API
+        class WinterMusicPlayer {
+            constructor() {
+                this.audioContext = null;
+                this.masterGainNode = null;
+                this.isPlaying = false;
+                this.currentNoteIndex = 0;
+                this.intervalId = null;
+                this.volume = 0.7;
+
+                // Festive winter melody - "Jingle Bells" inspired
+                // Notes: C4, D4, E4, F4, G4, A4, B4, C5
+                this.melody = [
+                    { note: 'E4', duration: 0.25 },
+                    { note: 'E4', duration: 0.25 },
+                    { note: 'E4', duration: 0.5 },
+                    { note: 'E4', duration: 0.25 },
+                    { note: 'E4', duration: 0.25 },
+                    { note: 'E4', duration: 0.5 },
+                    { note: 'E4', duration: 0.25 },
+                    { note: 'G4', duration: 0.25 },
+                    { note: 'C4', duration: 0.25 },
+                    { note: 'D4', duration: 0.25 },
+                    { note: 'E4', duration: 1 },
+
+                    { note: 'F4', duration: 0.25 },
+                    { note: 'F4', duration: 0.25 },
+                    { note: 'F4', duration: 0.25 },
+                    { note: 'F4', duration: 0.25 },
+                    { note: 'F4', duration: 0.25 },
+                    { note: 'E4', duration: 0.25 },
+                    { note: 'E4', duration: 0.25 },
+                    { note: 'E4', duration: 0.25 },
+                    { note: 'E4', duration: 0.25 },
+                    { note: 'D4', duration: 0.25 },
+                    { note: 'D4', duration: 0.25 },
+                    { note: 'E4', duration: 0.25 },
+                    { note: 'D4', duration: 0.5 },
+                    { note: 'G4', duration: 0.5 },
+                ];
+
+                // Note frequencies in Hz
+                this.noteFrequencies = {
+                    'C4': 261.63,
+                    'D4': 293.66,
+                    'E4': 329.63,
+                    'F4': 349.23,
+                    'G4': 392.00,
+                    'A4': 440.00,
+                    'B4': 493.88,
+                    'C5': 523.25
+                };
+
+                this.initAudioContext();
+                this.loadPreferences();
+            }
+
+            initAudioContext() {
+                // Create audio context on first user interaction
+          if (!this.audioContext) {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    this.masterGainNode = this.audioContext.createGain();
+                    this.masterGainNode.connect(this.audioContext.destination);
+                    this.masterGainNode.gain.value = this.volume;
+                }
+            }
+
+            playNote(frequency, duration) {
+                if (!this.audioContext || !this.isPlaying) return;
+
+                const now = this.audioContext.currentTime;
+
+                // Create oscillator for the note
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+
+                // Use a softer sine wave for a bell-like sound
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(frequency, now);
+
+                // Envelope for natural sound (ADSR)
+                gainNode.gain.setValueAtTime(0, now);
+                gainNode.gain.linearRampToValueAtTime(0.3, now + 0.01); // Attack
+                gainNode.gain.exponentialRampToValueAtTime(0.2, now + 0.1); // Decay
+                gainNode.gain.setValueAtTime(0.2, now + duration - 0.1); // Sustain
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + duration); // Release
+
+                oscillator.connect(gainNode);
+                gainNode.connect(this.masterGainNode);
+
+                oscillator.start(now);
+                oscillator.stop(now + duration);
+            }
+
+            playMelody() {
+                if (!this.isPlaying || this.currentNoteIndex >= this.melody.length) {
+                    this.currentNoteIndex = 0; // Loop melody
+                    if (!this.isPlaying) return;
+                }
+
+                const currentNote = this.melody[this.currentNoteIndex];
+                const frequency = this.noteFrequencies[currentNote.note];
+
+                this.playNote(frequency, currentNote.duration);
+
+                this.currentNoteIndex++;
+
+                // Schedule next note
+                const nextDelay = currentNote.duration * 1000; // Convert to milliseconds
+                setTimeout(() => this.playMelody(), nextDelay);
+            }
+
+            start() {
+                if (this.isPlaying) return;
+
+                this.initAudioContext();
+
+                // Resume audio context (needed for some browsers)
+                if (this.audioContext.state === 'suspended') {
+                    this.audioContext.resume();
+                }
+
+                this.isPlaying = true;
+                this.currentNoteIndex = 0;
+                this.playMelody();
+                this.savePreferences();
+            }
+
+            stop() {
+                this.isPlaying = false;
+                this.currentNoteIndex = 0;
+                this.savePreferences();
+            }
+
+            setVolume(value) {
+                this.volume = value;
+                if (this.masterGainNode) {
+                    this.masterGainNode.gain.value = value;
+                }
+                this.savePreferences();
+            }
+
+            savePreferences() {
+                localStorage.setItem('winterFestivalMusicPlaying', this.isPlaying);
+                localStorage.setItem('winterFestivalMusicVolume', this.volume);
+            }
+
+            loadPreferences() {
+                const savedPlaying = localStorage.getItem('winterFestivalMusicPlaying');
+                const savedVolume = localStorage.getItem('winterFestivalMusicVolume');
+
+                if (savedVolume !== null) {
+                    this.volume = parseFloat(savedVolume);
+                }
+
+                // Don't auto-play on load, let user start music
+                this.isPlaying = false;
+            }
+        }
+
+        // Initialize music player
+        const musicPlayer = new WinterMusicPlayer();
+
+        // UI Elements
+        const settingsToggle = document.getElementById('settings-toggle');
+        const settingsPanel = document.getElementById('settings-panel');
+        const toggleButton = document.getElementById('toggle-music');
+        const playIcon = document.getElementById('play-icon');
+        const musicStatus = document.getElementById('music-status');
+        const volumeSlider = document.getElementById('volume-slider');
+        const volumeValue = document.getElementById('volume-value');
+        const musicIcon = document.getElementById('music-icon');
+
+        // Set initial volume from saved preferences
+        volumeSlider.value = Math.round(musicPlayer.volume * 100);
+        volumeValue.textContent = Math.round(musicPlayer.volume * 100) + '%';
+
+        // Settings Menu Toggle
+        let settingsOpen = false;
+
+        settingsToggle.addEventListener('click', () => {
+            settingsOpen = !settingsOpen;
+            if (settingsOpen) {
+                settingsPanel.classList.add('open');
+                settingsToggle.classList.add('active');
+            } else {
+                settingsPanel.classList.remove('open');
+                settingsToggle.classList.remove('active');
+            }
+        });
+
+        // Close settings when clicking outside
+        document.addEventListener('click', (e) => {
+            const settingsMenu = document.getElementById('settings-menu');
+            if (settingsOpen && !settingsMenu.contains(e.target)) {
+                settingsPanel.classList.remove('open');
+                settingsToggle.classList.remove('active');
+                settingsOpen = false;
+            }
+        });
+
+        // Toggle music playback
+        function toggleMusic() {
+            if (musicPlayer.isPlaying) {
+                musicPlayer.stop();
+                playIcon.textContent = '▶️';
+                musicStatus.textContent = 'Play';
+                toggleButton.classList.remove('playing');
+                musicIcon.classList.remove('music-indicator');
+            } else {
+                musicPlayer.start();
+                playIcon.textContent = '⏸️';
+                musicStatus.textContent = 'Pause';
+                toggleButton.classList.add('playing');
+                musicIcon.classList.add('music-indicator');
+            }
+        }
+
+        // Event Listeners
+        toggleButton.addEventListener('click', toggleMusic);
+
+        volumeSlider.addEventListener('input', (e) => {
+            const volume = e.target.value / 100;
+            musicPlayer.setVolume(volume);
+            volumeValue.textContent = e.target.value + '%';
+        });
+
+        // Keyboard shortcut: M key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'm' || e.key === 'M') {
+                // Don't trigger if typing in an input field
+                if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                    toggleMusic();
+                }
+            }
+        });
+
+        // Save/Load UI Management
+        const saveInfoElement = document.getElementById('save-info');
+        const deleteSaveButton = document.getElementById('delete-save');
+
+        function updateSaveInfo() {
+            const savedGame = saveManager.loadGame();
+            if (savedGame) {
+                saveInfoElement.innerHTML = `Saved at:<br>${savedGame.sceneName}<br><span style="color: #4fc3f7;">${saveManager.getTimeSince(savedGame.timestamp)}</span>`;
+                deleteSaveButton.style.display = 'flex';
+            } else {
+                saveInfoElement.textContent = 'No save data';
+                deleteSaveButton.style.display = 'none';
+            }
+        }
+
+        deleteSaveButton.addEventListener('click', () => {
+            if (confirm('Delete your save data? This cannot be undone!')) {
+                saveManager.deleteSave();
+                updateSaveInfo();
+
+                // Show notification
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 100px;
+                    right: 20px;
+                    background: rgba(239, 83, 80, 0.95);
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: 10px;
+                    font-family: 'Courier New', monospace;
+                    font-size: 0.9rem;
+                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+                    z-index: 10000;
+                    animation: slideInRight 0.5s ease-out;
+                `;
+                notification.textContent = '🗑️ Save deleted!';
+                document.body.appendChild(notification);
+
+                setTimeout(() => {
+                    notification.style.animation = 'slideOutRight 0.5s ease-in';
+                    setTimeout(() => notification.remove(), 500);
+                }, 2000);
+            }
+        });
+
+        // Update save info when settings menu opens
+        settingsToggle.addEventListener('click', () => {
+            if (!settingsOpen) {
+                updateSaveInfo();
+            }
+        });
+
+        // Initial save info update
+        updateSaveInfo();
+
+        // Show a small notification on first load
+        if (!localStorage.getItem('winterFestivalMusicNotificationShown')) {
+            setTimeout(() => {
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 100px;
+                    right: 20px;
+                    background: rgba(79, 195, 247, 0.95);
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: 10px;
+                    font-family: 'Courier New', monospace;
+                    font-size: 0.9rem;
+                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+                    z-index: 10000;
+                    animation: slideInRight 0.5s ease-out;
+                `;
+                notification.innerHTML = '⚙️ Click settings (top-right) for music!';
+                document.body.appendChild(notification);
+
+                setTimeout(() => {
+                    notification.style.animation = 'slideOutRight 0.5s ease-in';
+                    setTimeout(() => notification.remove(), 500);
+                }, 4000);
+
+                localStorage.setItem('winterFestivalMusicNotificationShown', 'true');
+            }, 2000);
+        }
+
+        // Add animation keyframes
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            @keyframes slideOutRight {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 </html>
