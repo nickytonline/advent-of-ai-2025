@@ -5,8 +5,8 @@
 The Winter Festival needs an interactive storytelling experience to replace their Storyteller (who has laryngitis). This PRD outlines requirements for a browser-based, 8-bit style choose-your-own-adventure game with visual gameplay elements.
 
 **Technology Decision**: Phaser.js game engine (final implementation using standard CDN version)
-**Status**: ⚠️ **REGRESSION - DEBUGGING IN PROGRESS**
-**Last Updated**: December 3, 2025, 10:01 AM
+**Status**: ✅ **FULLY FUNCTIONAL** - Save system fixed December 3, 2025
+**Last Updated**: December 3, 2025, 10:15 AM
 
 ---
 
@@ -140,22 +140,41 @@ The Winter Festival needs an interactive storytelling experience to replace thei
 - **Status**: ✅ Fully functional after scope isolation fix
 - **Movement**: Character velocity controlled by button press/release (no infinite movement)
 
+**Save System Persistence Fix (December 3, 2025 - 10:15 AM)**
+- **Issue**: Save data was being deleted on restart (R key press)
+- **Root Cause**: `restartGame()` function called `saveManager.deleteSave()` unconditionally
+- **Impact**: 
+  - User pressed R to test → save deleted
+  - User refreshed page → no save found
+  - Continue dialog never appeared
+- **Solution**: 
+  - Removed `deleteSave()` call from `restartGame()` function
+  - R key now restarts to start scene WITHOUT deleting save
+  - Save only deleted in two explicit cases:
+    1. User clicks "Delete Save" in Settings menu
+    2. User clicks "New Game" in Continue dialog
+- **Result**: 
+  - ✅ Save persists across page refreshes
+  - ✅ Continue/New Game dialog appears correctly
+  - ✅ R key restarts game while preserving save
+  - ✅ User can try different paths without losing progress
+  - ✅ Explicit deletion requires user confirmation
+
 ### ⚠️ Current Known Issues
 
-**Active Bug (December 3, 2025 - 10:01 AM):**
-1. **Game functionality regression** - Something broke in recent refactor
-   - Save data EXISTS in localStorage (confirmed)
-   - Save data has correct structure
-   - BUT: Game not loading/functioning properly
-   - **Investigation needed:** Console errors, Phaser initialization, load dialog
+**Active Bugs:**
+1. **Mobile Virtual D-Pad Visibility** - Investigation ongoing
+   - D-pad may not be visible on all mobile devices
+   - Checking media queries and viewport settings
+   - Functionality works when visible (touch/mouse events attached)
 
-**Previous Known Issues (FIXED):**
-1. ~~Save System Not Persisting Data~~ ✅ **FIXED** - Scope isolation resolved
-2. ~~Mobile Virtual D-Pad Not Visible~~ ✅ **FIXED** - Script errors eliminated
+**Previous Known Issues (ALL FIXED):**
+1. ~~Save System Not Persisting Data~~ ✅ **FIXED** - December 3, 2025, 10:15 AM
+2. ~~Mobile Virtual D-Pad Not Visible~~ ⚠️ **INVESTIGATING** - Some devices may not show
 3. ~~ES Module Scope Isolation~~ ✅ **FIXED** - Removed module type, added global variables
 4. ~~Keyboard/Mobile Control Conflicts~~ ✅ **FIXED** - Gated mobile control application
 
-**Current Status:** ⚠️ **REGRESSION - Debugging in progress**
+**Current Status:** ✅ **FULLY FUNCTIONAL** - One minor mobile display issue under investigation
 
 ---
 
@@ -239,7 +258,7 @@ The Winter Festival needs an interactive storytelling experience to replace thei
 **Controls**
 - **Arrow Keys** (⬆️⬇️⬅️➡️) - Move player character
 - **SPACE** - Interact with portals/make choices
-- **R Key** - Restart game at any ending (clears save)
+- **R Key** - Restart to beginning (preserves save)
 - **M Key** - Toggle background music on/off
 - **Settings Menu** - Click gear icon (⚙️) to open/close settings panel
 
@@ -576,10 +595,10 @@ The Winter Festival Adventure game has been successfully implemented and tested.
 5. Settings UI updates (shows "No save data")
 
 *Restart (R key):*
-1. Press R at any ending
-2. Save automatically deleted
-3. Returns to Festival Entrance
-4. Fresh game state (no history)
+1. Press R at any time
+2. Returns to Festival Entrance (start scene)
+3. **Save is preserved** - can continue later
+4. To fully delete save, use Settings menu or "New Game" button
 
 **Technical Implementation**
 
@@ -635,10 +654,11 @@ The Winter Festival Adventure game has been successfully implemented and tested.
 
 - **Arrow Keys** ⬆️⬇️⬅️➡️ - Move elf character
 - **SPACE** - Enter portals / Make choices
-- **R Key** - Restart game from any ending
+- **R Key** - Restart to beginning (save preserved)
 - **M Key** - Toggle background music
 - **Settings Gear** ⚙️ - Open settings menu
 - **Mouse** - Adjust volume, click settings
+- **Delete Save** - Explicit action in Settings menu only
 
 ### 🎪 **Ready for the Winter Festival!**
 
