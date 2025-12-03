@@ -97,6 +97,58 @@
             color: #b3e5fc;
             margin-top: 10px;
         }
+
+        .save-status {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #4caf50;
+            margin-top: 8px;
+            padding: 5px 10px;
+            background: rgba(76, 175, 80, 0.2);
+            border-radius: 15px;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            animation: saveGlow 2s ease-in-out;
+        }
+
+        @keyframes saveGlow {
+            0% { opacity: 0; transform: translateY(10px); }
+            50% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-10px); }
+        }
+
+        .restore-panel {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .restore-btn {
+            background: linear-gradient(135deg, #4fc3f7 0%, #2196f3 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(79, 195, 247, 0.3);
+        }
+
+        .restore-btn:hover {
+            background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+        }
+
+        .restore-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Hidden class */
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -113,7 +165,13 @@
             and walk into a portal to begin your adventure. Press SPACE to enter!
         </div>
         <div class="instructions">
-            🎮 Arrow Keys: Move | SPACE: Interact | R: Restart
+            🎮 Arrow Keys: Move | SPACE: Interact | R: Restart | L: Load Save
+        </div>
+        <div id="save-status" class="save-status hidden">
+            💾 Game Auto-Saved
+        </div>
+        <div id="restore-panel" class="restore-panel hidden">
+            <button id="restore-btn" class="restore-btn">🔄 Restore Session</button>
         </div>
     </div>
 
@@ -238,7 +296,116 @@
         let portals = [];
         let spaceKey;
         let rKey;
+        let lKey; // Load save key
         let snowEmitter;
+        let gameScene; // Reference to the Phaser scene
+
+        // Save/Load functionality
+        const SAVE_KEY = 'winterFestivalSave';
+
+        function saveGame() {
+            if (!player || !gameScene) return;
+            
+            const saveData = {
+                currentScene: currentScene,
+                playerX: player.x,
+                playerY: player.y,
+                timestamp: Date.now()
+            };
+            
+            localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
+            showSaveIndicator();
+            console.log('Game saved:', saveData);
+        }
+
+        function loadGame() {
+            const savedData = localStorage.getItem(SAVE_KEY);
+            if (!savedData || !gameScene) {
+                console.log('No saved game found');
+                return false;
+            }
+            
+            try {
+                const saveData = JSON.parse(savedData);
+                console.log('Loading game:', saveData);
+                
+                // Restore game state
+                currentScene = saveData.currentScene;
+                
+                // Set player position
+                if (player) {
+                    player.setPosition(saveData.playerX || 400, saveData.playerY || 500);
+                    player.setVelocity(0, 0);
+                }
+                
+                // Load the saved scene
+                loadStoryScene(gameScene, currentScene);
+                
+                // Show feedback
+                showLoadIndicator();
+                return true;
+            } catch (error) {
+                console.error('Error loading save:', error);
+                return false;
+            }
+        }
+
+        function hasSavedGame() {
+            const savedData = localStorage.getItem(SAVE_KEY);
+            return savedData !== null;
+        }
+
+        function clearSave() {
+            localStorage.removeItem(SAVE_KEY);
+            hideRestoreButton();
+        }
+
+        function showSaveIndicator() {
+            console.log('Showing save indicator');
+            const saveStatus = document.getElementById('save-status');
+            if (saveStatus) {
+                saveStatus.classList.remove('hidden');
+                setTimeout(() => {
+                    saveStatus.classList.add('hidden');
+                }, 2000);
+            }
+        }
+
+        function showLoadIndicator() {
+            console.log('Showing load indicator');
+            const saveStatus = document.getElementById('save-status');
+            if (saveStatus) {
+                saveStatus.textContent = '📂 Game Loaded';
+                saveStatus.style.color = '#2196f3';
+                saveStatus.style.backgroundColor = 'rgba(33, 150, 243, 0.2)';
+                saveStatus.style.borderColor = 'rgba(33, 150, 243, 0.3)';
+                saveStatus.classList.remove('hidden');
+                setTimeout(() => {
+                    saveStatus.classList.add('hidden');
+                    // Reset to save style
+                    saveStatus.textContent = '💾 Game Auto-Saved';
+                    saveStatus.style.color = '#4caf50';
+                    saveStatus.style.backgroundColor = 'rgba(76, 175, 80, 0.2)';
+                    saveStatus.style.borderColor = 'rgba(76, 175, 80, 0.3)';
+                }, 2000);
+            }
+        }
+
+        function showRestoreButton() {
+            console.log('Showing restore button');
+            const restorePanel = document.getElementById('restore-panel');
+            if (restorePanel) {
+                restorePanel.classList.remove('hidden');
+            }
+        }
+
+        function hideRestoreButton() {
+            console.log('Hiding restore button');
+            const restorePanel = document.getElementById('restore-panel');
+            if (restorePanel) {
+                restorePanel.classList.add('hidden');
+            }
+        }
 
         function preload() {
             // No external assets needed - we'll draw everything programmatically
@@ -246,6 +413,7 @@
 
         function create() {
             const scene = this;
+            gameScene = scene; // Store scene reference
 
             // Create snowflake texture FIRST
             const graphics = this.make.graphics({ x: 0, y: 0, add: false });
@@ -274,13 +442,42 @@
             cursors = this.input.keyboard.createCursorKeys();
             spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
             rKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
+            lKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.L);
+
+            // Initialize save system after a small delay to ensure DOM is ready
+            setTimeout(() => {
+                console.log('Initializing save system...');
+                if (hasSavedGame()) {
+                    console.log('Found saved game, showing restore button');
+                    showRestoreButton();
+                }
+                
+                // Set up restore button click handler
+                const restoreBtn = document.getElementById('restore-btn');
+                if (restoreBtn) {
+                    restoreBtn.addEventListener('click', () => {
+                        console.log('Restore button clicked');
+                        loadGame();
+                    });
+                    console.log('Restore button event listener added');
+                } else {
+                    console.error('Restore button not found!');
+                }
+            }, 100);
 
             // Load initial scene
             loadStoryScene(scene, currentScene);
 
             // Handle restart
             rKey.on('down', () => {
+                console.log('R key pressed - restarting game');
                 restartGame(scene);
+            });
+
+            // Handle load save
+            lKey.on('down', () => {
+                console.log('L key pressed - loading game');
+                loadGame();
             });
         }
 
@@ -509,6 +706,15 @@
             
             // Load new scene
             loadStoryScene(scene, nextSceneKey);
+            
+            // Auto-save progress (only for non-ending scenes)
+            if (!storyData[nextSceneKey].isEnding) {
+                saveGame();
+                showRestoreButton();
+            } else {
+                // Clear save when reaching an ending
+                clearSave();
+            }
         }
 
         function restartGame(scene) {
@@ -516,6 +722,9 @@
             player.setPosition(400, 500);
             player.setVelocity(0, 0);
             loadStoryScene(scene, 'start');
+            
+            // Clear any existing save when starting fresh
+            clearSave();
         }
 
         function updateStoryText(text) {
