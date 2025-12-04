@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hot Cocoa Championship - What-If Scenarios</title>
+    <link rel="stylesheet" href="common.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        }
+        .container {
+            max-width: 1600px;
+        }
+        .warning-banner {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            color: #333;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            text-align: center;
+            font-weight: bold;
+            border: 2px dashed #ff6b9d;
+        }
+        .scenarios-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(700px, 1fr));
+            gap: 30px;
+            margin-top: 20px;
+        }
+        .scenario-card {
+            background: #f9f9f9;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid;
+        }
+        .scenario-card.actual {
+            border-left-color: #FFD700;
+        }
+        .scenario-card.whatif {
+            border-left-color: #ff6b9d;
+        }
+        .scenario-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .scenario-description {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .comparison-table th {
+            background: #f0f0f0;
+            font-weight: bold;
+        }
+        .comparison-table tr:hover {
+            background: #f9f9f9;
+        }
+        .winner-highlight {
+            background: #fffacd;
+            font-weight: bold;
+        }
+        .vote-diff {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        .vote-diff.positive {
+            background: #90ee90;
+            color: #006400;
+        }
+        .vote-diff.negative {
+            background: #ffcccb;
+            color: #8b0000;
+        }
+        .insights-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+        .insights-box h3 {
+            margin-top: 0;
+        }
+        .insight-item {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            backdrop-filter: blur(10px);
+        }
+        .chart-container {
+            margin-top: 20px;
+            min-height: 300px;
+        }
+        .toggle-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .toggle-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .toggle-btn.active {
+            transform: scale(1.05);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+        }
+        .toggle-btn.scenario-1 {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #333;
+        }
+        .toggle-btn.scenario-2 {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            color: #333;
+        }
+        .toggle-btn.scenario-3 {
+            background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+            color: #333;
+        }
+        .toggle-btn.scenario-4 {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-button">← Back to Home</a>
+        <h1>🔮 Hot Cocoa Championship - What-If Scenarios</h1>
+        <p class="subtitle">Exploring Alternative Tournament Outcomes</p>
+        
+        <div class="warning-banner">
+            ⚠️ HYPOTHETICAL SCENARIOS - These are "what-if" analyses showing how small changes could have altered results
+        </div>
+
+        <div class="toggle-buttons">
+            <button class="toggle-btn scenario-1 active" onclick="showScenario(1)">
+                🏆 Actual Results
+            </button>
+            <button class="toggle-btn scenario-2" onclick="showScenario(2)">
+                📊 What-If: Closest Match Flipped
+            </button>
+            <button class="toggle-btn scenario-3" onclick="showScenario(3)">
+                🎯 What-If: Creativity Weighted 2x
+            </button>
+            <button class="toggle-btn scenario-4" onclick="showScenario(4)">
+                🍬 What-If: Sweetness Preference
+            </button>
+        </div>
+
+        <div id="scenario-display">
+            <!-- Scenarios will be rendered here -->
+        </div>
+
+        <div class="insights-box">
+            <h3>💡 Key Insights from What-If Analysis</h3>
+            
+            <div class="insight-item">
+                <strong>Scenario 1 (Actual):</strong> Dark Chocolate Decadence won decisively with excellence in richness and presentation. The closest match was QF2 (only 14 votes), but it didn't affect the eventual champion.
+            </div>
+            
+            <div class="insight-item">
+                <strong>Scenario 2 (Closest Match Flipped):</strong> If Salted Caramel Swirl had beaten Peppermint Dream in QF2, it would have faced Classic Swiss Velvet in SF1. This could have changed the finalist but likely not the champion, as Dark Chocolate Decadence's dominance was clear.
+            </div>
+            
+            <div class="insight-item">
+                <strong>Scenario 3 (Creativity Weighted 2x):</strong> If creativity scores counted double, Spicy Mexican Mocha (9/10 creativity) could have advanced further. The final might have been between different competitors focused on innovation rather than traditional excellence.
+            </div>
+            
+            <div class="insight-item">
+                <strong>Scenario 4 (Sweetness Preference):</strong> If voters heavily preferred sweetness, Peppermint Dream (9/10) or even White Chocolate Wonder (10/10) could have won. This shows how voter preferences shape outcomes more than inherent quality.
+            </div>
+
+            <div class="insight-item">
+                <strong>🎯 Tournament Robustness:</strong> Despite close matches, Dark Chocolate Decadence's victory was robust - it would have likely won under most reasonable alternative scenarios due to its excellent scores in multiple categories.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Actual tournament data
+        const actualData = {
+            winner: "Dark Chocolate Decadence",
+            runnerUp: "Peppermint Dream",
+            semifinalists: ["Classic Swiss Velvet", "Cinnamon Fireside"],
+            quarterfinalists: ["Salted Caramel Swirl", "Hazelnut Heaven", "White Chocolate Wonder", "Spicy Mexican Mocha"],
+            matches: [
+                {round: "QF", match: 1, winner: "Classic Swiss Velvet", loser: "Spicy Mexican Mocha", votes: [234, 189], margin: 45},
+                {round: "QF", match: 2, winner: "Peppermint Dream", loser: "Salted Caramel Swirl", votes: [312, 298], margin: 14},
+                {round: "QF", match: 3, winner: "Dark Chocolate Decadence", loser: "White Chocolate Wonder", votes: [276, 203], margin: 73},
+                {round: "QF", match: 4, winner: "Cinnamon Fireside", loser: "Hazelnut Heaven", votes: [267, 245], margin: 22},
+                {round: "SF", match: 1, winner: "Peppermint Dream", loser: "Classic Swiss Velvet", votes: [445, 398], margin: 47},
+                {round: "SF", match: 2, winner: "Dark Chocolate Decadence", loser: "Cinnamon Fireside", votes: [512, 387], margin: 125},
+                {round: "F", match: 1, winner: "Dark Chocolate Decadence", loser: "Peppermint Dream", votes: [678, 623], margin: 55}
+            ]
+        };
+
+        // What-if scenarios
+        const scenarios = {
+            1: {
+                title: "🏆 Actual Tournament Results",
+                description: "The real tournament as it happened. Dark Chocolate Decadence dominated with excellent richness and presentation scores, winning all three matches with increasing vote totals.",
+                winner: "Dark Chocolate Decadence",
+                runnerUp: "Peppermint Dream",
+                changes: [],
+                type: "actual"
+            },
+            2: {
+                title: "📊 What-If: Closest Match Flipped",
+                description: "If Salted Caramel Swirl had gotten 15 more votes in QF2 (winning 313-311), how would the tournament have changed? This was the closest match of the entire tournament.",
+                winner: "Dark Chocolate Decadence",
+                runnerUp: "Salted Caramel Swirl",
+                changes: [
+                    "QF2: Salted Caramel Swirl defeats Peppermint Dream (313-311)",
+                    "SF1: Salted Caramel Swirl faces Classic Swiss Velvet",
+                    "SF1 Projected: Salted Caramel Swirl wins (high richness 9/10)",
+                    "Final: Dark Chocolate Decadence vs Salted Caramel Swirl",
+                    "Projected Champion: Still Dark Chocolate Decadence (stronger overall profile)"
+                ],
+                type: "whatif"
+            },
+            3: {
+                title: "🎯 What-If: Creativity Weighted 2x",
+                description: "If judges' creativity scores counted double in voting preferences, recipes with high innovation would have performed better. Spicy Mexican Mocha (9/10 creativity) could have advanced.",
+                winner: "Spicy Mexican Mocha",
+                runnerUp: "Dark Chocolate Decadence",
+                changes: [
+                    "Creativity scores weighted 2x in voter preferences",
+                    "Spicy Mexican Mocha (creativity 9) beats Classic Swiss Velvet (creativity 4)",
+                    "Cinnamon Fireside (creativity 8) maintains position",
+                    "QF reshuffled: Innovation-focused recipes advance",
+                    "Final: Likely Spicy Mexican Mocha vs Dark Chocolate Decadence",
+                    "Projected: Innovation could beat tradition 55-45%"
+                ],
+                type: "whatif"
+            },
+            4: {
+                title: "🍬 What-If: Sweetness Preference Shift",
+                description: "If voters had a strong preference for sweeter recipes (opposite of actual results), the tournament would have looked very different. White Chocolate Wonder (10/10 sweetness) could have gone further.",
+                winner: "Peppermint Dream",
+                runnerUp: "White Chocolate Wonder",
+                changes: [
+                    "Voter preference shifts to sweetness over richness",
+                    "White Chocolate Wonder (10/10 sweet) defeats Dark Chocolate Decadence",
+                    "Peppermint Dream (9/10 sweet) maintains dominance",
+                    "Salted Caramel Swirl (8/10 sweet) advances over Classic Swiss Velvet",
+                    "Final: Peppermint Dream vs White Chocolate Wonder",
+                    "Projected: Peppermint Dream wins (better overall balance)"
+                ],
+                type: "whatif"
+            }
+        };
+
+        let currentScenario = 1;
+
+        function showScenario(num) {
+            currentScenario = num;
+            
+            // Update button states
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.scenario-${num}`).classList.add('active');
+            
+            // Render scenario
+            const scenario = scenarios[num];
+            const display = document.getElementById('scenario-display');
+            
+            let html = `
+                <div class="scenario-card ${scenario.type}">
+                    <div class="scenario-title">
+                        ${scenario.title}
+                    </div>
+                    <div class="scenario-description">
+                        ${scenario.description}
+                    </div>
+                    
+                    <h3>Championship Result:</h3>
+                    <table class="comparison-table">
+                        <tr>
+                            <th>Position</th>
+                            <th>Competitor</th>
+                            <th>Status</th>
+                        </tr>
+                        <tr class="winner-highlight">
+                            <td>🏆 Champion</td>
+                            <td><strong>${scenario.winner}</strong></td>
+                            <td>${scenario.type === 'actual' ? 'ACTUAL' : 'HYPOTHETICAL'}</td>
+                        </tr>
+                        <tr>
+                            <td>🥈 Runner-up</td>
+                            <td>${scenario.runnerUp}</td>
+                            <td>${scenario.type === 'actual' ? 'ACTUAL' : 'HYPOTHETICAL'}</td>
+                        </tr>
+                    </table>
+            `;
+            
+            if (scenario.changes.length > 0) {
+                html += `
+                    <h3 style="margin-top: 25px;">Key Changes from Actual:</h3>
+                    <ul style="line-height: 1.8;">
+                        ${scenario.changes.map(change => `<li>${change}</li>`).join('')}
+                    </ul>
+                `;
+            }
+            
+            html += `<div class="chart-container" id="scenario-chart-${num}"></div>`;
+            html += `</div>`;
+            
+            display.innerHTML = html;
+            
+            // Create comparison chart
+            createComparisonChart(num);
+        }
+
+        function createComparisonChart(scenarioNum) {
+            const recipes = [
+                {name: "Dark Chocolate Decadence", richness: 10, sweetness: 5, creativity: 8, presentation: 10},
+                {name: "Peppermint Dream", richness: 6, sweetness: 9, creativity: 7, presentation: 9},
+                {name: "Salted Caramel Swirl", richness: 9, sweetness: 8, creativity: 6, presentation: 7},
+                {name: "White Chocolate Wonder", richness: 5, sweetness: 10, creativity: 5, presentation: 6},
+                {name: "Spicy Mexican Mocha", richness: 7, sweetness: 5, creativity: 9, presentation: 8},
+                {name: "Classic Swiss Velvet", richness: 8, sweetness: 6, creativity: 4, presentation: 7},
+                {name: "Cinnamon Fireside", richness: 7, sweetness: 7, creativity: 8, presentation: 8},
+                {name: "Hazelnut Heaven", richness: 8, sweetness: 7, creativity: 6, presentation: 7}
+            ];
+
+            const scenario = scenarios[scenarioNum];
+            const winner = scenario.winner;
+            const runnerUp = scenario.runnerUp;
+
+            // Calculate scores based on scenario
+            let scoredRecipes = recipes.map(r => {
+                let score = 0;
+                switch(scenarioNum) {
+                    case 1: // Actual - balanced
+                        score = r.richness + r.sweetness + r.creativity + r.presentation;
+                        break;
+                    case 2: // Same as actual (different bracket path)
+                        score = r.richness + r.sweetness + r.creativity + r.presentation;
+                        break;
+                    case 3: // Creativity 2x
+                        score = r.richness + r.sweetness + (r.creativity * 2) + r.presentation;
+                        break;
+                    case 4: // Sweetness preference
+                        score = r.richness + (r.sweetness * 2) + r.creativity + r.presentation;
+                        break;
+                }
+                return {...r, score};
+            });
+
+            scoredRecipes.sort((a, b) => b.score - a.score);
+
+            const width = 650;
+            const height = 350;
+            const margin = {top: 20, right: 30, bottom: 100, left: 60};
+            const chartWidth = width - margin.left - margin.right;
+            const chartHeight = height - margin.top - margin.bottom;
+
+            const svg = d3.select(`#scenario-chart-${scenarioNum}`)
+                .append("svg")
+                .attr("width", width)
+                .attr("height", height)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            const x = d3.scaleBand()
+                .domain(scoredRecipes.map(d => d.name))
+                .range([0, chartWidth])
+                .padding(0.2);
+
+            const y = d3.scaleLinear()
+                .domain([0, d3.max(scoredRecipes, d => d.score) * 1.1])
+                .range([chartHeight, 0]);
+
+            svg.append("g")
+                .attr("transform", `translate(0,${chartHeight})`)
+                .call(d3.axisBottom(x))
+                .selectAll("text")
+                .attr("transform", "rotate(-45)")
+                .style("text-anchor", "end")
+                .style("font-size", "10px");
+
+            svg.append("g")
+                .call(d3.axisLeft(y));
+
+            svg.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", -45)
+                .attr("x", -chartHeight / 2)
+                .attr("text-anchor", "middle")
+                .style("font-weight", "bold")
+                .text("Scenario Score");
+
+            svg.selectAll(".bar")
+                .data(scoredRecipes)
+                .enter().append("rect")
+                .attr("x", d => x(d.name))
+                .attr("y", d => y(d.score))
+                .attr("width", x.bandwidth())
+                .attr("height", d => chartHeight - y(d.score))
+                .attr("fill", d => {
+                    if (d.name === winner) return "#FFD700";
+                    if (d.name === runnerUp) return "#C0C0C0";
+                    return "#69b3a2";
+                })
+                .attr("stroke", "#333")
+                .attr("stroke-width", 1);
+
+            svg.selectAll(".label")
+                .data(scoredRecipes)
+                .enter().append("text")
+                .attr("x", d => x(d.name) + x.bandwidth() / 2)
+                .attr("y", d => y(d.score) - 5)
+                .attr("text-anchor", "middle")
+                .style("font-size", "11px")
+                .style("font-weight", "bold")
+                .text(d => d.score);
+
+            // Add winner indicator
+            const winnerData = scoredRecipes.find(r => r.name === winner);
+            svg.append("text")
+                .attr("x", x(winner) + x.bandwidth() / 2)
+                .attr("y", y(winnerData.score) - 25)
+                .attr("text-anchor", "middle")
+                .style("font-size", "20px")
+                .text("🏆");
+        }
+
+        // Initialize with scenario 1
+        showScenario(1);
+    </script>
+</body>
+</html>

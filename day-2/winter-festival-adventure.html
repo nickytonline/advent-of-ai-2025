@@ -1165,23 +1165,31 @@
 
             const scene = this;
 
-            // Player movement
+            // Player movement - only handle keyboard if mobile controls aren't active
             const speed = 150;
             
-            if (cursors.left.isDown) {
-                player.setVelocityX(-speed);
-            } else if (cursors.right.isDown) {
-                player.setVelocityX(speed);
-            } else {
-                player.setVelocityX(0);
-            }
+            // Check if any mobile controls are active
+            const mobileActive = window.mobileControls && 
+                (window.mobileControls.up || window.mobileControls.down || 
+                 window.mobileControls.left || window.mobileControls.right);
+            
+            // Only process keyboard controls if mobile controls are NOT active
+            if (!mobileActive) {
+                if (cursors.left.isDown) {
+                    player.setVelocityX(-speed);
+                } else if (cursors.right.isDown) {
+                    player.setVelocityX(speed);
+                } else {
+                    player.setVelocityX(0);
+                }
 
-            if (cursors.up.isDown) {
-                player.setVelocityY(-speed);
-            } else if (cursors.down.isDown) {
-                player.setVelocityY(speed);
-            } else {
-                player.setVelocityY(0);
+                if (cursors.up.isDown) {
+                    player.setVelocityY(-speed);
+                } else if (cursors.down.isDown) {
+                    player.setVelocityY(speed);
+                } else {
+                    player.setVelocityY(0);
+                }
             }
 
             // Check portal collisions with auto-enter
@@ -1693,13 +1701,16 @@
     
     <!-- Mobile Touch Controls Script -->
     <script>
-        // Mobile touch control state
+        // Mobile touch control state - make it globally accessible
         const mobileControls = {
             up: false,
             down: false,
             left: false,
             right: false
         };
+        
+        // Make it globally accessible for the update() function
+        window.mobileControls = mobileControls;
         
         let portalProximityTimeout = null;
         let nearPortal = null;

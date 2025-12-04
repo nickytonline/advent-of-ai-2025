@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hot Cocoa Championship - Complete Collection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        
+        h1 {
+            color: #333;
+            font-size: 3.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.3em;
+            margin-bottom: 20px;
+        }
+        
+        .badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 0.9em;
+            margin: 5px;
+        }
+        
+        .tournament-section {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        .tournament-section h2 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .tournament-section h2 .icon {
+            margin-right: 10px;
+        }
+        
+        .description {
+            color: #666;
+            font-size: 1.1em;
+            line-height: 1.8;
+            margin-bottom: 30px;
+            text-align: center;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .winner-banner {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #333;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 25px 0;
+            text-align: center;
+            font-size: 1.4em;
+            font-weight: bold;
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.3);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin: 25px 0;
+        }
+        
+        .stat-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .stat-item strong {
+            display: block;
+            font-size: 2.2em;
+            margin-bottom: 8px;
+        }
+        
+        .stat-item span {
+            font-size: 0.9em;
+            opacity: 0.95;
+        }
+        
+        .viz-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .viz-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            transition: all 0.3s;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            border: 2px solid transparent;
+        }
+        
+        .viz-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            border-color: #667eea;
+        }
+        
+        .viz-icon {
+            font-size: 3em;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .viz-card h3 {
+            color: #333;
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .viz-card p {
+            color: #666;
+            line-height: 1.6;
+            font-size: 0.95em;
+            text-align: center;
+        }
+        
+        .big-button {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            padding: 25px 50px;
+            font-size: 1.3em;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+            display: block;
+            margin: 40px auto;
+            text-decoration: none;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .big-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.3);
+        }
+        
+        .comparison-table {
+            margin: 30px 0;
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .highlight {
+            background: #fff3cd;
+            font-weight: bold;
+        }
+        
+        footer {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            margin-top: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        
+        .tech-stack {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin: 25px 0;
+        }
+        
+        .tech-item {
+            background: #f0f0f0;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            color: #555;
+        }
+        
+        .challenge-badge {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 30px;
+            display: inline-block;
+            margin: 20px 0;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>☕ Hot Cocoa Championship Collection 🏆</h1>
+            <p class="subtitle">Complete Tournament Data Visualization Dashboard</p>
+            <div class="challenge-badge">
+                ✨ Advent of AI 2025 - Day 3 Challenge - Complete Implementation ✨
+            </div>
+            <div>
+                <span class="badge">FR-001 ✓ Tournament Bracket</span>
+                <span class="badge">FR-002 ✓ Vote Distribution</span>
+                <span class="badge">FR-003 ✓ Recipe Comparison</span>
+                <span class="badge">FR-004 ✓ Additional Insights</span>
+                <span class="badge">FR-007 ✓ Synthetic Generation</span>
+            </div>
+        </header>
+
+        <!-- ORIGINAL TOURNAMENT -->
+        <div class="tournament-section">
+            <h2><span class="icon">🎪</span>Original Winter Festival Tournament</h2>
+            <p class="description">
+                The actual 2025 Winter Festival Hot Cocoa Championship featuring 8 competitors 
+                across 7 exciting matches. This tournament showcases real voting data and judge 
+                scorecards from the festival event.
+            </p>
+            
+            <div class="winner-banner">
+                🏆 CHAMPION: Dark Chocolate Decadence - 678 Final Votes 🏆
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <strong>8</strong>
+                    <span>Competitors</span>
+                </div>
+                <div class="stat-item">
+                    <strong>7</strong>
+                    <span>Matches</span>
+                </div>
+                <div class="stat-item">
+                    <strong>5,294</strong>
+                    <span>Total Votes</span>
+                </div>
+                <div class="stat-item">
+                    <strong>14</strong>
+                    <span>Closest Match</span>
+                </div>
+            </div>
+            
+            <div class="viz-grid">
+                <a href="tournament_bracket.html" class="viz-card">
+                    <div class="viz-icon">🌊</div>
+                    <h3>Tournament Bracket</h3>
+                    <p>Sankey flow diagram showing progression from quarterfinals to champion</p>
+                </a>
+                
+                <a href="vote_distribution.html" class="viz-card">
+                    <div class="viz-icon">📊</div>
+                    <h3>Vote Distribution</h3>
+                    <p>Complete voting analysis with time periods and competitor breakdowns</p>
+                </a>
+                
+                <a href="recipe_comparison.html" class="viz-card">
+                    <div class="viz-icon">🎯</div>
+                    <h3>Recipe Attributes</h3>
+                    <p>Radar charts comparing richness, sweetness, creativity, presentation</p>
+                </a>
+                
+                <a href="additional_insights.html" class="viz-card">
+                    <div class="viz-icon">🔍</div>
+                    <h3>Deep Insights</h3>
+                    <p>Advanced analytics including treemaps, momentum tracking, and trends</p>
+                </a>
+            </div>
+            
+            <a href="index.html" class="big-button">
+                📊 View Original Tournament Dashboard
+            </a>
+        </div>
+
+        <!-- SYNTHETIC TOURNAMENT -->
+        <div class="tournament-section">
+            <h2><span class="icon">🤖</span>Synthetic AI-Generated Tournament (FR-007)</h2>
+            <p class="description">
+                A completely AI-generated 16-recipe tournament with realistic voting patterns, 
+                creative recipe names, and comprehensive attributes. This demonstrates advanced 
+                data simulation and tournament generation capabilities.
+            </p>
+            
+            <div class="winner-banner">
+                🏆 CHAMPION: Silky Lavender Magic - 4-0 Record (Perfect 10.0s in 3 Categories!) 🏆
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <strong>16</strong>
+                    <span>AI-Generated Recipes</span>
+                </div>
+                <div class="stat-item">
+                    <strong>15</strong>
+                    <span>Simulated Matches</span>
+                </div>
+                <div class="stat-item">
+                    <strong>1,498</strong>
+                    <span>Realistic Votes</span>
+                </div>
+                <div class="stat-item">
+                    <strong>1</strong>
+                    <span>Closest Match (!)</span>
+                </div>
+                <div class="stat-item">
+                    <strong>104</strong>
+                    <span>Biggest Blowout</span>
+                </div>
+                <div class="stat-item">
+                    <strong>9.68</strong>
+                    <span>Champion Avg Score</span>
+                </div>
+            </div>
+            
+            <div class="viz-grid">
+                <div class="viz-card" onclick="alert('Interactive Chart.js visualizations embedded in main dashboard')">
+                    <div class="viz-icon">📈</div>
+                    <h3>Championship Final</h3>
+                    <p>Bar chart showing dramatic 99-0 final match victory</p>
+                </div>
+                
+                <div class="viz-card" onclick="alert('Interactive Chart.js visualizations embedded in main dashboard')">
+                    <div class="viz-icon">🎯</div>
+                    <h3>Top 4 Finalists Radar</h3>
+                    <p>Multi-dimensional comparison of finalist attributes</p>
+                </div>
+                
+                <div class="viz-card" onclick="alert('Interactive Chart.js visualizations embedded in main dashboard')">
+                    <div class="viz-icon">📊</div>
+                    <h3>Champion's Journey</h3>
+                    <p>Line chart tracking performance through all 4 rounds</p>
+                </div>
+                
+                <div class="viz-card" onclick="alert('Interactive Chart.js visualizations embedded in main dashboard')">
+                    <div class="viz-icon">🎪</div>
+                    <h3>Round Analysis</h3>
+                    <p>Vote distribution and competitiveness by tournament round</p>
+                </div>
+            </div>
+            
+            <a href="synthetic_tournament_visualization.html" class="big-button">
+                🤖 View Synthetic Tournament Dashboard
+            </a>
+        </div>
+
+        <!-- COMPARISON -->
+        <div class="tournament-section">
+            <h2><span class="icon">⚖️</span>Tournament Comparison</h2>
+            
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Original Tournament</th>
+                            <th>Synthetic Tournament (FR-007)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Competitors</strong></td>
+                            <td>8 recipes</td>
+                            <td class="highlight">16 AI-generated recipes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Total Matches</strong></td>
+                            <td>7 matches</td>
+                            <td class="highlight">15 matches</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tournament Rounds</strong></td>
+                            <td>3 (QF, SF, F)</td>
+                            <td class="highlight">4 (R16, QF, SF, F)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Total Votes</strong></td>
+                            <td>5,294 votes</td>
+                            <td>1,498 votes</td>
+                        </tr>
+                                              <td><strong>Champion</strong></td>
+                            <td>Dark Chocolate Decadence</td>
+                            <td class="highlight">Silky Lavender Magic</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Champion's Record</strong></td>
+                            <td>3-0</td>
+                            <td class="highlight">4-0 (Undefeated)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Closest Match</strong></td>
+                            <td>14 vote margin</td>
+                            <td class="highlight">1 vote margin (!)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Biggest Blowout</strong></td>
+                            <td>73 votes</td>
+                            <td class="highlight">104 votes                    </tr>
+                        <tr>
+                            <td><strong>Perfect Shutouts</strong></td>
+                            <td>0</td>
+                            <td class="highlight">3 matches</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Upset Rate</strong></td>
+                            <td>N/A (real data)</td>
+                            <td class="highlight">~13% (2 upsets)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Visualization Types</strong></td>
+                            <td>Sankey, Bar, Radar, Donut, Treemap, Line</td>
+                            <td>Bar, Radar, Line, Mixed (Chart.js)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Data Source</strong></td>
+                            <td>Real festival voting</td>
+                            <td class="highlight">AI-generated (realistic patterns)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TECHNICAL INFO -->
+        <footer>
+            <h3>📝 About This Project</h3>
+            <p style="color: #666; margin: 20px 0; line-height: 1.8; font-size: 1.05em;">
+                Complete implementation of the <strong>Advent of AI 2025 - Day 3 Challenge</strong>. 
+                This project demonstrates advanced data visualization, synthetic data generation, 
+                and comprehensive tournament analysis using modern web technologies and AI capabilities.
+            </p>
+            
+            <div class="stats-grid" style="max-width: 800px; margin: 30px auto;">
+                <div class="stat-item">
+                    <strong>2</strong>
+                    <span>Tournaments</span>
+                </div>
+                <div class="stat-item">
+                    <strong>10+</strong>
+                    <span>Visualization Types</span>
+                </div>
+                <div class="stat-item">
+                    <strong>60+KB</strong>
+                    <span>Documentation</span>
+                </div>
+                <div class="stat-item">
+                    <strong>100%</strong>
+                    <span>Requirements Met</span>
+                </div>
+            </div>
+            
+            <h3 style="margin-top: 40px;">🛠️ Technolog>
+            <div class="tech-stack">
+                <div class="tech-item">D3.js v7</div>
+                <div class="tech-item">Chart.js v4</div>
+                <div class="tech-item">Python 3</div>
+                <div class="tech-item">HTML5 & CSS3</div>
+                <div class="tech-item">JavaScript ES6+</div>
+                <div class="tech-item">Goose Desktop</div>
+                <div class="tech-item">Auto-Visualiser</div>
+                <div class="tech-item">Responsive Design</div>
+            </div>
+            
+            <p style="margin-top: 40px; color: #999; font-size: 0.95em; line-height: 1.6;">
+                <strong>Advent of AI 2025 - Day 3 Challenge</strong><br>
+                Developed using Goose Desktop & Auto-Visualiser Extension<br>
+                All requirements (FR-001 through FR-007) completed<br>
+                December 3, 2025
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // Animate cards on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const sections = document.querySelectorAll('.tournament-section');
+            sections.forEach((section, index) => {
+                section.style.opacity = '0';
+                section.style.transform = 'translateY(30px)';
+                setTimeout(() => {
+                    section.style.transition = 'all 0.6s ease-out';
+                    section.style.opacity = '1';
+                    section.style.tr= 'translateY(0)';
+                }, index *00);
+            });
+        });
+        
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+          if (e.key === '1' && e.altKey) {
+                window.location.href = 'index.html';
+         }
+            if (e.key === '2' && e.altKey) {
+                window.location.href = 'synthetic_tournament_visualization.html';
+            }
+        });
+    </script>
+</body>
+</html>

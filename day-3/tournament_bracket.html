@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hot Cocoa Championship - Tournament Bracket</title>
+    <link rel="stylesheet" href="common.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .container {
+            max-width: 1200px;
+        }
+        #chart {
+            width: 100%;
+            height: 600px;
+        }
+        .node rect {
+            cursor: pointer;
+            fill-opacity: .9;
+            stroke: #000;
+            stroke-width: 2px;
+        }
+        .node text {
+            pointer-events: none;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .link {
+            fill: none;
+            stroke: #000;
+            stroke-opacity: .2;
+        }
+        .link:hover {
+            stroke-opacity: .5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-button">← Back to Home</a>
+        <h1>🏆 Hot Cocoa Championship Tournament Bracket</h1>
+        <p class="subtitle">From Quarterfinals to Champion - Vote Flow Visualization</p>
+        <div id="chart"></div>
+    </div>
+
+    <script>
+        // Tournament data
+        const data = {
+            nodes: [
+                // Quarterfinals
+                {name: "Classic Swiss Velvet\n(234 votes)", id: "csv_qf"},
+                {name: "Peppermint Dream\n(312 votes)", id: "pd_qf"},
+                {name: "Dark Chocolate Decadence\n(276 votes)", id: "dcd_qf"},
+                {name: "Cinnamon Fireside\n(267 votes)", id: "cf_qf"},
+                
+                // Semifinals
+                {name: "Classic Swiss Velvet\n(398 votes)", id: "csv_sf"},
+                {name: "Peppermint Dream\n(445 votes)", id: "pd_sf"},
+                {name: "Dark Chocolate Decadence\n(512 votes)", id: "dcd_sf"},
+                {name: "Cinnamon Fireside\n(387 votes)", id: "cf_sf"},
+                
+                // Finals
+                {name: "Peppermint Dream\n(623 votes)", id: "pd_f"},
+                {name: "Dark Chocolate Decadence\n(678 votes)", id: "dcd_f"},
+                
+                // Champion
+                {name: "🏆 CHAMPION\nDark Chocolate Decadence", id: "champion"}
+            ],
+            links: [
+                // Quarterfinals to Semifinals
+                {source: 0, target: 4, value: 234},
+                {source: 1, target: 5, value: 312},
+                {source: 2, target: 6, value: 276},
+                {source: 3, target: 7, value: 267},
+                
+                // Semifinals to Finals
+                {source: 4, target: 8, value: 398},
+                {source: 5, target: 8, value: 445},
+                {source: 6, target: 9, value: 512},
+                {source: 7, target: 9, value: 387},
+                
+                // Finals to Champion
+                {source: 8, target: 10, value: 623},
+                {source: 9, target: 10, value: 678}
+            ]
+        };
+
+        // Set up dimensions
+        const margin = {top: 10, right: 10, bottom: 10, left: 10};
+        const width = 1140 - margin.left - margin.right;
+        const height = 600 - margin.top - margin.bottom;
+
+        // Create SVG
+        const svg = d3.select("#chart")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        // Create Sankey generator
+        const sankey = d3.sankey()
+            .nodeWidth(120)
+            .nodePadding(20)
+            .extent([[1, 1], [width - 1, height - 5]]);
+
+        // Generate the Sankey diagram
+        const {nodes, links} = sankey(data);
+
+        // Color scale for nodes
+        const color = d3.scaleOrdinal()
+            .domain(["champion", "dcd", "pd", "csv", "cf"])
+            .range(["#FFD700", "#8B4513", "#FF69B4", "#E6E6FA", "#D2691E"]);
+
+        // Add links
+        svg.append("g")
+            .selectAll("path")
+            .data(links)
+            .join("path")
+            .attr("class", "link")
+            .attr("d", d3.sankeyLinkHorizontal())
+            .attr("stroke-width", d => Math.max(1, d.width))
+            .style("stroke", d => {
+                if (d.target.id === "champion") return "#FFD700";
+                return "#999";
+            })
+            .style("stroke-opacity", d => d.target.id === "champion" ? 0.6 : 0.3);
+
+        // Add nodes
+        const node = svg.append("g")
+            .selectAll("g")
+            .data(nodes)
+            .join("g");
+
+        node.append("rect")
+            .attr("x", d => d.x0)
+            .attr("y", d => d.y0)
+            .attr("height", d => d.y1 - d.y0)
+            .attr("width", d => d.x1 - d.x0)
+            .attr("fill", d => {
+                if (d.id === "champion") return color("champion");
+                if (d.id.startsWith("dcd")) return color("dcd");
+                if (d.id.startsWith("pd")) return color("pd");
+                if (d.id.startsWith("csv")) return color("csv");
+                return color("cf");
+            })
+            .attr("stroke", "#333");
+
+        node.append("text")
+            .attr("x", d => (d.x0 + d.x1) / 2)
+            .attr("y", d => (d.y0 + d.y1) / 2)
+            .attr("dy", "0.35em")
+            .attr("text-anchor", "middle")
+            .text(d => d.name)
+            .style("fill", d => d.id === "champion" ? "#000" : "#fff")
+            .style("font-size", "10px")
+            .style("font-weight", "bold")
+            .each(function(d) {
+                const text = d3.select(this);
+                const words = d.name.split('\n');
+                text.text('');
+                words.forEach((word, i) => {
+                    text.append('tspan')
+                        .attr('x', (d.x0 + d.x1) / 2)
+                        .attr('dy', i === 0 ? '-0.6em' : '1.2em')
+                        .text(word);
+                });
+            });
+    </script>
+</body>
+</html>

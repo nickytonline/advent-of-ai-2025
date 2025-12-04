@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hot Cocoa Championship - Recipe Comparison</title>
+    <link rel="stylesheet" href="common.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        .container {
+            max-width: 1600px;
+        }
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-top: 20px;
+        }
+        .chart-wrapper {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .chart-title {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 15px;
+            color: #444;
+        }
+        .legend-item {
+            display: inline-flex;
+            align-items: center;
+            margin-right: 20px;
+            font-size: 14px;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+            border-radius: 3px;
+            border: 2px solid #333;
+        }
+        .legend-container {
+            text-align: center;
+            margin-top: 15px;
+        }
+        .insights-box {
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+            border-left: 4px solid #ffc107;
+        }
+        .insights-box h3 {
+            margin-top: 0;
+            color: #856404;
+        }
+        .insights-box ul {
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-button">← Back to Home</a>
+        <h1>🎯 Hot Cocoa Championship - Recipe Attribute Comparison</h1>
+        <p class="subtitle">Multi-dimensional analysis of all competitors</p>
+        
+        <div class="charts-container">
+            <div class="chart-wrapper">
+                <div class="chart-title">Top 4 Finalists - Radar Comparison</div>
+                <div id="finalists-radar"></div>
+            </div>
+            
+            <div class="chart-wrapper">
+                <div class="chart-title">All Competitors - Radar Comparison</div>
+                <div id="all-radar"></div>
+            </div>
+            
+            <div class="chart-wrapper">
+                <div class="chart-title">Attribute Averages by Position</div>
+                <div id="attribute-bars"></div>
+            </div>
+        </div>
+
+        <div class="insights-box">
+            <h3>💡 Key Insights from Recipe Analysis</h3>
+            <ul>
+                <li><strong>Winner's Profile:</strong> Dark Chocolate Decadence scored perfect 10s in both Richness and Presentation, but only 5/10 in Sweetness - showing that bold, sophisticated flavors won over sweet treats!</li>
+                <li><strong>Creativity Factor:</strong> Spicy Mexican Mocha had the highest creativity score (9/10) but was eliminated early - creativity alone doesn't guarantee victory.</li>
+                <li><strong>Balance vs. Excellence:</strong> Finalists showed excellence in specific attributes rather than being average across all categories.</li>
+                <li><strong>Presentation Matters:</strong> The champion had a perfect presentation score, highlighting the importance of visual appeal.</li>
+                <li><strong>Sweet Spot:</strong> The sweetest recipe (White Chocolate Wonder, 10/10) was eliminated in quarterfinals - voters preferred complex flavors.</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Recipe data with judge scores
+        const recipes = {
+            finalists: [
+                {
+                    name: "Dark Chocolate Decadence",
+                    richness: 10,
+                    sweetness: 5,
+                    creativity: 8,
+                    presentation: 10,
+                    color: "#8B4513",
+                    winner: true
+                },
+                {
+                    name: "Peppermint Dream",
+                    richness: 6,
+                    sweetness: 9,
+                    creativity: 7,
+                    presentation: 9,
+                    color: "#FF69B4",
+                    winner: false
+                },
+                {
+                    name: "Classic Swiss Velvet",
+                    richness: 8,
+                    sweetness: 6,
+                    creativity: 4,
+                    presentation: 7,
+                    color: "#E6E6FA",
+                    winner: false
+                },
+                {
+                    name: "Cinnamon Fireside",
+                    richness: 7,
+                    sweetness: 7,
+                    creativity: 8,
+                    presentation: 8,
+                    color: "#D2691E",
+                    winner: false
+                }
+            ],
+            all: [
+                {name: "Dark Chocolate Decadence", richness: 10, sweetness: 5, creativity: 8, presentation: 10, color: "#8B4513"},
+                {name: "Peppermint Dream", richness: 6, sweetness: 9, creativity: 7, presentation: 9, color: "#FF69B4"},
+                {name: "Classic Swiss Velvet", richness: 8, sweetness: 6, creativity: 4, presentation: 7, color: "#E6E6FA"},
+                {name: "Cinnamon Fireside", richness: 7, sweetness: 7, creativity: 8, presentation: 8, color: "#D2691E"},
+                {name: "Salted Caramel Swirl", richness: 9, sweetness: 8, creativity: 6, presentation: 7, color: "#F4A460"},
+                {name: "White Chocolate Wonder", richness: 5, sweetness: 10, creativity: 5, presentation: 6, color: "#FFF8DC"},
+                {name: "Spicy Mexican Mocha", richness: 7, sweetness: 5, creativity: 9, presentation: 8, color: "#CD853F"},
+                {name: "Hazelnut Heaven", richness: 8, sweetness: 7, creativity: 6, presentation: 7, color: "#DEB887"}
+            ]
+        };
+
+        const attributes = ["richness", "sweetness", "creativity", "presentation"];
+        const attributeLabels = ["Richness", "Sweetness", "Creativity", "Presentation"];
+
+        // Create radar charts
+        createRadarChart("#finalists-radar", recipes.finalists, 450, 450);
+        createRadarChart("#all-radar", recipes.all, 450, 450);
+        
+        // Create attribute comparison bar chart
+        createAttributeBarChart("#attribute-bars", recipes.finalists, 450, 350);
+
+        function createRadarChart(selector, data, width, height) {
+            const margin = 80;
+            const radius = Math.min(width, height) / 2 - margin;
+            const levels = 5;
+
+            const svg = d3.select(selector)
+                .append("svg")
+                .attr("width", width)
+                .attr("height", height)
+                .append("g")
+                .attr("transform", `translate(${width/2}, ${height/2})`);
+
+            // Scales
+            const angleSlice = Math.PI * 2 / attributes.length;
+            const rScale = d3.scaleLinear()
+                .domain([0, 10])
+                .range([0, radius]);
+
+            // Draw circular grid
+            for (let level = 1; level <= levels; level++) {
+                const levelRadius = radius * level / levels;
+                
+                svg.append("circle")
+                    .attr("r", levelRadius)
+                    .style("fill", "none")
+                    .style("stroke", "#CDCDCD")
+                    .style("stroke-width", "0.5px");
+
+                svg.append("text")
+                    .attr("x", 5)
+                    .attr("y", -levelRadius)
+                    .style("font-size", "10px")
+                    .style("fill", "#737373")
+                    .text((10 * level / levels).toFixed(0));
+            }
+
+            // Draw axes
+            attributes.forEach((attr, i) => {
+                const angle = angleSlice * i - Math.PI / 2;
+                const lineCoord = angleToCoordinate(angle, 10, rScale);
+                
+                svg.append("line")
+                    .attr("x1", 0)
+                    .attr("y1", 0)
+                    .attr("x2", lineCoord.x)
+                    .attr("y2", lineCoord.y)
+                    .style("stroke", "#CDCDCD")
+                    .style("stroke-width", "1px");
+
+                const labelCoord = angleToCoordinate(angle, 11, rScale);
+                svg.append("text")
+                    .attr("x", labelCoord.x)
+                    .attr("y", labelCoord.y)
+                    .style("font-size", "12px")
+                    .style("font-weight", "bold")
+                    .style("text-anchor", "middle")
+                    .text(attributeLabels[i]);
+            });
+
+            // Draw data
+            const radarLine = d3.lineRadial()
+                .radius(d => rScale(d.value))
+                .angle((d, i) => i * angleSlice)
+                .curve(d3.curveLinearClosed);
+
+            data.forEach(recipe => {
+                const dataPoints = attributes.map(attr => ({
+                    axis: attr,
+                    value: recipe[attr]
+                }));
+
+                // Area
+                svg.append("path")
+                    .datum(dataPoints)
+                    .attr("d", radarLine)
+                    .style("fill", recipe.color)
+                    .style("fill-opacity", 0.1)
+                    .style("stroke", recipe.color)
+                    .style("stroke-width", recipe.winner ? "3px" : "2px");
+
+                // Points
+                dataPoints.forEach((point, i) => {
+                    const angle = angleSlice * i - Math.PI / 2;
+                    const coord = angleToCoordinate(angle, point.value, rScale);
+                    
+                    svg.append("circle")
+                        .attr("cx", coord.x)
+                        .attr("cy", coord.y)
+                        .attr("r", recipe.winner ? 5 : 3)
+                        .style("fill", recipe.color)
+                        .style("stroke", "#fff")
+                        .style("stroke-width", "2px");
+                });
+            });
+
+            // Legend
+            const legend = d3.select(selector)
+                .append("div")
+                .attr("class", "legend-container");
+
+            data.forEach(recipe => {
+                const item = legend.append("div")
+                    .attr("class", "legend-item");
+
+                item.append("div")
+                    .attr("class", "legend-color")
+                    .style("background-color", recipe.color);
+
+                item.append("span")
+                    .text(recipe.name + (recipe.winner ? " 🏆" : ""));
+            });
+
+            function angleToCoordinate(angle, value, scale) {
+                const x = Math.cos(angle) * scale(value);
+                const y = Math.sin(angle) * scale(value);
+                return {x, y};
+            }
+        }
+
+        function createAttributeBarChart(selector, data, width, height) {
+            const margin = {top: 20, right: 30, bottom: 80, left: 60};
+            const chartWidth = width - margin.left - margin.right;
+            const chartHeight = height - margin.top - margin.bottom;
+
+            const svg = d3.select(selector)
+                .append("svg")
+                .attr("width", width)
+                .attr("height", height)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            // Prepare data for grouped bar chart
+            const barData = attributeLabels.map((label, i) => {
+                const attr = attributes[i];
+                return {
+                    attribute: label,
+                    winner: data.find(r => r.winner)[attr],
+                    runnerUp: data.find(r => r.name === "Peppermint Dream")[attr],
+                    thirdPlace: data.find(r => r.name === "Classic Swiss Velvet")[attr],
+                    fourthPlace: data.find(r => r.name === "Cinnamon Fireside")[attr]
+                };
+            });
+
+            // Scales
+            const x0 = d3.scaleBand()
+                .domain(attributeLabels)
+                .range([0, chartWidth])
+                .padding(0.2);
+
+            const x1 = d3.scaleBand()
+                .domain(["winner", "runnerUp", "thirdPlace", "fourthPlace"])
+                .range([0, x0.bandwidth()])
+                .padding(0.05);
+
+            const y = d3.scaleLinear()
+                .domain([0, 10])
+                .range([chartHeight, 0]);
+
+            const color = d3.scaleOrdinal()
+                .domain(["winner", "runnerUp", "thirdPlace", "fourthPlace"])
+                .range(["#FFD700", "#C0C0C0", "#CD7F32", "#8B7355"]);
+
+            // X axis
+            svg.append("g")
+                .attr("transform", `translate(0,${chartHeight})`)
+                .call(d3.axisBottom(x0));
+
+            // Y axis
+            svg.append("g")
+                .call(d3.axisLeft(y));
+
+            // Y axis label
+            svg.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", -45)
+                .attr("x", -chartHeight / 2)
+                .attr("text-anchor", "middle")
+                .style("font-weight", "bold")
+                .text("Score (out of 10)");
+
+            // Bars
+            const groups = svg.selectAll(".attribute-group")
+                .data(barData)
+                .enter()
+                .append("g")
+                .attr("transform", d => `translate(${x0(d.attribute)},0)`);
+
+            ["winner", "runnerUp", "thirdPlace", "fourthPlace"].forEach(position => {
+                groups.append("rect")
+                    .attr("x", x1(position))
+                    .attr("y", d => y(d[position]))
+                    .attr("width", x1.bandwidth())
+                    .attr("height", d => chartHeight - y(d[position]))
+                    .attr("fill", color(position));
+            });
+
+            // Legend
+            const legend = svg.append("g")
+                .attr("transform", `translate(${chartWidth - 150}, 10)`);
+
+            const positions = [
+                {name: "Winner", key: "winner"},
+                {name: "2nd Place", key: "runnerUp"},
+                {name: "3rd Place", key: "thirdPlace"},
+                {name: "4th Place", key: "fourthPlace"}
+            ];
+
+            positions.forEach((pos, i) => {
+                const g = legend.append("g")
+                    .attr("transform", `translate(0, ${i * 20})`);
+
+                g.append("rect")
+                    .attr("width", 15)
+                    .attr("height", 15)
+                    .attr("fill", color(pos.key));
+
+                g.append("text")
+                    .attr("x", 20)
+                    .attr("y", 12)
+                    .style("font-size", "12px")
+                    .text(pos.name);
+            });
+        }
+    </script>
+</body>
+</html>

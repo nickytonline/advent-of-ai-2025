@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hot Cocoa Championship - Vote Distribution</title>
+    <link rel="stylesheet" href="common.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        .container {
+            max-width: 1400px;
+        }
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-top: 20px;
+        }
+        .chart-wrapper {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .chart-title {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 15px;
+            color: #444;
+        }
+        .bar {
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .bar:hover {
+            opacity: 0.8;
+        }
+        .axis text {
+            font-size: 12px;
+        }
+        .axis-label {
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .legend {
+            font-size: 12px;
+        }
+        .stats-box {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid #3498db;
+        }
+        .stats-box h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        .stats-box ul {
+            list-style: none;
+            padding: 0;
+        }
+        .stats-box li {
+            padding: 5px 0;
+            color: #34495e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-button">← Back to Home</a>
+        <h1>📊 Hot Cocoa Championship - Vote Distribution Analysis</h1>
+        <p class="subtitle">Complete breakdown of voting patterns across all tournament rounds</p>
+        
+        <div class="charts-container">
+            <div class="chart-wrapper">
+                <div class="chart-title">All Competitors - Total Votes</div>
+                <div id="all-votes"></div>
+            </div>
+            
+            <div class="chart-wrapper">
+                <div class="chart-title">Championship Round Breakdown</div>
+                <div id="championship"></div>
+            </div>
+            
+            <div class="chart-wrapper">
+                <div class="chart-title">Voting by Time Period</div>
+                <div id="time-periods"></div>
+            </div>
+        </div>
+
+        <div class="stats-box">
+            <h3>🎯 Key Statistics</h3>
+            <ul>
+                <li><strong>Total Votes Cast:</strong> 5,294</li>
+                <li><strong>Closest Match:</strong> Peppermint Dream vs Salted Caramel Swirl (14 vote difference!)</li>
+                <li><strong>Biggest Blowout:</strong> Dark Chocolate Decadence vs White Chocolate Wonder (73 vote margin)</li>
+                <li><strong>Most Controversial:</strong> Spicy Mexican Mocha (loved or hated!)</li>
+                <li><strong>Peak Voting Time:</strong> Evening (2,156 votes)</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Data from tournament
+        const allCompetitors = [
+            {name: "Dark Choc Decadence", votes: 276 + 512 + 678, winner: true},
+            {name: "Peppermint Dream", votes: 312 + 445 + 623, winner: false},
+            {name: "Classic Swiss Velvet", votes: 234 + 398, winner: false},
+            {name: "Cinnamon Fireside", votes: 267 + 387, winner: false},
+            {name: "Salted Caramel Swirl", votes: 298, winner: false},
+            {name: "Hazelnut Heaven", votes: 245, winner: false},
+            {name: "White Choc Wonder", votes: 203, winner: false},
+            {name: "Spicy Mexican Mocha", votes: 189, winner: false}
+        ];
+
+        const championshipRound = [
+            {name: "Dark Chocolate Decadence", votes: 678, winner: true},
+            {name: "Peppermint Dream", votes: 623, winner: false}
+        ];
+
+        const timePeriods = [
+            {period: "Morning", votes: 1247},
+            {period: "Afternoon", votes: 1891},
+            {period: "Evening", votes: 2156}
+        ];
+
+        // Chart 1: All Competitors
+        createBarChart("#all-votes", allCompetitors, 400, 350, "name", "votes", "Votes");
+
+        // Chart 2: Championship Round
+        createBarChart("#championship", championshipRound, 400, 300, "name", "votes", "Votes", true);
+
+        // Chart 3: Time Periods
+        createBarChart("#time-periods", timePeriods, 400, 300, "period", "votes", "Votes");
+
+        function createBarChart(selector, data, width, height, xKey, yKey, yLabel, isChampionship = false) {
+            const margin = {top: 20, right: 30, bottom: 80, left: 60};
+            const chartWidth = width - margin.left - margin.right;
+            const chartHeight = height - margin.top - margin.bottom;
+
+            const svg = d3.select(selector)
+                .append("svg")
+                .attr("width", width)
+                .attr("height", height)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            // Scales
+            const x = d3.scaleBand()
+                .domain(data.map(d => d[xKey]))
+                .range([0, chartWidth])
+                .padding(0.2);
+
+            const y = d3.scaleLinear()
+                .domain([0, d3.max(data, d => d[yKey]) * 1.1])
+                .range([chartHeight, 0]);
+
+            // X axis
+            svg.append("g")
+                .attr("class", "axis")
+                .attr("transform", `translate(0,${chartHeight})`)
+                .call(d3.axisBottom(x))
+                .selectAll("text")
+                .attr("transform", "rotate(-45)")
+                .style("text-anchor", "end");
+
+            // Y axis
+            svg.append("g")
+                .attr("class", "axis")
+                .call(d3.axisLeft(y));
+
+            // Y axis label
+            svg.append("text")
+                .attr("class", "axis-label")
+                .attr("transform", "rotate(-90)")
+                .attr("y", -45)
+                .attr("x", -chartHeight / 2)
+                .attr("text-anchor", "middle")
+                .text(yLabel);
+
+            // Bars
+            svg.selectAll(".bar")
+                .data(data)
+                .enter()
+                .append("rect")
+                .attr("class", "bar")
+                .attr("x", d => x(d[xKey]))
+                .attr("y", d => y(d[yKey]))
+                .attr("width", x.bandwidth())
+                .attr("height", d => chartHeight - y(d[yKey]))
+                .attr("fill", d => {
+                    if (isChampionship) {
+                        return d.winner ? "#FFD700" : "#FF69B4";
+                    }
+                    if (d.winner) return "#FFD700";
+                    return d3.interpolateBlues(0.3 + (d[yKey] / d3.max(data, d => d[yKey])) * 0.6);
+                })
+                .attr("stroke", "#333")
+                .attr("stroke-width", d => d.winner ? 3 : 1);
+
+            // Value labels on bars
+            svg.selectAll(".label")
+                .data(data)
+                .enter()
+                .append("text")
+                .attr("class", "label")
+                .attr("x", d => x(d[xKey]) + x.bandwidth() / 2)
+                .attr("y", d => y(d[yKey]) - 5)
+                .attr("text-anchor", "middle")
+                .style("font-size", "12px")
+                .style("font-weight", "bold")
+                .text(d => d[yKey]);
+
+            // Add winner indicator for championship
+            if (isChampionship) {
+                const winner = data.find(d => d.winner);
+                svg.append("text")
+                    .attr("x", x(winner[xKey]) + x.bandwidth() / 2)
+                    .attr("y", y(winner[yKey]) - 25)
+                    .attr("text-anchor", "middle")
+                    .style("font-size", "20px")
+                    .text("🏆");
+            }
+        }
+    </script>
+</body>
+</html>

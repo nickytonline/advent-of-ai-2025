@@ -1,0 +1,323 @@
+{
+  "sankey": {
+    "nodes": [
+      {
+        "name": "Silky Lavender Cascade"
+      },
+      {
+        "name": "Dreamy Raspberry Embrace"
+      },
+      {
+        "name": "Whispered Almond Swirl"
+      },
+      {
+        "name": "Silky Lavender Delight"
+      },
+      {
+        "name": "Quarterfinals"
+      },
+      {
+        "name": "Velvet Vanilla Embrace"
+      },
+      {
+        "name": "Golden Cinnamon Cascade"
+      },
+      {
+        "name": "Arctic Cardamom Dream"
+      },
+      {
+        "name": "Dreamy Raspberry Embrace (SF)"
+      },
+      {
+        "name": "Silky Lavender Magic"
+      },
+      {
+        "name": "Finals"
+      },
+      {
+        "name": "Silky Lavender Magic (SF)"
+      },
+      {
+        "name": "\ud83c\udfc6 Silky Lavender Magic"
+      },
+      {
+        "name": "Silky Lavender Delight (SF)"
+      },
+      {
+        "name": "Silky Lavender Cascade (SF)"
+      }
+    ],
+    "links": [
+      {
+        "source": "Arctic Cardamom Dream",
+        "target": "Quarterfinals",
+        "value": 52
+      },
+      {
+        "source": "Silky Lavender Delight",
+        "target": "Quarterfinals",
+        "value": 102
+      },
+      {
+        "source": "Silky Lavender Cascade",
+        "target": "Quarterfinals",
+        "value": 104
+      },
+      {
+        "source": "Velvet Vanilla Embrace",
+        "target": "Quarterfinals",
+        "value": 50
+      },
+      {
+        "source": "Golden Cinnamon Cascade",
+        "target": "Quarterfinals",
+        "value": 95
+      },
+      {
+        "source": "Silky Lavender Magic",
+        "target": "Quarterfinals",
+        "value": 98
+      },
+      {
+        "source": "Whispered Almond Swirl",
+        "target": "Quarterfinals",
+        "value": 104
+      },
+      {
+        "source": "Dreamy Raspberry Embrace",
+        "target": "Quarterfinals",
+        "value": 99
+      },
+      {
+        "source": "Quarterfinals",
+        "target": "Silky Lavender Delight (SF)",
+        "value": 83
+      },
+      {
+        "source": "Quarterfinals",
+        "target": "Silky Lavender Cascade (SF)",
+        "value": 90
+      },
+      {
+        "source": "Quarterfinals",
+        "target": "Silky Lavender Magic (SF)",
+        "value": 101
+      },
+      {
+        "source": "Quarterfinals",
+        "target": "Dreamy Raspberry Embrace (SF)",
+        "value": 72
+      },
+      {
+        "source": "Silky Lavender Cascade (SF)",
+        "target": "Finals",
+        "value": 72
+      },
+      {
+        "source": "Silky Lavender Magic (SF)",
+        "target": "Finals",
+        "value": 89
+      },
+      {
+        "source": "Finals",
+        "target": "\ud83c\udfc6 Silky Lavender Magic",
+        "value": 99
+      }
+    ]
+  },
+  "bar_chart": {
+    "type": "bar",
+    "title": "Championship Final - Vote Distribution",
+    "subtitle": "Silky Lavender Cascade vs Silky Lavender Magic",
+    "labels": [
+      "Silky Lavender Cascade",
+      "Silky Lavender Magic"
+    ],
+    "datasets": [
+      {
+        "label": "Votes Received",
+        "data": [
+          0,
+          99
+        ]
+      }
+    ]
+  },
+  "radar_chart": {
+    "labels": [
+      "Taste",
+      "Presentation",
+      "Creativity",
+      "Aroma",
+      "Texture"
+    ],
+    "datasets": [
+      {
+        "label": "Silky Lavender Magic",
+        "data": [
+          10,
+          10,
+          9.1,
+          9.3,
+          10
+        ]
+      },
+      {
+        "label": "Silky Lavender Delight",
+        "data": [
+          8.5,
+          7.5,
+          10,
+          9.0,
+          9.5
+        ]
+      },
+      {
+        "label": "Dreamy Raspberry Embrace",
+        "data": [
+          10,
+          8.6,
+          9.6,
+          9.5,
+          8.2
+        ]
+      },
+      {
+        "label": "Silky Lavender Cascade",
+        "data": [
+          8.1,
+          9.3,
+          8.0,
+          10,
+          10
+        ]
+      }
+    ]
+  },
+  "round_totals": {
+    "Round of 16": {
+      "winner_votes": 704,
+      "loser_votes": 108,
+      "matches": 8
+    },
+    "Quarterfinals": {
+      "winner_votes": 346,
+      "loser_votes": 46,
+      "matches": 4
+    },
+    "Semifinals": {
+      "winner_votes": 161,
+      "loser_votes": 34,
+      "matches": 2
+    },
+    "Finals": {
+      "winner_votes": 99,
+      "loser_votes": 0,
+      "matches": 1
+    }
+  },
+  "finalist_recipes": [
+    {
+      "id": 6,
+      "name": "Silky Lavender Magic",
+      "attributes": {
+        "taste": 10,
+        "presentation": 10,
+        "creativity": 9.08865399743015,
+        "aroma": 9.308506229417958,
+        "texture": 10
+      }
+    },
+    {
+      "id": 9,
+      "name": "Silky Lavender Delight",
+      "attributes": {
+        "taste": 8.521154663766238,
+        "presentation": 7.5162261183338925,
+        "creativity": 10,
+        "aroma": 9.019200457134758,
+        "texture": 9.471403114856178
+      }
+    },
+    {
+      "id": 14,
+      "name": "Dreamy Raspberry Embrace",
+      "attributes": {
+        "taste": 10,
+        "presentation": 8.58953181205277,
+        "creativity": 9.611045922304887,
+        "aroma": 9.52110807202139,
+        "texture": 8.152715243355777
+      }
+    },
+    {
+      "id": 16,
+      "name": "Silky Lavender Cascade",
+      "attributes": {
+        "taste": 8.071283414746615,
+        "presentation": 9.27229444849282,
+        "creativity": 8.02196061394813,
+        "aroma": 10,
+        "texture": 10
+      }
+    }
+  ],
+  "champion_journey": [
+    {
+      "round": "Round of 16",
+      "match_number": 6,
+      "recipe1": "Silky Lavender Magic",
+      "recipe2": "Silky Cinnamon Dream",
+      "recipe1_votes": 98,
+      "recipe2_votes": 0,
+      "winner": "Silky Lavender Magic",
+      "loser": "Silky Cinnamon Dream",
+      "winner_votes": 98,
+      "loser_votes": 0,
+      "margin": 98,
+      "total_votes": 98
+    },
+    {
+      "round": "Quarterfinals",
+      "match_number": 3,
+      "recipe1": "Golden Cinnamon Cascade",
+      "recipe2": "Silky Lavender Magic",
+      "recipe1_votes": 4,
+      "recipe2_votes": 101,
+      "winner": "Silky Lavender Magic",
+      "loser": "Golden Cinnamon Cascade",
+      "winner_votes": 101,
+      "loser_votes": 4,
+      "margin": 97,
+      "total_votes": 105
+    },
+    {
+      "round": "Semifinals",
+      "match_number": 2,
+      "recipe1": "Silky Lavender Magic",
+      "recipe2": "Dreamy Raspberry Embrace",
+      "recipe1_votes": 89,
+      "recipe2_votes": 8,
+      "winner": "Silky Lavender Magic",
+      "loser": "Dreamy Raspberry Embrace",
+      "winner_votes": 89,
+      "loser_votes": 8,
+      "margin": 81,
+      "total_votes": 97
+    },
+    {
+      "round": "Finals",
+      "match_number": 1,
+      "recipe1": "Silky Lavender Cascade",
+      "recipe2": "Silky Lavender Magic",
+      "recipe1_votes": 0,
+      "recipe2_votes": 99,
+      "winner": "Silky Lavender Magic",
+      "loser": "Silky Lavender Cascade",
+      "winner_votes": 99,
+      "loser_votes": 0,
+      "margin": 99,
+      "total_votes": 99
+    }
+  ]
+}

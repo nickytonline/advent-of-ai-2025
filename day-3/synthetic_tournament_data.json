@@ -1,0 +1,397 @@
+{
+  "tournament_name": "Synthetic Hot Cocoa Championship 2025",
+  "generated_at": "2025-12-03T19:50:44.465965",
+  "total_recipes": 16,
+  "total_matches": 15,
+  "champion": "Silky Lavender Magic",
+  "recipes": [
+    {
+      "id": 1,
+      "name": "Arctic Cinnamon Magic",
+      "attributes": {
+        "taste": 5.775735273887599,
+        "presentation": 5.6646070168266895,
+        "creativity": 7.5791247223151945,
+        "aroma": 6.993221089557216,
+        "texture": 7.128599025659286
+      }
+    },
+    {
+      "id": 2,
+      "name": "Silky Cinnamon Dream",
+      "attributes": {
+        "taste": 6.7812987761227,
+        "presentation": 5.344840820864203,
+        "creativity": 5.8617458638725575,
+        "aroma": 7.214886225151182,
+        "texture": 6.9000573536222625
+      }
+    },
+    {
+      "id": 3,
+      "name": "Enchanted Espresso Cascade",
+      "attributes": {
+        "taste": 8.081568441186121,
+        "presentation": 7.750089580196621,
+        "creativity": 5.95264542793799,
+        "aroma": 6.741510673267827,
+        "texture": 6.307281503822246
+      }
+    },
+    {
+      "id": 4,
+      "name": "Whispered Salted Caramel Dream",
+      "attributes": {
+        "taste": 5.11475958233091,
+        "presentation": 7.367093550872897,
+        "creativity": 6.635788545931191,
+        "aroma": 7.245995271653658,
+        "texture": 7.013805811911972
+      }
+    },
+    {
+      "id": 5,
+      "name": "Arctic Cardamom Dream",
+      "attributes": {
+        "taste": 8.92035620221528,
+        "presentation": 8.287701466549033,
+        "creativity": 9.017262910388627,
+        "aroma": 8.16419864522658,
+        "texture": 8.545857718101065
+      }
+    },
+    {
+      "id": 6,
+      "name": "Silky Lavender Magic",
+      "attributes": {
+        "taste": 10,
+        "presentation": 10,
+        "creativity": 9.08865399743015,
+        "aroma": 9.308506229417958,
+        "texture": 10
+      }
+    },
+    {
+      "id": 7,
+      "name": "Golden Chili Kiss",
+      "attributes": {
+        "taste": 6.034208073847547,
+        "presentation": 8.043238370837688,
+        "creativity": 7.177380763439988,
+        "aroma": 7.060667624701171,
+        "texture": 5.746690552294498
+      }
+    },
+    {
+      "id": 8,
+      "name": "Enchanted Raspberry Symphony",
+      "attributes": {
+        "taste": 8.796664098061552,
+        "presentation": 7.748093325714045,
+        "creativity": 7.498943277475705,
+        "aroma": 7.881936799121391,
+        "texture": 8.356649806721196
+      }
+    },
+    {
+      "id": 9,
+      "name": "Silky Lavender Delight",
+      "attributes": {
+        "taste": 8.521154663766238,
+        "presentation": 7.5162261183338925,
+        "creativity": 10,
+        "aroma": 9.019200457134758,
+        "texture": 9.471403114856178
+      }
+    },
+    {
+      "id": 10,
+      "name": "Whispered Almond Swirl",
+      "attributes": {
+        "taste": 9.52494664920473,
+        "presentation": 8.025005809929647,
+        "creativity": 8.015281997179978,
+        "aroma": 9.831357984878279,
+        "texture": 9.21332290760533
+      }
+    },
+    {
+      "id": 11,
+      "name": "Mystic Cardamom Kiss",
+      "attributes": {
+        "taste": 8.260235476535822,
+        "presentation": 6.796201538079885,
+        "creativity": 5.5403508935718735,
+        "aroma": 5.408971783324695,
+        "texture": 5.596570048102469
+      }
+    },
+    {
+      "id": 12,
+      "name": "Golden Rose Cascade",
+      "attributes": {
+        "taste": 5.86720483105146,
+        "presentation": 7.71071111225214,
+        "creativity": 6.3096900068292605,
+        "aroma": 7.635582104372704,
+        "texture": 7.304686078235344
+      }
+    },
+    {
+      "id": 13,
+      "name": "Velvet Vanilla Embrace",
+      "attributes": {
+        "taste": 9.433868496542972,
+        "presentation": 8.14859871766377,
+        "creativity": 8.008572684512913,
+        "aroma": 7.602545561604644,
+        "texture": 7.137808246875823
+      }
+    },
+    {
+      "id": 14,
+      "name": "Dreamy Raspberry Embrace",
+      "attributes": {
+        "taste": 10,
+        "presentation": 8.58953181205277,
+        "creativity": 9.611045922304887,
+        "aroma": 9.52110807202139,
+        "texture": 8.152715243355777
+      }
+    },
+    {
+      "id": 15,
+      "name": "Golden Cinnamon Cascade",
+      "attributes": {
+        "taste": 5.6929764266738525,
+        "presentation": 8.421842048310207,
+        "creativity": 8.270711832985908,
+        "aroma": 8.129542787599894,
+        "texture": 6.55708857572434
+      }
+    },
+    {
+      "id": 16,
+      "name": "Silky Lavender Cascade",
+      "attributes": {
+        "taste": 8.071283414746615,
+        "presentation": 9.27229444849282,
+        "creativity": 8.02196061394813,
+        "aroma": 10,
+        "texture": 10
+      }
+    }
+  ],
+  "matches": [
+    {
+      "round": "Round of 16",
+      "match_number": 1,
+      "recipe1": "Arctic Cardamom Dream",
+      "recipe2": "Mystic Cardamom Kiss",
+      "recipe1_votes": 52,
+      "recipe2_votes": 51,
+      "winner": "Arctic Cardamom Dream",
+      "loser": "Mystic Cardamom Kiss",
+      "winner_votes": 52,
+      "loser_votes": 51,
+      "margin": 1,
+      "total_votes": 103
+    },
+    {
+      "round": "Round of 16",
+      "match_number": 2,
+      "recipe1": "Enchanted Raspberry Symphony",
+      "recipe2": "Silky Lavender Delight",
+      "recipe1_votes": 2,
+      "recipe2_votes": 102,
+      "winner": "Silky Lavender Delight",
+      "loser": "Enchanted Raspberry Symphony",
+      "winner_votes": 102,
+      "loser_votes": 2,
+      "margin": 100,
+      "total_votes": 104
+    },
+    {
+      "round": "Round of 16",
+      "match_number": 3,
+      "recipe1": "Enchanted Espresso Cascade",
+      "recipe2": "Silky Lavender Cascade",
+      "recipe1_votes": 0,
+      "recipe2_votes": 104,
+      "winner": "Silky Lavender Cascade",
+      "loser": "Enchanted Espresso Cascade",
+      "winner_votes": 104,
+      "loser_votes": 0,
+      "margin": 104,
+      "total_votes": 104
+    },
+    {
+      "round": "Round of 16",
+      "match_number": 4,
+      "recipe1": "Velvet Vanilla Embrace",
+      "recipe2": "Golden Chili Kiss",
+      "recipe1_votes": 50,
+      "recipe2_votes": 48,
+      "winner": "Velvet Vanilla Embrace",
+      "loser": "Golden Chili Kiss",
+      "winner_votes": 50,
+      "loser_votes": 48,
+      "margin": 2,
+      "total_votes": 98
+    },
+    {
+      "round": "Round of 16",
+      "match_number": 5,
+      "recipe1": "Whispered Salted Caramel Dream",
+      "recipe2": "Golden Cinnamon Cascade",
+      "recipe1_votes": 5,
+      "recipe2_votes": 95,
+      "winner": "Golden Cinnamon Cascade",
+      "loser": "Whispered Salted Caramel Dream",
+      "winner_votes": 95,
+      "loser_votes": 5,
+      "margin": 90,
+      "total_votes": 100
+    },
+    {
+      "round": "Round of 16",
+      "match_number": 6,
+      "recipe1": "Silky Lavender Magic",
+      "recipe2": "Silky Cinnamon Dream",
+      "recipe1_votes": 98,
+      "recipe2_votes": 0,
+      "winner": "Silky Lavender Magic",
+      "loser": "Silky Cinnamon Dream",
+      "winner_votes": 98,
+      "loser_votes": 0,
+      "margin": 98,
+      "total_votes": 98
+    },
+    {
+      "round": "Round of 16",
+      "match_number": 7,
+      "recipe1": "Golden Rose Cascade",
+      "recipe2": "Whispered Almond Swirl",
+      "recipe1_votes": 0,
+      "recipe2_votes": 104,
+      "winner": "Whispered Almond Swirl",
+      "loser": "Golden Rose Cascade",
+      "winner_votes": 104,
+      "loser_votes": 0,
+      "margin": 104,
+      "total_votes": 104
+    },
+    {
+      "round": "Round of 16",
+      "match_number": 8,
+      "recipe1": "Dreamy Raspberry Embrace",
+      "recipe2": "Arctic Cinnamon Magic",
+      "recipe1_votes": 99,
+      "recipe2_votes": 2,
+      "winner": "Dreamy Raspberry Embrace",
+      "loser": "Arctic Cinnamon Magic",
+      "winner_votes": 99,
+      "loser_votes": 2,
+      "margin": 97,
+      "total_votes": 101
+    },
+    {
+      "round": "Quarterfinals",
+      "match_number": 1,
+      "recipe1": "Arctic Cardamom Dream",
+      "recipe2": "Silky Lavender Delight",
+      "recipe1_votes": 13,
+      "recipe2_votes": 83,
+      "winner": "Silky Lavender Delight",
+      "loser": "Arctic Cardamom Dream",
+      "winner_votes": 83,
+      "loser_votes": 13,
+      "margin": 70,
+      "total_votes": 96
+    },
+    {
+      "round": "Quarterfinals",
+      "match_number": 2,
+      "recipe1": "Silky Lavender Cascade",
+      "recipe2": "Velvet Vanilla Embrace",
+      "recipe1_votes": 90,
+      "recipe2_votes": 5,
+      "winner": "Silky Lavender Cascade",
+      "loser": "Velvet Vanilla Embrace",
+      "winner_votes": 90,
+      "loser_votes": 5,
+      "margin": 85,
+      "total_votes": 95
+    },
+    {
+      "round": "Quarterfinals",
+      "match_number": 3,
+      "recipe1": "Golden Cinnamon Cascade",
+      "recipe2": "Silky Lavender Magic",
+      "recipe1_votes": 4,
+      "recipe2_votes": 101,
+      "winner": "Silky Lavender Magic",
+      "loser": "Golden Cinnamon Cascade",
+      "winner_votes": 101,
+      "loser_votes": 4,
+      "margin": 97,
+      "total_votes": 105
+    },
+    {
+      "round": "Quarterfinals",
+      "match_number": 4,
+      "recipe1": "Whispered Almond Swirl",
+      "recipe2": "Dreamy Raspberry Embrace",
+      "recipe1_votes": 24,
+      "recipe2_votes": 72,
+      "winner": "Dreamy Raspberry Embrace",
+      "loser": "Whispered Almond Swirl",
+      "winner_votes": 72,
+      "loser_votes": 24,
+      "margin": 48,
+      "total_votes": 96
+    },
+    {
+      "round": "Semifinals",
+      "match_number": 1,
+      "recipe1": "Silky Lavender Delight",
+      "recipe2": "Silky Lavender Cascade",
+      "recipe1_votes": 26,
+      "recipe2_votes": 72,
+      "winner": "Silky Lavender Cascade",
+      "loser": "Silky Lavender Delight",
+      "winner_votes": 72,
+      "loser_votes": 26,
+      "margin": 46,
+      "total_votes": 98
+    },
+    {
+      "round": "Semifinals",
+      "match_number": 2,
+      "recipe1": "Silky Lavender Magic",
+      "recipe2": "Dreamy Raspberry Embrace",
+      "recipe1_votes": 89,
+      "recipe2_votes": 8,
+      "winner": "Silky Lavender Magic",
+      "loser": "Dreamy Raspberry Embrace",
+      "winner_votes": 89,
+      "loser_votes": 8,
+      "margin": 81,
+      "total_votes": 97
+    },
+    {
+      "round": "Finals",
+      "match_number": 1,
+      "recipe1": "Silky Lavender Cascade",
+      "recipe2": "Silky Lavender Magic",
+      "recipe1_votes": 0,
+      "recipe2_votes": 99,
+      "winner": "Silky Lavender Magic",
+      "loser": "Silky Lavender Cascade",
+      "winner_votes": 99,
+      "loser_votes": 0,
+      "margin": 99,
+      "total_votes": 99
+    }
+  ]
+}
