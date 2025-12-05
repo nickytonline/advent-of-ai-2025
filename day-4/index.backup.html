@@ -17,8 +17,7 @@
 
         :root {
             /* Winter Color Palette */
-            --ice-blue: #0277bd;
-            --ice-blue-bright: #4fc3f7;
+            --ice-blue: #4fc3f7;
             --deep-blue: #1a1a2e;
             --midnight-blue: #16213e;
             --ocean-blue: #0f3460;
@@ -27,22 +26,8 @@
             --warm-orange: #ff6f3c;
             --cozy-red: #ef5350;
             --soft-green: #66bb6a;
-            --soft-purple: #7b1fa2;
-            --soft-purple-bright: #ba68c8;
-            
-            /* Light Mode - Whitish Background with Dark Text */
-            --bg-primary: linear-gradient(135deg, #f8f9fa 0%, #e3f2fd 50%, #e1f5fe 100%);
-            --bg-card: rgba(255, 255, 255, 0.95);
-            --bg-card-hover: rgba(255, 255, 255, 1);
-            --text-primary: #1a1a2e;
-            --text-secondary: #424242;
-            --text-light: #616161;
-            --border-color: rgba(2, 119, 189, 0.3);
-            --header-bg: rgba(255, 255, 255, 0.95);
-            --header-shadow: rgba(0, 0, 0, 0.1);
-            --card-shadow: rgba(0, 0, 0, 0.1);
-            --snowflake-color: rgba(255, 255, 255, 0.9);
-            --snowflake-shadow: rgba(79, 195, 247, 0.6);
+            --soft-purple: #ba68c8;
+            --text-light: #e0e0e0;
             
             /* Fonts */
             --font-heading: 'Playfair Display', serif;
@@ -50,72 +35,6 @@
             
             /* Spacing */
             --section-padding: 80px 20px;
-            
-            /* Transitions */
-            --theme-transition: all 0.3s ease;
-        }
-
-        /* Dark Mode Variables */
-        body.dark-mode {
-            --ice-blue: #4fc3f7;
-            --ice-blue-bright: #4fc3f7;
-            --soft-purple: #ba68c8;
-            --soft-purple-bright: #ba68c8;
-            
-            --bg-primary: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #2d1b3d 100%);
-            --bg-card: rgba(255, 255, 255, 0.05);
-            --bg-card-hover: rgba(255, 255, 255, 0.08);
-            --text-primary: #ffffff;
-            --text-secondary: #e0e0e0;
-            --text-light: #b0b0b0;
-            --border-color: rgba(79, 195, 247, 0.2);
-            --frost-white: #e8e8e8;
-            --snow-white: #f5f5f5;
-            --header-bg: rgba(26, 26, 46, 0.9);
-            --header-shadow: rgba(0, 0, 0, 0.3);
-            --card-shadow: rgba(31, 38, 135, 0.15);
-            --snowflake-color: white;
-            --snowflake-shadow: #ffffff;
-        }
-
-        /* Theme Toggle Button */
-        .theme-toggle {
-            background: none;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--ice-blue);
-            font-size: 1.5rem;
-            padding: 8px;
-            transition: var(--theme-transition);
-            border-radius: 50%;
-        }
-
-        .theme-toggle:hover {
-            transform: scale(1.1);
-            background: rgba(79, 195, 247, 0.1);
-        }
-
-        .theme-icon {
-            transition: transform 0.3s ease;
-        }
-
-        .theme-toggle:hover .theme-icon {
-            transform: rotate(20deg);
-        }
-
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border-width: 0;
         }
 
         html {
@@ -124,11 +43,10 @@
 
         body {
             font-family: var(--font-body);
-            background: var(--bg-primary);
-            color: var(--text-primary);
+            background: linear-gradient(135deg, var(--deep-blue) 0%, var(--midnight-blue) 50%, var(--ocean-blue) 100%);
+            color: var(--frost-white);
             line-height: 1.6;
             overflow-x: hidden;
-            transition: var(--theme-transition);
         }
 
         /* Snowflake Animation */
@@ -136,10 +54,10 @@
             position: fixed;
             top: -10px;
             z-index: 1;
-            color: var(--snowflake-color);
+            color: white;
             font-size: 1em;
             font-family: Arial, sans-serif;
-            text-shadow: 0 0 5px var(--snowflake-shadow);
+            text-shadow: 0 0 5px #ffffff;
             pointer-events: none;
             animation: fall linear infinite;
             opacity: 0.8;
@@ -201,16 +119,16 @@
             left: 0;
             right: 0;
             z-index: 1000;
-            background: var(--header-bg);
+            background: rgba(26, 26, 46, 0.9);
             backdrop-filter: blur(10px);
             padding: 15px 0;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid rgba(79, 195, 247, 0.3);
             transition: all 0.3s ease;
         }
 
         header.scrolled {
-            background: var(--header-bg);
-            box-shadow: 0 4px 20px var(--header-shadow);
+            background: rgba(26, 26, 46, 0.95);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
 
         nav {
@@ -234,7 +152,6 @@
             display: flex;
             gap: 30px;
             list-style: none;
-            align-items: center;
         }
 
         .nav-links a {
@@ -308,7 +225,6 @@
             font-size: clamp(2.5rem, 8vw, 5rem);
             font-weight: 900;
             margin-bottom: 20px;
-            color: var(--ice-blue);
             text-shadow: 0 0 20px rgba(79, 195, 247, 0.6);
             animation: glow 3s ease-in-out infinite alternate;
         }
@@ -890,12 +806,6 @@
                 <li><a href="#schedule">Schedule</a></li>
                 <li><a href="#gallery">Gallery</a></li>
                 <li><a href="#testimonials">Testimonials</a></li>
-                <li>
-                    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
-                        <span class="theme-icon" id="themeIcon">🌙</span>
-                        <span class="sr-only" id="themeText">Dark Mode</span>
-                    </button>
-                </li>
             </ul>
             <button class="mobile-menu-toggle" id="mobileMenuToggle">☰</button>
         </nav>
@@ -907,7 +817,7 @@
     <!-- Hero Section -->
     <section class="hero" id="home">
         <div class="hero-content">
-            <h1>Winter Festival 2025</h1>
+            <h1>❄️ Winter Festival 2025 ❄️</h1>
             <p class="tagline">A Magical Celebration of Wonder, Joy, and Winter Enchantment</p>
             <p class="date-info">📅 December 20-22, 2025 | 🕐 10 AM - 8 PM Daily</p>
             <a href="#about" class="cta-button">Discover the Magic ✨</a>
@@ -1071,23 +981,27 @@
                 <img src="https://images.unsplash.com/photo-1482517967863-00e15c9b44be?w=800" alt="Winter festival lights" loading="lazy">
                 <div class="gallery-overlay">
                     <h4>Magical Lights</h4>
-                    <p>Twinkling lights create winter magic</p>
                 </div>
             </div>
             
-            <div class="gallery-item" data-image="https://images.unsplash.com/photo-1511268559489-34b624fbfcf5?w=800">
-                <img src="https://images.unsplash.com/photo-1511268559489-34b624fbfcf5?w=800" alt="Hot cocoa mugs" loading="lazy">
+            <div class="gallery-item" data-image="https://images.unsplash.com/photo-1576522333578-5042e4b4f0b7?w=800">
+                <img src="https://images.unsplash.com/photo-1576522333578-5042e4b4f0b7?w=800" alt="Hot cocoa mugs" loading="lazy">
                 <div class="gallery-overlay">
                     <h4>Cozy Cocoa</h4>
-                    <p>Warm drinks for cold winter nights</p>
                 </div>
             </div>
             
-            <div class="gallery-item" data-image="https://images.unsplash.com/photo-1491002052546-bf38f186af56?w=800">
-                <img src="https://images.unsplash.com/photo-1491002052546-bf38f186af56?w=800" alt="Snowy winter night" loading="lazy">
+            <div class="gallery-item" data-image="https://images.unsplash.com/photo-1544818183-1227b37d0f37?w=800">
+                <img src="https://images.unsplash.com/photo-1544818183-1227b37d0f37?w=800" alt="Snowy winter night" loading="lazy">
                 <div class="gallery-overlay">
                     <h4>Winter Wonderland</h4>
-                    <p>Snow-covered paths lit by moonlight</p>
+                </div>
+            </div>
+            
+            <div class="gallery-item" data-image="https://images.unsplash.com/photo-1480775661506-541bb9d526d8?w=800">
+                <img src="https://images.unsplash.com/photo-1480775661506-541bb9d526d8?w=800" alt="Christmas market" loading="lazy">
+                <div class="gallery-overlay">
+                    <h4>Festival Stalls</h4>
                 </div>
             </div>
             
@@ -1095,39 +1009,13 @@
                 <img src="https://images.unsplash.com/photo-1543589077-47d81606c1bf?w=800" alt="Snow covered trees" loading="lazy">
                 <div class="gallery-overlay">
                     <h4>Enchanted Forest</h4>
-                    <p>Nature's winter beauty on display</p>
                 </div>
             </div>
             
-            <div class="gallery-item" data-image="https://images.unsplash.com/photo-1418065460487-3e41a6c84dc5?w=800">
-                <img src="https://images.unsplash.com/photo-1418065460487-3e41a6c84dc5?w=800" alt="Holiday decorations" loading="lazy">
+            <div class="gallery-item" data-image="https://images.unsplash.com/photo-1546289549-adfce1a84b4e?w=800">
+                <img src="https://images.unsplash.com/photo-1546289549-adfce1a84b4e?w=800" alt="Holiday decorations" loading="lazy">
                 <div class="gallery-overlay">
                     <h4>Festive Decor</h4>
-                    <p>Every corner sparkles with joy</p>
-                </div>
-            </div>
-            
-            <div class="gallery-item" data-image="https://images.unsplash.com/photo-1513297887119-d46091b24bfa?w=800">
-                <img src="https://images.unsplash.com/photo-1513297887119-d46091b24bfa?w=800" alt="Snowy cabin" loading="lazy">
-                <div class="gallery-overlay">
-                    <h4>Cozy Retreat</h4>
-                    <p>Warm havens in winter wonderland</p>
-                </div>
-            </div>
-            
-            <div class="gallery-item" data-image="https://images.unsplash.com/photo-1483664852095-d6cc6870702d?w=800">
-                <img src="https://images.unsplash.com/photo-1483664852095-d6cc6870702d?w=800" alt="Frozen forest" loading="lazy">
-                <div class="gallery-overlay">
-                    <h4>Frozen Beauty</h4>
-                    <p>Crystalline forests await</p>
-                </div>
-            </div>
-            
-            <div class="gallery-item" data-image="https://images.unsplash.com/photo-1452827073306-6e6e661baf57?w=800">
-                <img src="https://images.unsplash.com/photo-1452827073306-6e6e661baf57?w=800" alt="Winter sports" loading="lazy">
-                <div class="gallery-overlay">
-                    <h4>Winter Activities</h4>
-                    <p>Fun for all ages in the snow</p>
                 </div>
             </div>
         </div>
@@ -1256,62 +1144,31 @@
 
     <!-- JavaScript -->
     <script>
-        // Enhanced Snowflake Generation with Wind Effect
+        // Snowflake Generation
         function createSnowflakes() {
-            const snowflakeCount = 75;
-            const snowflakeChars = ['❄', '❅', '❆', '✻', '✼', '❉', '✺'];
+            const snowflakeCount = 50;
+            const snowflakeChars = ['❄', '❅', '❆'];
             
             for (let i = 0; i < snowflakeCount; i++) {
                 const snowflake = document.createElement('div');
                 snowflake.className = 'snowflake';
                 snowflake.textContent = snowflakeChars[Math.floor(Math.random() * snowflakeChars.length)];
-                
-                // Random horizontal drift for wind effect
-                const drift = (Math.random() - 0.5) * 100;
-                snowflake.style.setProperty('--drift', `${drift}px`);
-                
                 snowflake.style.left = Math.random() * 100 + '%';
-                snowflake.style.animationDuration = (Math.random() * 10 + 10) + 's';
+        snowflake.style.animationDuration = (Math.random() * 10 + 10) + 's';
                 snowflake.style.animationDelay = Math.random() * 5 + 's';
-                snowflake.style.fontSize = (Math.random() * 0.7 + 0.4) + 'em';
-                snowflake.style.opacity = Math.random() * 0.6 + 0.3;
-                
+                snowflake.style.fontSize = (Math.random() * 0.5 + 0.5) + 'em';
                 document.body.appendChild(snowflake);
             }
         }
 
-        // Header Scroll Effect & Progress Bar
+        // Header Scroll Effect
         const header = document.getElementById('header');
-        const scrollProgress = document.getElementById('scrollProgress');
-        const backToTop = document.getElementById('backToTop');
-        
         window.addEventListener('scroll', () => {
-            // Header scroll effect
             if (window.scrollY > 50) {
                 header.classList.add('scrolled');
             } else {
                 header.classList.remove('scrolled');
             }
-            
-            // Scroll progress bar
-            const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-            const scrolled = (window.scrollY / windowHeight) * 100;
-            scrollProgress.style.width = scrolled + '%';
-            
-            // Back to top button
-            if (window.scrollY > 500) {
-                backToTop.classList.add('visible');
-            } else {
-                backToTop.classList.remove('visible');
-            }
-        });
-        
-        // Back to top functionality
-        backToTop.addEventListener('click', () => {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
         });
 
         // Mobile Menu Toggle
@@ -1440,34 +1297,6 @@
             });
             if (!img.complete) {
                 img.classList.add('loading');
-            }
-        });
-
-        // Dark Mode Toggle
-        const themeToggle = document.getElementById('themeToggle');
-        const themeIcon = document.getElementById('themeIcon');
-        const themeText = document.getElementById('themeText');
-        
-        // Load saved theme preference
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark') {
-            document.body.classList.add('dark-mode');
-            themeIcon.textContent = '☀️';
-            themeText.textContent = 'Light Mode';
-        }
-        
-        // Toggle theme
-        themeToggle.addEventListener('click', () => {
-            document.body.classList.toggle('dark-mode');
-            
-            if (document.body.classList.contains('dark-mode')) {
-                themeIcon.textContent = '☀️';
-                themeText.textContent = 'Light Mode';
-                localStorage.setItem('theme', 'dark');
-            } else {
-                themeIcon.textContent = '🌙';
-                themeText.textContent = 'Dark Mode';
-                localStorage.setItem('theme', 'light');
             }
         });
     </script>
