@@ -69,7 +69,9 @@ Build a magical, touchless flight arrival display for the Winter Festival entran
 ## 🏗️ Technical Architecture
 
 ### Tech Stack
-- **Frontend Framework**: React + TypeScript (Vite)
+- **Framework**: TanStack Start (React + TypeScript with SSR)
+  - **Why TanStack Start**: Built-in server-side capabilities prevent CORS issues with flight APIs
+  - Server functions can proxy API requests without needing external CORS proxies
 - **Hand Tracking**: MediaPipe Hands (JavaScript SDK)
 - **Flight API**: OpenSky Network (free) or AviationStack (free tier)
 - **Styling**: CSS3 + CSS Animations (or Tailwind CSS)
@@ -170,14 +172,12 @@ homecoming-board/
 
 ### Phase 1: Project Setup ✅
 - [x] MediaPipe installed and tested
-- [ ] Create Vite React TypeScript project
-- [ ] Install dependencies:
+- [x] Create TanStack Start project
+- [x] Project structure set up
+- [ ] Install additional dependencies:
   - [ ] MediaPipe (@mediapipe/hands)
   - [ ] React webcam or custom webcam hook
-  - [ ] Axios or fetch for API calls
-  - [ ] Optional: Tailwind CSS
-- [ ] Set up project structure
-- [ ] Configure TypeScript
+- [ ] Configure TypeScript (if needed)
 
 ### Phase 2: Hand Tracking Foundation
 - [ ] Implement webcam access
@@ -289,11 +289,16 @@ homecoming-board/
 - **Rate Limit**: Anonymous (10s interval), Registered (5s interval)
 - **Data**: Live aircraft positions, registration, origin, destination
 - **Pros**: Completely free, no API key needed
-- **Cons**: Needs CORS proxy, rate limits
-- **Setup**: 
+- **Cons**: Rate limits (mitigated with caching)
+- **Setup with TanStack Start Server Function**: 
   ```typescript
-  const CORS_PROXY = 'https://corsproxy.io/?';
-  const OPENSKY_API = 'https://opensky-network.org/api/states/all';
+  // No CORS proxy needed! TanStack Start server functions handle this
+  import { createServerFn } from '@tanstack/start'
+  
+  export const getFlights = createServerFn('GET', async () => {
+    const response = await fetch('https://opensky-network.org/api/states/all')
+    return response.json()
+  })
   ```
 
 #### Option 2: AviationStack (Free Tier)
@@ -308,10 +313,13 @@ homecoming-board/
   const API_URL = 'http://api.aviationstack.com/v1/flights';
   ```
 
-### CORS Proxy Options
+### CORS Proxy Options (Not Needed with TanStack Start!)
+Since TanStack Start includes server-side capabilities, we don't need external CORS proxies. Server functions run on the backend and can make direct API requests without CORS restrictions.
+
+**If you were using a pure client-side approach**, you would need:
 - `https://corsproxy.io/?`
 - `https://api.allorigins.win/raw?url=`
-- Roll your own with Netlify Functions
+- Custom Netlify Functions
 
 ---
 
@@ -370,9 +378,9 @@ function isClosedFist(landmarks) {
 **Problem**: Similar gestures get confused  
 **Solution**: Choose very distinct gestures, add debouncing, tune confidence
 
-### Challenge 3: CORS Errors with Flight API
-**Problem**: Browser blocks API requests  
-**Solution**: Use CORS proxy or Netlify serverless function
+### Challenge 3: CORS Errors with Flight API ✅ SOLVED
+**Problem**: Browser blocks direct API requests from client-side code  
+**Solution**: TanStack Start's server functions run on the server, eliminating CORS issues entirely. No external CORS proxy needed!
 
 ### Challenge 4: Poor Hand Detection
 **Problem**: Lighting, background, hand position affects tracking  
@@ -511,10 +519,12 @@ function isClosedFist(landmarks) {
 
 Current Status:
 - ✅ MediaPipe installed and verified
-- ✅ PRD created
-- ⏳ Next: Create Vite React TypeScript project
+- ✅ PRD created and updated with TanStack Start
+- ✅ TanStack Start project created (CORS issues solved!)
+- ⏳ Next: Install MediaPipe and start building hand tracking
 
-**Next Command**: 
+**Next Steps**: 
 ```bash
-npm create vite@latest homecoming-board -- --template react-ts
+npm install @mediapipe/hands
+# Then start implementing webcam and hand tracking!
 ```
