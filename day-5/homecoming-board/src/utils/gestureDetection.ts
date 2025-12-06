@@ -69,12 +69,25 @@ function getFingerCurlRatio(
   // Distance from MCP (knuckle) to wrist
   const mcpToWrist = distance(mcp, wrist);
 
-  // If tip is closer to wrist than knuckle, finger is curled
-  // Ratio close to 0 = extended, close to 1 = curled
+  // When finger is extended: tipToWrist > mcpToWrist (tip is far from wrist)
+  // When finger is curled: tipToWrist < mcpToWrist (tip is close to wrist)
+  // 
+  // We want: 0 = extended, 1 = curled
+  // So if tipToWrist is 1.5x mcpToWrist (extended): ratio = 1.5, inverted = -0.5 -> clamp to 0
+  // If tipToWrist is 0.5x mcpToWrist (curled): ratio = 0.5, inverted = 0.5 -> 0.5 curl
+  // If tipToWrist is equal to mcpToWrist: ratio = 1.0, inverted = 0 -> 0 curl
+  //
+  // Better approach: normalize based on expected range
+  // Extended finger: ratio ~1.5-2.0, Curled: ratio ~0.6-0.9
   const ratio = tipToWrist / mcpToWrist;
   
-  // Clamp between 0 and 1
-  return Math.max(0, Math.min(1, 1 - ratio));
+  // Map ratio to curl value
+  // If ratio > 1.3 (extended): curl = 0
+  // If ratio < 0.9 (curled): curl = 1
+  // Linear interpolation between
+  const curl = Math.max(0, Math.min(1, (1.3 - ratio) / 0.4));
+  
+  return curl;
 }
 
 /**
@@ -110,7 +123,7 @@ export function detectClosedFist(
  */
 export function detectOpenPalm(
   keypoints: Keypoint[],
-  threshold: number = 0.6
+  threshold: number = 0.3
 ): boolean {
   if (keypoints.length < 21) return false;
 
@@ -124,8 +137,9 @@ export function detectOpenPalm(
   const thumbCurl = getFingerCurlRatio(keypoints, LANDMARK_INDICES.THUMB_TIP, LANDMARK_INDICES.THUMB_MCP);
 
   // All fingers should be extended (curl ratio below threshold)
-  const allFingersExtended = fingerCurls.every(curl => curl < (1 - threshold));
-  const thumbExtended = thumbCurl < (1 - threshold * 0.7);
+  // With new curl calc: 0 = extended, 1 = curled, so we want values < threshold
+  const allFingersExtended = fingerCurls.every(curl => curl < threshold);
+  const thumbExtended = thumbCurl < threshold * 1.5; // Thumb can be slightly more curled
 
   return allFingersExtended && thumbExtended;
 }
@@ -153,11 +167,14 @@ export function detectGesture(
     getFingerCurlRatio(keypoints, LANDMARK_INDICES.RING_TIP, LANDMARK_INDICES.RING_MCP),
     getFingerCurlRatio(keypoints, LANDMARK_INDICES.PINKY_TIP, LANDMARK_INDICES.PINKY_MCP),
   ];
-  console.log('👆 Finger curls:', fingerCurls.map(c => c.toFixed(2)).join(', '));
+  const thumbCurl = getFingerCurlRatio(keypoints, LANDMARK_INDICES.THUMB_TIP, LANDMARK_INDICES.THUMB_MCP);
+  
+  console.log('👆 Finger curls [Index, Middle, Ring, Pinky, Thumb]:', 
+    [...fingerCurls, thumbCurl].map(c => c.toFixed(2)).join(', '));
 
   // Check for closed fist first (more distinct)
   const isFist = detectClosedFist(keypoints, 0.6);
-  console.log('✊ Is fist?', isFist);
+  console.log('✊ Is fist?', isFist, '(need all > 0.6)');
   
   if (isFist) {
     return {
@@ -168,8 +185,8 @@ export function detectGesture(
   }
 
   // Check for open palm
-  const isPalm = detectOpenPalm(keypoints, 0.6);
-  console.log('🖐️ Is palm?', isPalm);
+  const isPalm = detectOpenPalm(keypoints, 0.3);
+  console.log('🖐️ Is palm?', isPalm, '(need all < 0.3)');
   
   if (isPalm) {
     return {
