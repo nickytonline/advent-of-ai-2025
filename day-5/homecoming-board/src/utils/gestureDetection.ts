@@ -97,7 +97,7 @@ function getFingerCurlRatio(
  */
 export function detectClosedFist(
   keypoints: Keypoint[],
-  threshold: number = 0.5
+  threshold: number = 0.4
 ): boolean {
   if (keypoints.length < 21) return false;
 
@@ -108,14 +108,12 @@ export function detectClosedFist(
     getFingerCurlRatio(keypoints, LANDMARK_INDICES.PINKY_TIP, LANDMARK_INDICES.PINKY_MCP),
   ];
 
-  // Thumb is special - check if it's also curled or tucked
-  const thumbCurl = getFingerCurlRatio(keypoints, LANDMARK_INDICES.THUMB_TIP, LANDMARK_INDICES.THUMB_MCP);
-
-  // All fingers should be curled above threshold (lowered from 0.6 to 0.5)
-  const allFingersCurled = fingerCurls.every(curl => curl > threshold);
-  const thumbCurled = thumbCurl > threshold * 0.6; // Thumb threshold: 0.3 (more lenient)
-
-  return allFingersCurled && thumbCurled;
+  // Thumb is special - it can be in various positions in a fist
+  // Just check if at least 3 out of 4 main fingers are curled
+  const curledFingers = fingerCurls.filter(curl => curl > threshold).length;
+  
+  // A fist should have at least 3 fingers curled (more lenient than requiring all 4)
+  return curledFingers >= 3;
 }
 
 /**
@@ -211,8 +209,14 @@ export function detectGesture(
     [...fingerCurls, thumbCurl].map(c => c.toFixed(2)).join(', '));
 
   // Check for thumbs up first (most specific - needs curled fingers + extended thumb pointing up)
+  const thumbTip = keypoints[LANDMARK_INDICES.THUMB_TIP];
+  const thumbMcp = keypoints[LANDMARK_INDICES.THUMB_MCP];
+  const wrist = keypoints[LANDMARK_INDICES.WRIST];
+  const thumbPointingUp = thumbTip.y < thumbMcp.y && thumbTip.y < wrist.y;
+  
   const isThumbsUp = detectThumbsUp(keypoints, 0.5);
-  console.log('👍 Is thumbs up?', isThumbsUp, '(fingers > 0.5, thumb < 0.3, pointing up)');
+  console.log('👍 Is thumbs up?', isThumbsUp, 
+    `(fingers > 0.5: ${fingerCurls.every(c => c > 0.5)}, thumb < 0.3: ${thumbCurl < 0.3}, pointing up: ${thumbPointingUp})`);
   
   if (isThumbsUp) {
     return {
@@ -222,9 +226,11 @@ export function detectGesture(
     };
   }
 
-  // Check for closed fist (all fingers including thumb curled)
-  const isFist = detectClosedFist(keypoints, 0.5);
-  console.log('✊ Is fist?', isFist, '(need fingers > 0.5, thumb > 0.3)');
+  // Check for closed fist (at least 3 out of 4 fingers curled)
+  const isFist = detectClosedFist(keypoints, 0.4);
+  const curledCount = fingerCurls.filter(c => c > 0.4).length;
+  console.log('✊ Is fist?', isFist, 
+    `(${curledCount}/4 fingers curled > 0.4, threshold: at least 3)`);
   
   if (isFist) {
     return {
@@ -236,7 +242,8 @@ export function detectGesture(
 
   // Check for open palm
   const isPalm = detectOpenPalm(keypoints, 0.3);
-  console.log('🖐️ Is palm?', isPalm, '(need all < 0.3)');
+  console.log('🖐️ Is palm?', isPalm, 
+    `(fingers < 0.3: ${fingerCurls.every(c => c < 0.3)}, thumb < 0.45: ${thumbCurl < 0.45})`);
   
   if (isPalm) {
     return {

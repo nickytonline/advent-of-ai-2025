@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { WebcamFeed } from './WebcamFeed';
 import { useMediaPipe } from '../hooks/useMediaPipe';
 import { useGestures } from '../hooks/useGestures';
@@ -20,20 +20,19 @@ export function HandTracker({
 }: HandTrackerProps) {
   const [videoElement, setVideoElement] = useState<HTMLVideoElement | null>(null);
 
-  console.log('🎬 HandTracker render - videoElement:', videoElement);
-
   const { canvasRef, results, isReady, error, fps } = useMediaPipe(videoElement, {
     onResults: onHandsDetected,
   });
 
+  // Memoize the gesture callback to prevent infinite loops
+  const handleGesture = useCallback((gesture) => {
+    console.log(`✨ Gesture: ${gesture.type} - ${gesture.hand} hand (${gesture.confidence})`);
+  }, []);
+
   // Detect gestures from hand tracking results
   const { currentGesture, allGestures } = useGestures(results, {
-    onGesture: (gesture) => {
-      console.log(`✨ Gesture: ${gesture.type} - ${gesture.hand} hand (${gesture.confidence})`);
-    },
+    onGesture: handleGesture,
   });
-
-  console.log('📊 HandTracker state - isReady:', isReady, 'error:', error, 'fps:', fps, 'results:', results);
 
   const handsDetected = results?.multiHandLandmarks?.length || 0;
 
