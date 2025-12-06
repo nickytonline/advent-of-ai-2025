@@ -170,43 +170,58 @@ homecoming-board/
 
 ## 🚀 Development Phases
 
-### Phase 1: Project Setup ✅
-- [x] MediaPipe installed and tested
+### Phase 1: Project Setup ✅ COMPLETE
+- [x] MediaPipe installed and tested (Python proof of concept)
 - [x] Create TanStack Start project
 - [x] Project structure set up
-- [ ] Install additional dependencies:
-  - [ ] MediaPipe (@mediapipe/hands)
-  - [ ] React webcam or custom webcam hook
-- [ ] Configure TypeScript (if needed)
+- [x] Install dependencies:
+  - [x] @tensorflow/tfjs + @tensorflow-models/hand-pose-detection (using MediaPipe runtime)
+  - [x] Custom webcam hook implemented
+- [x] Configure TypeScript
 
-### Phase 2: Hand Tracking Foundation
-- [ ] Implement webcam access
-- [ ] Integrate MediaPipe Hands
-- [ ] Display video feed (mirrored)
-- [ ] Draw hand landmarks on canvas overlay
-- [ ] Verify tracking works smoothly (30+ FPS)
-- [ ] Add error handling (no webcam, permission denied)
+### Phase 2: Hand Tracking Foundation ✅ COMPLETE
+- [x] Implement webcam access with useWebcam hook
+- [x] Integrate MediaPipe Hands via TensorFlow.js wrapper
+- [x] Display video feed (mirrored)
+- [x] Draw hand landmarks on canvas overlay
+- [x] Verify tracking works smoothly (20-30 FPS)
+- [x] Add error handling (no webcam, permission denied)
+- [x] **Camera Selection Feature**:
+  - [x] Multiple camera detection and listing
+  - [x] Dropdown UI for camera switching
+  - [x] Persist camera selection with useLocalStorage hook
+  - [x] Fix React hooks issues (ref dependencies, callback stability)
 
-### Phase 3: Gesture Recognition
-- [ ] Define gesture types (choose 2 distinct gestures)
-- [ ] Implement gesture detection logic:
-  - [ ] Analyze hand landmarks
-  - [ ] Detect gesture patterns
-  - [ ] Add confidence thresholds
-- [ ] Add debouncing (200-400ms)
-- [ ] Test gesture reliability
-- [ ] Add visual feedback for recognized gestures
+### Phase 3: Gesture Recognition 🟡 IN PROGRESS
+- [x] Define gesture types: Closed fist + Open palm
+- [x] Implement gesture detection logic:
+  - [x] Analyze hand landmarks
+  - [x] Detect gesture patterns (finger curl calculations)
+  - [x] Add confidence thresholds
+- [x] Add debouncing (300ms)
+- [x] Visual feedback UI for recognized gestures
+- [ ] **BLOCKED**: Gesture detection needs debugging
+  - Issue: Closed fist detection not triggering reliably
+  - Need to: Check curl ratio thresholds and log actual values
+- [ ] Test gesture reliability with different hand positions
+- [ ] Fine-tune thresholds based on testing
 
-### Phase 4: Flight Data Integration
+### Phase 4: Flight Data Integration ⏳ NOT STARTED
 - [ ] Research flight APIs (OpenSky Network recommended)
-- [ ] Set up API client with CORS proxy
-- [ ] Fetch flight arrival data
-- [ ] Parse and format flight data
-- [ ] Implement caching to respect rate limits
-- [ ] Add auto-refresh (30-60s intervals)
-- [ ] Handle API errors gracefully
+- [ ] Set up API client with **TanStack Query** for optimal data fetching:
+  - [ ] Automatic caching (20s stale time, 5min cache time)
+  - [ ] Background refetching every 30 seconds
+  - [ ] Retry logic with exponential backoff (3 attempts)
+  - [ ] Loading and error states
+  - [ ] Request deduplication
+- [ ] Create `useFlightData` hook with TanStack Query
+- [ ] Fetch flight arrival data from OpenSky Network API
+- [ ] Parse and format flight data (raw API → ProcessedFlight format)
+- [ ] Add auto-refresh with `refetchInterval` (respects rate limits)
+- [ ] Handle API errors gracefully with retry logic
+- [ ] Test with bounding box filtering for specific airport area
 
-### Phase 5: UI/UX Development
+### Phase 5: UI/UX Development ⏳ NOT STARTED
 - [ ] Design flight card component
 - [ ] Build flight board layout
 - [ ] Implement gesture-driven navigation
@@ -215,7 +230,7 @@ homecoming-board/
 - [ ] Add animations and transitions
 - [ ] Implement responsive design
 
-### Phase 6: Integration & Polish
+### Phase 6: Integration & Polish ⏳ NOT STARTED
 - [ ] Connect gestures to flight board navigation
 - [ ] Fine-tune gesture sensitivity
 - [ ] Optimize performance
@@ -225,7 +240,7 @@ homecoming-board/
 - [ ] Test across different browsers
 - [ ] Polish animations and transitions
 
-### Phase 7: Testing & Refinement
+### Phase 7: Testing & Refinement ⏳ NOT STARTED
 - [ ] Test gesture accuracy
 - [ ] Test with different lighting conditions
 - [ ] Test with different hand sizes/skin tones
@@ -234,7 +249,7 @@ homecoming-board/
 - [ ] Cross-browser testing
 - [ ] Accessibility considerations
 
-### Phase 8: Deployment
+### Phase 8: Deployment ⏳ NOT STARTED
 - [ ] Build production bundle
 - [ ] Deploy to Netlify
 - [ ] Test deployed version
@@ -290,16 +305,32 @@ homecoming-board/
 - **Data**: Live aircraft positions, registration, origin, destination
 - **Pros**: Completely free, no API key needed
 - **Cons**: Rate limits (mitigated with caching)
-- **Setup with TanStack Start Server Function**: 
+- **Setup with TanStack Query (Recommended)**: 
   ```typescript
-  // No CORS proxy needed! TanStack Start server functions handle this
-  import { createServerFn } from '@tanstack/start'
+  // Direct client-side fetching with TanStack Query
+  import { useQuery } from '@tanstack/react-query';
   
-  export const getFlights = createServerFn('GET', async () => {
-    const response = await fetch('https://opensky-network.org/api/states/all')
-    return response.json()
-  })
+  function useFlightData() {
+    return useQuery({
+      queryKey: ['flights', airport],
+      queryFn: async () => {
+        const response = await fetch('https://opensky-network.org/api/states/all');
+        return response.json();
+      },
+      staleTime: 20000,        // Cache for 20 seconds
+      refetchInterval: 30000,  // Auto-refresh every 30s
+      retry: 3,                // Retry failed requests 3 times
+    });
+  }
   ```
+- **Why TanStack Query?**
+  - ✅ Automatic caching prevents hitting rate limits
+  - ✅ Background refetching keeps data fresh
+  - ✅ Built-in retry logic with exponential backoff
+  - ✅ Request deduplication (multiple components can use same query)
+  - ✅ Loading/error states handled automatically
+  - ✅ Optimistic updates and mutations support
+  - ✅ No CORS issues - direct browser fetch works!
 
 #### Option 2: AviationStack (Free Tier)
 - **Endpoint**: `http://api.aviationstack.com/v1/flights`
@@ -313,13 +344,45 @@ homecoming-board/
   const API_URL = 'http://api.aviationstack.com/v1/flights';
   ```
 
-### CORS Proxy Options (Not Needed with TanStack Start!)
-Since TanStack Start includes server-side capabilities, we don't need external CORS proxies. Server functions run on the backend and can make direct API requests without CORS restrictions.
+### CORS Proxy Options (Not Needed!)
+OpenSky Network API supports CORS, so direct browser fetching works! No proxy needed.
 
-**If you were using a pure client-side approach**, you would need:
-- `https://corsproxy.io/?`
-- `https://api.allorigins.win/raw?url=`
+**Alternative approaches (not required for OpenSky):**
+- TanStack Start server functions for APIs that don't support CORS
+- External CORS proxies: `https://corsproxy.io/?`
 - Custom Netlify Functions
+
+### TanStack Query Best Practices for Flight Data
+
+#### Configuration Recommendations
+```typescript
+// Optimal settings for flight tracking with rate limits
+const queryConfig = {
+  staleTime: 20000,          // Data fresh for 20s (respects 10s rate limit with buffer)
+  gcTime: 5 * 60 * 1000,     // Keep cached data for 5 minutes
+  refetchInterval: 30000,     // Auto-refresh every 30s
+  refetchIntervalInBackground: true,  // Keep updating even when tab inactive
+  refetchOnWindowFocus: true, // Refresh when user returns to tab
+  retry: 3,                   // Retry failed requests
+  retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 30000), // Exponential backoff
+};
+```
+
+#### Query Key Strategy
+```typescript
+// Use structured query keys for easy invalidation and filtering
+['flights', airport, bbox]         // Basic flight data
+['flights', 'JFK', {...bbox}]      // Specific airport
+['flight-details', flightId]       // Individual flight details
+```
+
+#### Benefits for This Project
+1. **Automatic Rate Limit Handling**: `staleTime` prevents excessive requests
+2. **Background Updates**: Users see fresh data without manual refresh
+3. **Offline Resilience**: Cached data shown while waiting for network
+4. **Multiple Component Access**: Same query shared across HandTracker + FlightBoard
+5. **Gesture-Triggered Refresh**: Easy to manually refresh via `refetch()`
+6. **Error Recovery**: Automatic retries prevent temporary network blips from breaking UX
 
 ---
 
