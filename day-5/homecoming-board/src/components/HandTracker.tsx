@@ -27,7 +27,7 @@ export function HandTracker({
   });
 
   // Detect gestures from hand tracking results
-  const { currentGesture } = useGestures(results, {
+  const { currentGesture, allGestures } = useGestures(results, {
     onGesture: (gesture) => {
       console.log(`✨ Gesture: ${gesture.type} - ${gesture.hand} hand (${gesture.confidence})`);
     },
@@ -36,6 +36,14 @@ export function HandTracker({
   console.log('📊 HandTracker state - isReady:', isReady, 'error:', error, 'fps:', fps, 'results:', results);
 
   const handsDetected = results?.multiHandLandmarks?.length || 0;
+
+  // Helper to get display hand label (swap for mirrored view)
+  const getDisplayHand = (hand: 'Left' | 'Right' | 'Unknown', isMirrored: boolean = true): string => {
+    if (hand === 'Unknown') return hand;
+    if (!isMirrored) return hand;
+    // When mirrored, swap the labels so they match what the user sees
+    return hand === 'Left' ? 'Right' : 'Left';
+  };
 
   // Gesture display info
   const getGestureEmoji = (type: GestureType) => {
@@ -174,29 +182,49 @@ export function HandTracker({
         )}
       </div>
 
-      {/* Gesture Indicator */}
-      {currentGesture && currentGesture.type !== GestureType.UNKNOWN && (
+      {/* Gesture Indicators - One for each detected hand */}
+      {allGestures.length > 0 && (
         <div
           style={{
             position: 'absolute',
             bottom: '1rem',
             left: '50%',
             transform: 'translateX(-50%)',
-            backgroundColor: 'rgba(16, 185, 129, 0.95)',
-            color: 'white',
-            padding: '1rem 2rem',
-            borderRadius: '1rem',
-            fontSize: '1.5rem',
-            fontWeight: 'bold',
             display: 'flex',
-            alignItems: 'center',
             gap: '1rem',
-            boxShadow: '0 10px 25px rgba(0, 0, 0, 0.3)',
-            animation: 'gesturePopIn 0.3s ease-out',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            maxWidth: '90%',
           }}
         >
-          <span style={{ fontSize: '2rem' }}>{getGestureEmoji(currentGesture.type)}</span>
-          <span>{getGestureLabel(currentGesture.type)}</span>
+          {allGestures
+            .filter(g => g.type !== GestureType.UNKNOWN)
+            .map((gesture, index) => (
+              <div
+                key={`${gesture.hand}-${index}`}
+                style={{
+                  backgroundColor: 'rgba(16, 185, 129, 0.95)',
+                  color: 'white',
+                  padding: '1rem 2rem',
+                  borderRadius: '1rem',
+                  fontSize: '1.5rem',
+                  fontWeight: 'bold',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem',
+                  boxShadow: '0 10px 25px rgba(0, 0, 0, 0.3)',
+                  animation: 'gesturePopIn 0.3s ease-out',
+                }}
+              >
+                <span style={{ fontSize: '2rem' }}>{getGestureEmoji(gesture.type)}</span>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.25rem' }}>
+                  <span>{getGestureLabel(gesture.type)}</span>
+                  <span style={{ fontSize: '0.875rem', opacity: 0.9 }}>
+                    {getDisplayHand(gesture.hand)} hand
+                  </span>
+                </div>
+              </div>
+            ))}
         </div>
       )}
 
@@ -213,7 +241,7 @@ export function HandTracker({
         <p style={{ margin: 0, color: '#374151' }}>
           <strong>👋 Hand Tracking Active</strong>
           <br />
-          Try: <strong>closed fist ✊</strong>, <strong>open palm 🖐️</strong>, or <strong>thumbs up 👍</strong>
+          Try with one or both hands: <strong>closed fist ✊</strong>, <strong>open palm 🖐️</strong>, or <strong>thumbs up 👍</strong>
         </p>
       </div>
 
