@@ -110,11 +110,21 @@ function getGestureInfo(gesture: GestureType) {
       return {
         icon: '👍',
         name: 'Thumbs Up',
-        action: 'Resetting to top',
+        action: 'Opening flight details',
         bgGradient: 'from-green-900/60 to-emerald-900/60',
         borderColor: 'border-green-500',
         textColor: 'text-green-200',
         pulseColor: 'bg-green-500/50',
+      };
+    case 'THUMBS_DOWN':
+      return {
+        icon: '👎',
+        name: 'Thumbs Down',
+        action: 'Closing flight details',
+        bgGradient: 'from-red-900/60 to-rose-900/60',
+        borderColor: 'border-red-500',
+        textColor: 'text-red-200',
+        pulseColor: 'bg-red-500/50',
       };
     default:
       return {

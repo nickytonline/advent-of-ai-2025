@@ -51,30 +51,22 @@ export function FlightBoard({ onFlightSelect, onGestureNavigate, gesture, onGest
 
     // Map gestures to navigation actions
     if (gesture === GestureType.CLOSED_FIST) {
-      console.log('  ✊ Closed fist - checking modal state');
-      // If modal is open, close it first
-      if (isModalOpen) {
-        console.log('  🔒 Modal open, closing it');
-        setIsModalOpen(false);
-      } else {
-        console.log('  📍 Modal closed, calling handleNavigate(down)');
-        handleNavigate('down');
-      }
+      console.log('  ✊ Closed fist - navigate down');
+      handleNavigate('down');
     } else if (gesture === GestureType.OPEN_PALM) {
-      console.log('  ✋ Open palm - checking modal state');
-      // If modal is open, close it first
-      if (isModalOpen) {
-        console.log('  🔒 Modal open, closing it');
-        setIsModalOpen(false);
-      } else {
-        console.log('  📍 Modal closed, calling handleNavigate(up)');
-        handleNavigate('up');
-      }
+      console.log('  ✋ Open palm - navigate up');
+      handleNavigate('up');
     } else if (gesture === GestureType.THUMBS_UP) {
       console.log('  👍 Thumbs up - opening modal for selected flight');
       // Open the modal for the currently selected flight
       if (flights && flights[selectedIndex]) {
         setIsModalOpen(true);
+      }
+    } else if (gesture === GestureType.THUMBS_DOWN) {
+      console.log('  👎 Thumbs down - closing modal');
+      // Close the modal if it's open
+      if (isModalOpen) {
+        setIsModalOpen(false);
       }
     } else {
       console.log('  ❓ Unknown gesture type:', gesture);
@@ -246,6 +238,10 @@ export function FlightBoard({ onFlightSelect, onGestureNavigate, gesture, onGest
           <div className="flex items-center gap-2">
             <span className="text-green-400">👍 Thumbs Up</span>
             <span>View Details</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-red-400">👎 Thumbs Down</span>
+            <span>Close Details</span>
           </div>
         </div>
       </div>

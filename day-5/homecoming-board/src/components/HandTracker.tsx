@@ -60,6 +60,8 @@ export function HandTracker({
         return 'Open Palm';
       case GestureType.THUMBS_UP:
         return 'Thumbs Up';
+      case GestureType.THUMBS_DOWN:
+        return 'Thumbs Down';
       default:
         return 'Unknown gesture';
     }

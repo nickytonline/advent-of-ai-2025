@@ -17,6 +17,7 @@ export enum GestureType {
   CLOSED_FIST = 'CLOSED_FIST',
   OPEN_PALM = 'OPEN_PALM',
   THUMBS_UP = 'THUMBS_UP',
+  THUMBS_DOWN = 'THUMBS_DOWN',
   UNKNOWN = 'UNKNOWN',
 }
 
@@ -181,6 +182,43 @@ export function detectThumbsUp(
 }
 
 /**
+ * Detect if hand is making a thumbs down gesture
+ * Thumb extended downward, all other fingers curled
+ */
+export function detectThumbsDown(
+  keypoints: Keypoint[],
+  curlThreshold: number = 0.5
+): boolean {
+  if (keypoints.length < 21) return false;
+
+  const fingerCurls = [
+    getFingerCurlRatio(keypoints, LANDMARK_INDICES.INDEX_TIP, LANDMARK_INDICES.INDEX_MCP),
+    getFingerCurlRatio(keypoints, LANDMARK_INDICES.MIDDLE_TIP, LANDMARK_INDICES.MIDDLE_MCP),
+    getFingerCurlRatio(keypoints, LANDMARK_INDICES.RING_TIP, LANDMARK_INDICES.RING_MCP),
+    getFingerCurlRatio(keypoints, LANDMARK_INDICES.PINKY_TIP, LANDMARK_INDICES.PINKY_MCP),
+  ];
+
+  const thumbCurl = getFingerCurlRatio(keypoints, LANDMARK_INDICES.THUMB_TIP, LANDMARK_INDICES.THUMB_MCP);
+
+  // All four fingers should be curled
+  const allFingersCurled = fingerCurls.every(curl => curl > curlThreshold);
+  
+  // Thumb should be extended (low curl value)
+  const thumbExtended = thumbCurl < 0.3;
+  
+  // Additionally check that thumb is pointing downward (Y coordinate check)
+  const thumbTip = keypoints[LANDMARK_INDICES.THUMB_TIP];
+  const wrist = keypoints[LANDMARK_INDICES.WRIST];
+  const thumbMcp = keypoints[LANDMARK_INDICES.THUMB_MCP];
+  
+  // Thumb tip should be significantly below (higher Y value) than thumb base and wrist
+  // (In screen coordinates, higher Y = lower on screen)
+  const thumbPointingDown = thumbTip.y > thumbMcp.y && thumbTip.y > wrist.y;
+
+  return allFingersCurled && thumbExtended && thumbPointingDown;
+}
+
+/**
  * Detect gesture from hand keypoints
  */
 export function detectGesture(
@@ -213,6 +251,7 @@ export function detectGesture(
   const thumbMcp = keypoints[LANDMARK_INDICES.THUMB_MCP];
   const wrist = keypoints[LANDMARK_INDICES.WRIST];
   const thumbPointingUp = thumbTip.y < thumbMcp.y && thumbTip.y < wrist.y;
+  const thumbPointingDown = thumbTip.y > thumbMcp.y && thumbTip.y > wrist.y;
   
   const isThumbsUp = detectThumbsUp(keypoints, 0.5);
   console.log('👍 Is thumbs up?', isThumbsUp, 
@@ -221,6 +260,19 @@ export function detectGesture(
   if (isThumbsUp) {
     return {
       type: GestureType.THUMBS_UP,
+      confidence: 0.9,
+      hand: handedness,
+    };
+  }
+
+  // Check for thumbs down (similar to thumbs up but pointing down)
+  const isThumbsDown = detectThumbsDown(keypoints, 0.5);
+  console.log('👎 Is thumbs down?', isThumbsDown, 
+    `(fingers > 0.5: ${fingerCurls.every(c => c > 0.5)}, thumb < 0.3: ${thumbCurl < 0.3}, pointing down: ${thumbPointingDown})`);
+  
+  if (isThumbsDown) {
+    return {
+      type: GestureType.THUMBS_DOWN,
       confidence: 0.9,
       hand: handedness,
     };
