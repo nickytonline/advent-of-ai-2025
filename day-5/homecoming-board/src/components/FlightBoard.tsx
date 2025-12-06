@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useFlightData } from '../hooks/useFlightData';
 import { FlightCard } from './FlightCard';
+import { FlightDetailModal } from './FlightDetailModal';
 import { GestureType } from '../utils/gestureDetection';
 
 interface FlightBoardProps {
@@ -12,11 +13,12 @@ interface FlightBoardProps {
 
 export function FlightBoard({ onFlightSelect, onGestureNavigate, gesture, onGestureProcessed }: FlightBoardProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
-  
-  const { 
-    data: flights, 
-    isLoading, 
-    error, 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const {
+    data: flights,
+    isLoading,
+    error,
     refetch,
     dataUpdatedAt,
     isFetching
@@ -34,12 +36,12 @@ export function FlightBoard({ onFlightSelect, onGestureNavigate, gesture, onGest
   // Handle gesture input from parent
   useEffect(() => {
     console.log('🎮 Gesture effect triggered - gesture:', gesture, 'flights:', flights?.length);
-    
+
     if (!gesture) {
       console.log('  ⏭️ No gesture, skipping');
       return;
     }
-    
+
     if (!flights || flights.length === 0) {
       console.log('  ⏭️ No flights, skipping');
       return;
@@ -49,14 +51,31 @@ export function FlightBoard({ onFlightSelect, onGestureNavigate, gesture, onGest
 
     // Map gestures to navigation actions
     if (gesture === GestureType.CLOSED_FIST) {
-      console.log('  ✊ Closed fist - calling handleNavigate(down)');
-      handleNavigate('down');
+      console.log('  ✊ Closed fist - checking modal state');
+      // If modal is open, close it first
+      if (isModalOpen) {
+        console.log('  🔒 Modal open, closing it');
+        setIsModalOpen(false);
+      } else {
+        console.log('  📍 Modal closed, calling handleNavigate(down)');
+        handleNavigate('down');
+      }
     } else if (gesture === GestureType.OPEN_PALM) {
-      console.log('  ✋ Open palm - calling handleNavigate(up)');
-      handleNavigate('up');
+      console.log('  ✋ Open palm - checking modal state');
+      // If modal is open, close it first
+      if (isModalOpen) {
+        console.log('  🔒 Modal open, closing it');
+        setIsModalOpen(false);
+      } else {
+        console.log('  📍 Modal closed, calling handleNavigate(up)');
+        handleNavigate('up');
+      }
     } else if (gesture === GestureType.THUMBS_UP) {
-      console.log('  👍 Thumbs up - calling refetch()');
-      refetch();
+      console.log('  👍 Thumbs up - opening modal for selected flight');
+      // Open the modal for the currently selected flight
+      if (flights && flights[selectedIndex]) {
+        setIsModalOpen(true);
+      }
     } else {
       console.log('  ❓ Unknown gesture type:', gesture);
     }
@@ -64,14 +83,14 @@ export function FlightBoard({ onFlightSelect, onGestureNavigate, gesture, onGest
     // Mark gesture as processed
     console.log('  🧹 Calling onGestureProcessed');
     onGestureProcessed?.();
-  }, [gesture, flights, refetch, onGestureProcessed]);
+  }, [gesture, flights, selectedIndex, isModalOpen, refetch, onGestureProcessed]);
 
   // Navigate between flights
   const handleNavigate = (direction: 'up' | 'down') => {
     console.log('  📍 handleNavigate called with direction:', direction);
     console.log('  📍 Current selectedIndex:', selectedIndex);
     console.log('  📍 Total flights:', flights?.length);
-    
+
     if (!flights || flights.length === 0) {
       console.log('  ❌ No flights available');
       return;
@@ -85,16 +104,21 @@ export function FlightBoard({ onFlightSelect, onGestureNavigate, gesture, onGest
       newIndex = Math.max(selectedIndex - 1, 0);
       console.log('  ⬆️ Scrolling UP: from', selectedIndex, 'to', newIndex);
     }
-    
+
     setSelectedIndex(newIndex);
     onGestureNavigate?.(direction);
   };
 
   // Expose navigation to parent via callback
   useEffect(() => {
-    // This could be called by gesture handler
+    // Handle keyboard input
     const handleKeyboard = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowDown') {
+      if (e.key === 'Escape') {
+        // ESC closes modal
+        if (isModalOpen) {
+          setIsModalOpen(false);
+        }
+      } else if (e.key === 'ArrowDown') {
         handleNavigate('down');
       } else if (e.key === 'ArrowUp') {
         handleNavigate('up');
@@ -103,7 +127,7 @@ export function FlightBoard({ onFlightSelect, onGestureNavigate, gesture, onGest
 
     window.addEventListener('keydown', handleKeyboard);
     return () => window.removeEventListener('keydown', handleKeyboard);
-  }, [flights]);
+  }, [flights, isModalOpen]);
 
   // Loading State
   if (isLoading) {
@@ -191,7 +215,7 @@ export function FlightBoard({ onFlightSelect, onGestureNavigate, gesture, onGest
               {flights.length} {flights.length === 1 ? 'flight' : 'flights'} detected near JFK
             </p>
           </div>
-          
+
           <div className="text-right">
             <p className="text-xs text-gray-500">Last Updated</p>
             <p className="text-sm text-gray-300 font-mono">
@@ -207,7 +231,7 @@ export function FlightBoard({ onFlightSelect, onGestureNavigate, gesture, onGest
         </div>
 
         {/* Navigation Hint */}
-        <div className="mt-4 pt-4 border-t border-slate-700/50 flex items-center gap-4 text-xs text-gray-400">
+        <div className="mt-4 pt-4 border-t border-slate-700/50 flex flex-wrap items-center gap-4 text-xs text-gray-400">
           <div className="flex items-center gap-2">
             <kbd className="px-2 py-1 bg-slate-700 rounded border border-slate-600">↑</kbd>
             <kbd className="px-2 py-1 bg-slate-700 rounded border border-slate-600">↓</kbd>
@@ -217,7 +241,11 @@ export function FlightBoard({ onFlightSelect, onGestureNavigate, gesture, onGest
             <span className="text-cyan-400">✋ Open Palm</span>
             <span>/</span>
             <span className="text-cyan-400">✊ Closed Fist</span>
-            <span>Use gestures</span>
+            <span>Navigate</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-green-400">👍 Thumbs Up</span>
+            <span>View Details</span>
           </div>
         </div>
       </div>
@@ -243,6 +271,13 @@ export function FlightBoard({ onFlightSelect, onGestureNavigate, gesture, onGest
           Showing flight {selectedIndex + 1} of {flights.length}
         </p>
       </div>
+
+      {/* Flight Detail Modal */}
+      <FlightDetailModal
+        flight={flights[selectedIndex]}
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+      />
     </div>
   );
 }
