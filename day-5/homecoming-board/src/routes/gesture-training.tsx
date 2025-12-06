@@ -1,14 +1,23 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { HandTracker } from '../components/HandTracker'
+import { SettingsButton } from '../components/SettingsButton'
 import { useMediaPipe } from '../hooks/useMediaPipe'
 import { useGestures } from '../hooks/useGestures'
+import { useSettings } from '../contexts/SettingsContext'
+import { setSoundEnabled } from '../utils/gestureAudio'
 import type { GestureType } from '../utils/gestureDetection'
 
 export const Route = createFileRoute('/gesture-training')({ component: GestureTraining })
 
 function GestureTraining() {
   const [videoElement, setVideoElement] = useState<HTMLVideoElement | null>(null)
+  const { soundEnabled } = useSettings()
+
+  // Sync sound settings with audio utility
+  useEffect(() => {
+    setSoundEnabled(soundEnabled)
+  }, [soundEnabled])
 
   // MediaPipe hand tracking
   const { canvasRef, results, isReady, error, fps } = useMediaPipe(videoElement)
@@ -62,6 +71,11 @@ function GestureTraining() {
       <main className="py-8 px-6">
         <div className="max-w-7xl mx-auto">
           
+          {/* Settings Button */}
+          <div className="mb-6">
+            <SettingsButton />
+          </div>
+
           {/* Hand Tracker - Full Width */}
           <div className="mb-8">
             <div className="bg-slate-800/30 backdrop-blur-sm border border-purple-700/50 rounded-xl p-4">

@@ -1,9 +1,12 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { HandTracker } from '../components/HandTracker'
 import { FlightBoard } from '../components/FlightBoard'
+import { SettingsButton } from '../components/SettingsButton'
 import { useMediaPipe } from '../hooks/useMediaPipe'
 import { useGestures } from '../hooks/useGestures'
+import { useSettings } from '../contexts/SettingsContext'
+import { setSoundEnabled } from '../utils/gestureAudio'
 import type { GestureType } from '../utils/gestureDetection'
 
 export const Route = createFileRoute('/')({ component: App })
@@ -11,6 +14,12 @@ export const Route = createFileRoute('/')({ component: App })
 function App() {
   const [videoElement, setVideoElement] = useState<HTMLVideoElement | null>(null)
   const [currentGestureForBoard, setCurrentGestureForBoard] = useState<GestureType | null>(null)
+  const { soundEnabled } = useSettings()
+
+  // Sync sound settings with audio utility
+  useEffect(() => {
+    setSoundEnabled(soundEnabled)
+  }, [soundEnabled])
 
   // MediaPipe hand tracking
   const { canvasRef, results, isReady, error, fps } = useMediaPipe(videoElement)
@@ -87,8 +96,9 @@ function App() {
             />
           </div>
 
-          {/* Gesture Status Badge */}
-          <div className="mb-6 flex justify-end">
+          {/* Gesture Status Badge and Settings */}
+          <div className="mb-6 flex justify-between items-center">
+            <SettingsButton />
             <div className="inline-flex items-center gap-3 px-4 py-2 bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-full">
               <span className="text-sm text-gray-300">Gesture Control</span>
               {isReady ? (

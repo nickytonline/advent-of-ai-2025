@@ -18,11 +18,33 @@ const GESTURE_SOUNDS: Record<GestureType, string | null> = {
   [GestureType.UNKNOWN]: null, // No sound for unknown gestures
 };
 
+// Global sound enabled state (can be controlled externally)
+let soundEnabled = true;
+
+/**
+ * Set whether sounds should be enabled
+ */
+export function setSoundEnabled(enabled: boolean): void {
+  soundEnabled = enabled;
+}
+
+/**
+ * Get current sound enabled state
+ */
+export function isSoundEnabled(): boolean {
+  return soundEnabled;
+}
+
 /**
  * Play sound for a gesture
  * Caches audio files to avoid reloading
  */
 export function playGestureSound(gesture: GestureType): void {
+  // Check if sounds are enabled
+  if (!soundEnabled) {
+    return;
+  }
+
   const soundFile = GESTURE_SOUNDS[gesture];
   
   // No sound for this gesture
