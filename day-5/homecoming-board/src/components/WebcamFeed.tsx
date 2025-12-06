@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useWebcam } from '../hooks/useWebcam';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import { useWindowFocus } from '../hooks/useWindowFocus';
 
 interface WebcamFeedProps {
   onVideoReady?: (video: HTMLVideoElement) => void;
@@ -16,6 +17,9 @@ export function WebcamFeed({ onVideoReady, mirrored = true, className = '' }: We
   );
   const [showCameraSelector, setShowCameraSelector] = useState(false);
   
+  // Track window focus to pause/resume camera
+  const hasFocus = useWindowFocus();
+  
   const { videoRef, error, isLoading, startWebcam, stopWebcam, stream, availableCameras, refreshCameras } = useWebcam({
     deviceId: selectedDeviceId,
   });
@@ -30,6 +34,25 @@ export function WebcamFeed({ onVideoReady, mirrored = true, className = '' }: We
     
     return () => clearTimeout(timer);
   }, [selectedDeviceId, startWebcam]);
+
+  // Pause/resume camera based on window focus
+  useEffect(() => {
+    if (!stream) return;
+
+    if (!hasFocus) {
+      // Pause all video tracks when window loses focus
+      console.log('⏸️ Pausing camera (no focus)');
+      stream.getVideoTracks().forEach(track => {
+        track.enabled = false;
+      });
+    } else {
+      // Resume all video tracks when window gains focus
+      console.log('▶️ Resuming camera (has focus)');
+      stream.getVideoTracks().forEach(track => {
+        track.enabled = true;
+      });
+    }
+  }, [hasFocus, stream]);
 
   // Call onVideoReady when stream is attached to video element
   useEffect(() => {

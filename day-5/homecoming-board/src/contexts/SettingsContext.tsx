@@ -15,8 +15,13 @@ interface SettingsProviderProps {
 }
 
 export function SettingsProvider({ children }: SettingsProviderProps) {
-  // Load initial state from localStorage
+  // Load initial state from localStorage (only in browser)
   const [soundEnabled, setSoundEnabledState] = useState(() => {
+    // Check if we're in a browser environment
+    if (typeof window === 'undefined') {
+      return true // Default to enabled during SSR
+    }
+    
     try {
       const stored = localStorage.getItem(STORAGE_KEY)
       if (stored) {
