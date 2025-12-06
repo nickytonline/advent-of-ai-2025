@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { detectGesture, GestureDebouncer, GestureType, type GestureResult } from '../utils/gestureDetection';
+import { playGestureSound } from '../utils/gestureAudio';
 import type { HandResults } from '../types/hand';
 
 interface UseGesturesOptions {
@@ -72,6 +73,9 @@ export function useGestures(
       if (debouncedGesture) {
         console.log(`✨ Gesture confirmed: ${debouncedGesture.type} (${debouncedGesture.hand} hand)`);
         detectedGestures.push(debouncedGesture);
+        
+        // Play sound for gesture change
+        playGestureSound(debouncedGesture.type);
         
         // Add to history (keep last 10)
         setGestureHistory(prev => [...prev, debouncedGesture].slice(-10));
