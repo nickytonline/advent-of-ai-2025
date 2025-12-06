@@ -31,6 +31,8 @@ export function useMediaPipe(
   const lastFrameTimeRef = useRef<number>(0);
   const frameCountRef = useRef(0);
   const fpsUpdateIntervalRef = useRef<number>(0);
+  const lastHandCountRef = useRef<number>(0); // Track if hand count changed
+  const resultsRef = useRef<HandResults | null>(null); // Store results in ref
 
   useEffect(() => {
     // Only run on client side
@@ -174,11 +176,20 @@ export function useMediaPipe(
               })),
             };
 
-            setResults(handResults);
+            // Store results in ref for gesture detection
+            resultsRef.current = handResults;
+
+            // Only update React state when hand count changes (to avoid infinite re-renders)
+            const currentHandCount = hands.length;
+            if (currentHandCount !== lastHandCountRef.current) {
+              console.log(`🔄 Hand count changed: ${lastHandCountRef.current} → ${currentHandCount}`);
+              lastHandCountRef.current = currentHandCount;
+              setResults(handResults);
+            }
             
-            // Call custom callback if provided
+            // Call custom callback if provided (uses ref, not state)
             if (options.onResults) {
-              options.onResults(handResults);
+              options.onResults(resultsRef.current);
             }
 
             // Draw on canvas if available

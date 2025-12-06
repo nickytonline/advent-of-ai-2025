@@ -1,40 +1,34 @@
-import { useState, useCallback } from 'react';
+import { useCallback } from 'react';
 import { WebcamFeed } from './WebcamFeed';
-import { useMediaPipe } from '../hooks/useMediaPipe';
-import { useGestures } from '../hooks/useGestures';
 import { GestureType } from '../utils/gestureDetection';
-import type { HandResults } from '../types/hand';
 
 interface HandTrackerProps {
-  onHandsDetected?: (results: HandResults) => void;
+  onVideoReady?: (video: HTMLVideoElement) => void;
+  canvasRef?: React.RefObject<HTMLCanvasElement>;
   showCanvas?: boolean;
   showFps?: boolean;
+  fps?: number;
+  handsDetected?: number;
+  isReady?: boolean;
+  error?: Error | null;
+  currentGesture?: { type: GestureType; hand: 'Left' | 'Right' | 'Unknown' } | null;
+  allGestures?: Array<{ type: GestureType; hand: 'Left' | 'Right' | 'Unknown' }>;
   className?: string;
 }
 
 export function HandTracker({
-  onHandsDetected,
+  onVideoReady,
+  canvasRef,
   showCanvas = true,
   showFps = true,
+  fps = 0,
+  handsDetected = 0,
+  isReady = false,
+  error = null,
+  currentGesture = null,
+  allGestures = [],
   className = '',
 }: HandTrackerProps) {
-  const [videoElement, setVideoElement] = useState<HTMLVideoElement | null>(null);
-
-  const { canvasRef, results, isReady, error, fps } = useMediaPipe(videoElement, {
-    onResults: onHandsDetected,
-  });
-
-  // Memoize the gesture callback to prevent infinite loops
-  const handleGesture = useCallback((gesture) => {
-    console.log(`✨ Gesture: ${gesture.type} - ${gesture.hand} hand (${gesture.confidence})`);
-  }, []);
-
-  // Detect gestures from hand tracking results
-  const { currentGesture, allGestures } = useGestures(results, {
-    onGesture: handleGesture,
-  });
-
-  const handsDetected = results?.multiHandLandmarks?.length || 0;
 
   // Helper to get display hand label (swap for mirrored view)
   const getDisplayHand = (hand: 'Left' | 'Right' | 'Unknown', isMirrored: boolean = true): string => {
@@ -75,10 +69,10 @@ export function HandTracker({
     <div className={`hand-tracker ${className}`} style={{ position: 'relative' }}>
       {/* Webcam Video */}
       <div style={{ position: 'relative', width: '100%', maxWidth: '1280px', margin: '0 auto' }}>
-        <WebcamFeed onVideoReady={setVideoElement} mirrored={true} />
+        <WebcamFeed onVideoReady={onVideoReady} mirrored={true} />
 
         {/* Canvas overlay for hand landmarks */}
-        {showCanvas && (
+        {showCanvas && canvasRef && (
           <canvas
             ref={canvasRef}
             style={{
@@ -145,7 +139,7 @@ export function HandTracker({
           )}
 
           {/* Loading indicator */}
-          {!isReady && !error && videoElement && (
+          {!isReady && !error && (
             <div
               style={{
                 backgroundColor: 'rgba(59, 130, 246, 0.9)',

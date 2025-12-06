@@ -144,7 +144,7 @@ export function useFlightData(options: UseFlightDataOptions = {}) {
             onGround: on_ground,
             velocity,
             heading: true_track,
-            status: on_ground ? 'on-ground' : 'in-air' as const,
+            status: (on_ground ? 'on-ground' : 'in-air') as 'on-ground' | 'in-air',
           };
         })
         // Filter out invalid flights
