@@ -16,6 +16,7 @@ export interface Keypoint {
 export enum GestureType {
   CLOSED_FIST = 'CLOSED_FIST',
   OPEN_PALM = 'OPEN_PALM',
+  THUMBS_UP = 'THUMBS_UP',
   UNKNOWN = 'UNKNOWN',
 }
 
@@ -145,6 +146,43 @@ export function detectOpenPalm(
 }
 
 /**
+ * Detect if hand is making a thumbs up gesture
+ * Thumb extended upward, all other fingers curled
+ */
+export function detectThumbsUp(
+  keypoints: Keypoint[],
+  curlThreshold: number = 0.5
+): boolean {
+  if (keypoints.length < 21) return false;
+
+  const fingerCurls = [
+    getFingerCurlRatio(keypoints, LANDMARK_INDICES.INDEX_TIP, LANDMARK_INDICES.INDEX_MCP),
+    getFingerCurlRatio(keypoints, LANDMARK_INDICES.MIDDLE_TIP, LANDMARK_INDICES.MIDDLE_MCP),
+    getFingerCurlRatio(keypoints, LANDMARK_INDICES.RING_TIP, LANDMARK_INDICES.RING_MCP),
+    getFingerCurlRatio(keypoints, LANDMARK_INDICES.PINKY_TIP, LANDMARK_INDICES.PINKY_MCP),
+  ];
+
+  const thumbCurl = getFingerCurlRatio(keypoints, LANDMARK_INDICES.THUMB_TIP, LANDMARK_INDICES.THUMB_MCP);
+
+  // All four fingers should be curled
+  const allFingersCurled = fingerCurls.every(curl => curl > curlThreshold);
+  
+  // Thumb should be extended (low curl value)
+  const thumbExtended = thumbCurl < 0.3;
+  
+  // Additionally check that thumb is pointing upward (Y coordinate check)
+  const thumbTip = keypoints[LANDMARK_INDICES.THUMB_TIP];
+  const wrist = keypoints[LANDMARK_INDICES.WRIST];
+  const thumbMcp = keypoints[LANDMARK_INDICES.THUMB_MCP];
+  
+  // Thumb tip should be significantly above (lower Y value) than thumb base and wrist
+  // (In screen coordinates, lower Y = higher on screen)
+  const thumbPointingUp = thumbTip.y < thumbMcp.y && thumbTip.y < wrist.y;
+
+  return allFingersCurled && thumbExtended && thumbPointingUp;
+}
+
+/**
  * Detect gesture from hand keypoints
  */
 export function detectGesture(
@@ -172,7 +210,19 @@ export function detectGesture(
   console.log('👆 Finger curls [Index, Middle, Ring, Pinky, Thumb]:', 
     [...fingerCurls, thumbCurl].map(c => c.toFixed(2)).join(', '));
 
-  // Check for closed fist first (more distinct)
+  // Check for thumbs up first (most specific - needs curled fingers + extended thumb pointing up)
+  const isThumbsUp = detectThumbsUp(keypoints, 0.5);
+  console.log('👍 Is thumbs up?', isThumbsUp, '(fingers > 0.5, thumb < 0.3, pointing up)');
+  
+  if (isThumbsUp) {
+    return {
+      type: GestureType.THUMBS_UP,
+      confidence: 0.9,
+      hand: handedness,
+    };
+  }
+
+  // Check for closed fist (all fingers including thumb curled)
   const isFist = detectClosedFist(keypoints, 0.6);
   console.log('✊ Is fist?', isFist, '(need all > 0.6)');
   

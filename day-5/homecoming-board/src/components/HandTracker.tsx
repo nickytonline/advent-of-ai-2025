@@ -44,6 +44,8 @@ export function HandTracker({
         return '✊';
       case GestureType.OPEN_PALM:
         return '🖐️';
+      case GestureType.THUMBS_UP:
+        return '👍';
       default:
         return '👋';
     }
@@ -55,6 +57,8 @@ export function HandTracker({
         return 'Closed Fist';
       case GestureType.OPEN_PALM:
         return 'Open Palm';
+      case GestureType.THUMBS_UP:
+        return 'Thumbs Up';
       default:
         return 'No gesture';
     }
@@ -209,7 +213,7 @@ export function HandTracker({
         <p style={{ margin: 0, color: '#374151' }}>
           <strong>👋 Hand Tracking Active</strong>
           <br />
-          Try making a <strong>closed fist ✊</strong> or <strong>open palm 🖐️</strong>
+          Try: <strong>closed fist ✊</strong>, <strong>open palm 🖐️</strong>, or <strong>thumbs up 👍</strong>
         </p>
       </div>
       
