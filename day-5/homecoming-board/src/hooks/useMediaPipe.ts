@@ -193,8 +193,13 @@ export function useMediaPipe(
             }
 
             // Draw on canvas if available
-            if (canvasRef.current && hands.length > 0) {
-              drawResultsTF(canvasRef.current, videoElement, hands);
+            if (canvasRef.current) {
+              if (hands.length > 0) {
+                drawResultsTF(canvasRef.current, videoElement, hands);
+              } else {
+                // Clear canvas when no hands detected
+                clearCanvas(canvasRef.current);
+              }
             }
           } catch (err) {
             console.warn('Frame processing error:', err);
@@ -251,6 +256,13 @@ export function useMediaPipe(
     error,
     fps,
   };
+}
+
+// Helper function to clear canvas
+function clearCanvas(canvas: HTMLCanvasElement) {
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
 // Helper function to draw hand landmarks on canvas (TensorFlow.js format)
