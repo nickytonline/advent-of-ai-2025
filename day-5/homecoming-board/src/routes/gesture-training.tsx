@@ -2,11 +2,12 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState, useCallback, useEffect } from 'react'
 import { HandTracker } from '../components/HandTracker'
 import { SettingsButton } from '../components/SettingsButton'
+import { GestureTrainerOverlay } from '../components/GestureTrainerOverlay'
 import { useMediaPipe } from '../hooks/useMediaPipe'
 import { useGestures } from '../hooks/useGestures'
 import { useSettings } from '../contexts/SettingsContext'
 import { setSoundEnabled } from '../utils/gestureAudio'
-import type { GestureType } from '../utils/gestureDetection'
+import { loadTrainedThresholds, updateThresholds, resetThresholds } from '../utils/gestureDetection'
 
 export const Route = createFileRoute('/gesture-training')({ component: GestureTraining })
 
@@ -23,7 +24,7 @@ function GestureTraining() {
   const { canvasRef, results, isReady, error, fps } = useMediaPipe(videoElement)
 
   // Gesture detection with callback
-  const handleGesture = useCallback((gesture) => {
+  const handleGesture = useCallback((gesture: any) => {
     console.log(`✨ Gesture detected: ${gesture.type} - ${gesture.hand} hand`)
   }, [])
 
@@ -33,6 +34,28 @@ function GestureTraining() {
   })
 
   const handsDetected = results?.multiHandLandmarks?.length || 0
+
+  // Load trained thresholds on mount
+  useEffect(() => {
+    const loaded = loadTrainedThresholds();
+    console.log('📚 Loaded thresholds on page load:', loaded);
+  }, []);
+
+  const handleThresholdsLearned = useCallback((thresholds: any) => {
+    console.log('🎓 New thresholds learned:', thresholds);
+    // Update the gesture detection system with new thresholds
+    updateThresholds(thresholds);
+    alert('✅ Training complete! Your custom gesture thresholds are now active.\n\nGo to the Flight Board to test them!');
+  }, [])
+
+  const handleResetTraining = useCallback(() => {
+    if (confirm('Are you sure you want to reset gesture training?\n\nThis will delete all your trained gestures and restore default thresholds.')) {
+      resetThresholds();
+      alert('♻️ Training reset! Using default thresholds now.');
+      // Reload the page to apply defaults
+      window.location.reload();
+    }
+  }, [])
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-900 via-purple-900 to-slate-900">
@@ -71,33 +94,46 @@ function GestureTraining() {
       <main className="py-8 px-6">
         <div className="max-w-7xl mx-auto">
           
-          {/* Settings Button */}
-          <div className="mb-6">
+          {/* Settings Button and Reset Training */}
+          <div className="mb-6 flex items-center justify-between">
             <SettingsButton />
+            <button
+              onClick={handleResetTraining}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg transition-colors"
+            >
+              <span>♻️</span> Reset Training
+            </button>
           </div>
 
-          {/* Hand Tracker - Full Width */}
+          {/* Hand Tracker with Training Overlay */}
           <div className="mb-8">
             <div className="bg-slate-800/30 backdrop-blur-sm border border-purple-700/50 rounded-xl p-4">
               <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
                 <span>📹</span> Hand Tracking Camera
                 <span className="text-sm text-gray-400 font-normal ml-2">
-                  (Gesture indicators shown on video)
+                  (Live finger curl values & training overlay on video)
                 </span>
               </h2>
-              <HandTracker 
-                onVideoReady={setVideoElement}
-                canvasRef={canvasRef}
-                showCanvas={true}
-                showFps={true}
-                fps={fps}
-                handsDetected={handsDetected}
-                isReady={isReady}
-                error={error}
-                currentGesture={currentGesture}
-                allGestures={allGestures}
-                className="rounded-lg overflow-hidden"
-              />
+              <div className="relative">
+                <HandTracker 
+                  onVideoReady={setVideoElement}
+                  canvasRef={canvasRef}
+                  showCanvas={true}
+                  showFps={true}
+                  fps={fps}
+                  handsDetected={handsDetected}
+                  isReady={isReady}
+                  error={error}
+                  currentGesture={currentGesture}
+                  allGestures={allGestures}
+                  className="rounded-lg overflow-hidden"
+                />
+                {/* Overlay the trainer on top of the video */}
+                <GestureTrainerOverlay 
+                  handResults={results}
+                  onThresholdsLearned={handleThresholdsLearned}
+                />
+              </div>
             </div>
           </div>
 
@@ -147,35 +183,37 @@ function GestureTraining() {
           {/* Training Tips */}
           <div className="p-6 bg-gradient-to-r from-purple-900/30 to-pink-900/30 border border-purple-700/50 rounded-xl backdrop-blur-sm">
             <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
-              <span>💡</span> Training Tips
+              <span>💡</span> How to Use Training Mode
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div className="bg-slate-800/50 rounded-lg p-4">
-                <div className="text-3xl mb-2">🎥</div>
-                <h3 className="font-bold text-purple-300 mb-2">Camera Position</h3>
+                <div className="text-3xl mb-2">👀</div>
+                <h3 className="font-bold text-purple-300 mb-2">Watch the Overlays</h3>
                 <p className="text-gray-300">
-                  Position your hand 1-2 feet from the camera for best tracking. Ensure good lighting.
+                  <strong>Top-left</strong>: Live finger curl values (0.0=extended, 1.0=curled)<br/>
+                  <strong>Top-right</strong>: Detected gesture & training controls
                 </p>
               </div>
               <div className="bg-slate-800/50 rounded-lg p-4">
-                <div className="text-3xl mb-2">⏱️</div>
-                <h3 className="font-bold text-purple-300 mb-2">Hold Steady</h3>
+                <div className="text-3xl mb-2">🎓</div>
+                <h3 className="font-bold text-purple-300 mb-2">Start Training Mode</h3>
                 <p className="text-gray-300">
-                  Hold each gesture for at least 300ms. The system debounces to prevent accidental triggers.
+                  Click "Start Training Mode" in the top-right overlay. You'll see correction buttons appear.
                 </p>
               </div>
               <div className="bg-slate-800/50 rounded-lg p-4">
-                <div className="text-3xl mb-2">🖐️</div>
-                <h3 className="font-bold text-purple-300 mb-2">Clear Gestures</h3>
+                <div className="text-3xl mb-2">✋</div>
+                <h3 className="font-bold text-purple-300 mb-2">Make & Correct Gestures</h3>
                 <p className="text-gray-300">
-                  Make deliberate, exaggerated gestures. The system needs clear finger positions.
+                  Make a gesture. If it's wrong or unknown, click the correct button (Fist/Palm/Thumbs Up/Down). 
+                  Do this 3 times per gesture.
                 </p>
               </div>
               <div className="bg-slate-800/50 rounded-lg p-4">
-                <div className="text-3xl mb-2">🔊</div>
-                <h3 className="font-bold text-purple-300 mb-2">Audio Feedback</h3>
+                <div className="text-3xl mb-2">✨</div>
+                <h3 className="font-bold text-purple-300 mb-2">Apply Learned Settings</h3>
                 <p className="text-gray-300">
-                  Listen for audio cues when gestures are detected. This helps confirm recognition.
+                  After collecting 9+ samples (3 per gesture × 3 gestures), click "Finish Training & Apply" to use your custom thresholds!
                 </p>
               </div>
             </div>

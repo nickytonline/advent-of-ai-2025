@@ -7,7 +7,7 @@ import { useMediaPipe } from '../hooks/useMediaPipe'
 import { useGestures } from '../hooks/useGestures'
 import { useSettings } from '../contexts/SettingsContext'
 import { setSoundEnabled } from '../utils/gestureAudio'
-import type { GestureType } from '../utils/gestureDetection'
+import { loadTrainedThresholds, type GestureType } from '../utils/gestureDetection'
 
 export const Route = createFileRoute('/')({ component: App })
 
@@ -15,6 +15,12 @@ function App() {
   const [videoElement, setVideoElement] = useState<HTMLVideoElement | null>(null)
   const [currentGestureForBoard, setCurrentGestureForBoard] = useState<GestureType | null>(null)
   const { soundEnabled } = useSettings()
+
+  // Load trained thresholds on mount
+  useEffect(() => {
+    const loaded = loadTrainedThresholds();
+    console.log('📚 Loaded trained thresholds:', loaded);
+  }, []);
 
   // Sync sound settings with audio utility
   useEffect(() => {

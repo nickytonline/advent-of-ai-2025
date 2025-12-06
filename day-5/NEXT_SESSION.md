@@ -1,438 +1,269 @@
-# Next Session Quick Start 🚀
+# Next Session Summary - Day 5: The Homecoming Board
 
-**Date**: Session 4 - Continue from Session 3 (ended 2:09 AM, Dec 6 2024)
+**Date:** 2025-12-06 14:05
+**Project:** Gesture-controlled flight tracker with MediaPipe hand tracking
 
----
+## Current Status: ✅ Core Features Complete, Training Algorithm Improved
 
-## 🎉 MAJOR WIN: Hand Tracking is WORKING!
+### What's Working
+- ✅ MediaPipe hand tracking running at 30+ FPS
+- ✅ Gesture detection for: Fist (scroll down), Palm (scroll up), Thumbs Up (open details), Thumbs Down (close details)
+- ✅ Interactive gesture training system with overlay UI
+- ✅ Threshold persistence via localStorage
+- ✅ Reset training functionality
+- ✅ Canvas overlay clearing when hands disappear
+- ✅ Improved debouncer with stability tracking and UNKNOWN reset logic
 
-**Status**: ✅ 95% Complete - Just fist detection needs tuning
+### Latest Changes (This Session)
 
-**What's Working:**
-- ✅ Hardware acceleration enabled in Microsoft Edge
-- ✅ WebGL fully operational
-- ✅ MediaPipe runtime giving valid coordinates
-- ✅ Green skeleton drawing on hands in real-time
-- ✅ Open palm gesture detection working!
-- ✅ All 21 keypoints tracked accurately
-- ✅ 20+ FPS performance
+#### 1. **Enhanced Training Algorithm**
+**File:** `homecoming-board/src/components/GestureTrainerOverlay.tsx`
 
-**What Needs Work:**
-- 🟡 Closed fist detection (not triggering reliably)
+**Added Standard Deviation Calculation:**
+- Now calculates mean AND standard deviation for each finger across samples
+- Uses variance to set more robust, forgiving thresholds
+- Accounts for natural hand position variation
 
----
-
-## 🎯 IMMEDIATE TASK: Fix Fist Detection
-
-The detection algorithm is implemented, but the threshold might need adjustment.
-
-### Quick Test
-
-Start the dev server (should already be running):
-```bash
-cd homecoming-board
-npm run dev
-```
-
-Open http://localhost:3000 in **Microsoft Edge** (with hardware acceleration on)
-
-### Debug Fist Detection
-
-Make a **tight closed fist ✊** and check the console for:
-
-```javascript
-👆 Finger curls: [value1, value2, value3, value4]
-✊ Is fist? true/false
-```
-
-**What we need to see:**
-- Finger curl values > 0.6 for fist (currently threshold is 0.6)
-- If values are like 0.45, 0.52, 0.48, 0.50 → threshold too high
-
-**Possible Solutions:**
-1. Lower threshold from 0.6 to 0.4 or 0.5
-2. Adjust curl ratio calculation (might be inverted)
-3. Use different finger metrics (angle-based vs distance-based)
-
----
-
-## 🔧 The Solution That Worked
-
-### Final Configuration
-
+**Improved Threshold Formulas:**
 ```typescript
-// useMediaPipe.ts
-const detectorConfig = {
-  runtime: 'mediapipe' as const,  // ← KEY: Use MediaPipe runtime, not tfjs!
-  solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/hands',
-  maxHands: 2,
-};
+// OLD: Fixed margins
+thumbsUpFingerCurl: Math.max(0.45, thumbsUpAvg.avg - 0.15)
+thumbsUpThumbExtend: Math.min(0.35, thumbsUpAvg.thumb + 0.1)
 
-const detector = await handPoseDetection.createDetector(
-  handPoseDetection.SupportedModels.MediaPipeHands,
-  detectorConfig
-);
+// NEW: Variance-aware margins
+thumbsUpFingerCurl: Math.max(0.45, thumbsUpAvg.avg - 0.15 - (stdDev * 0.5))
+thumbsUpThumbExtend: Math.min(0.35, thumbsUpAvg.thumb + 0.1 + (stdDev * 0.5))
 ```
 
-### Why This Works
+**Why This Matters:**
+- If user's hand position varies a lot during training → larger stdDev →t thresholds
+- If user is very consistent → smaller stdDev → tighter thresholds
+- Prevents overfitting to training samples
 
-**❌ What Didn't Work:**
-- Direct MediaPipe package → loadGraph errors with Vite
-- @mediapipe/tasks-vision → activeTexture WebGL errors
-- TensorFlow.js with `runtime: 'tfjs'` → null coordinates (buggy!)
-
-**✅ What Works:**
-- TensorFlow.js package with `runtime: 'mediapipe'`
-- Best of both worlds: easy API + reliable coordinates
-- No local WASM files needed (loads from CDN)
-- Works with Vite/modern bundlers
-
----
-
-## 🎯 Next Steps After Fist Detection
-
-### Phase 1: Complete Gesture Recognition ⚡ HIGH PRIORITY
-1. ✅ Open palm detection (working!)
-2. 🔧 **Fix closed fist detection** ← DO THIS FIRST
-3. ✅ Debouncing already implemented (300ms)
-4. ✅ Visual feedback already working
-
-### Phase 2: Flight Data Integration 🛫
-1. **Set up OpenSky Network API**
-   ```typescript
-   // Server function in TanStack Start
-   async function getFlightData() {
-     const response = await fetch(
-       'https://opensky-network.org/api/states/all'
-     );
-     return response.json();
-   }
-   ```
-
-2. **Create flight data types**
-   ```typescript
-   interface Flight {
-     icao24: string;
-     callsign: string;
-     origin_country: string;
-     time_position: number;
-     last_contact: number;
-     longitude: number;
-     latitude: number;
-     baro_altitude: number;
-     on_ground: boolean;
-     velocity: number;
-     true_track: number;
-     vertical_rate: number;
-   }
-   ```
-
-3. **Build flight display component**
-   - Card layout for each flight
-   - Show: airline, flight number, origin, ETA
-   - Filter: arrivals only (specific airport)
-   - Auto-refresh every 30-60 seconds
-
-### Phase 3: Winter UI Theme ❄️
-1. **Color scheme**
-   - Deep blues (#1a1f3a, #2a3f5f)
-   - Icy whites (#f0f4f8, #ffffff)
-   - Accent gold/warm yellows (#f4c542)
-
-2. **Typography**
-   - Large, readable fonts (airport display style)
-   - Flight numbers in monospace
-   - "Welcome Home" messaging
-
-3. **Animations**
-   - Subtle snow falling in background
-   - Flight cards slide in/out
-   - Gesture feedback pulses
-
-### Phase 4: Connect Gestures to UI 🤝
-1. **Closed fist** → Scroll down through flights
-2. **Open palm** → Scroll up / Reset to top
-3. **Hold gesture** → Lock on flight (show details)
-4. **Both hands** → Special actions (refresh data?)
-
-### Phase 5: Polish & Deploy 🚀
-1. Error states (no camera, no gestures detected)
-2. Loading states (fetching flights, initializing camera)
-3. Accessibility considerations
-4. Deploy to Netlify
-5. Test on actual festival display hardware
-
----
-
-## 📁 Current Project Structure
-
-```
-homecoming-board/
-├── src/
-│   ├── hooks/
-│   │   ├── useMediaPipe.ts       # ✅ Hand tracking (working!)
-│   │   ├── useGestures.ts        # ✅ Gesture processing (95% working)
-│   │   └── useWebcam.ts          # ✅ Camera access (working)
-│   ├── utils/
-│   │   └── gestureDetection.ts  # 🔧 Fist detection needs tuning
-│   ├── components/
-│   │   ├── WebcamFeed.tsx        # ✅ Video display (working)
-│   │   └── HandTracker.tsx       # ✅ Main component (working)
-│   ├── types/
-│   │   └── hand.ts               # ✅ Type definitions
-│   └── routes/
-│       └── index.tsx             # ✅ Test page (working)
-├── BLOG.md                       # ✅ Full journey documented!
-├── SESSION_SUMMARY.md            # Reference
-├── NEXT_SESSION.md               # This file!
-└── package.json
-```
-
----
-
-## 🐛 Quick Debugging Commands
-
-### Check if dev server is running:
-```bash
-lsof -i:3000
-```
-
-### Restart dev server:
-```bash
-# Kill old process
-lsof -ti:3000 | xargs kill -9
-# Start fresh
-cd homecoming-board && npm run dev
-```
-
-### Check browser WebGL support:
-Visit: `edge://gpu/` in Edge
-Look for: **WebGL: Hardware accelerated** ✅
-
-### Test gesture detection in console:
-```javascript
-// Should see these logs:
-👆 Finger curls: 0.45, 0.52, 0.48, 0.50
-✊ Is fist? false
-🖐️ Is palm? true
-✨ Gesture: OPEN_PALM - Right hand
-```
-
----
-
-## 🎓 Session 3 Key Learnings
-
-### 1. Hardware Acceleration is Critical
-- Browser ML requires GPU/WebGL
-- CPU fallback is extremely limited (null coordinates)
-- Always check `chrome://gpu/` or `edge://gpu/` first
-
-### 2. Runtime Selection Matters
-- TensorFlow.js supports multiple runtimes
-- `runtime: 'tfjs'` → Buggy with coordinates
-- `runtime: 'mediapipe'` → Reliable, production-ready
-
-### 3. The Best of Both Worlds
-- Use TensorFlow.js package (easy API, good docs)
-- But configure it to use MediaPipe runtime (reliable results)
-- CDN loading avoids build tool issues
-
-### 4. Debugging in Layers
-- Session 1: Package/API issues → tried 3 different packages
-- Session 2: Backend issues → CPU vs WebGL
-- Session 3: Runtime issues → tfjs vs mediapipe runtime
-- Each layer revealed a different problem!
-
-### 5. Patience Pays Off
-- Took 3 sessions and ~3 hours total
-- But now we have working hand tracking
-- And comprehensive documentation for others
-
----
-
-## 📊 Project Progress
-
-**Overall**: 60% Complete
-
-**Hand Tracking**: ✅ 100% (working perfectly!)
-**Gesture Detection**: 🟡 90% (open palm works, fist needs tuning)
-**Flight Data API**: ❌ 0% (not started)
-**Winter UI**: ❌ 0% (not started)
-**Gesture Navigation**: ❌ 0% (blocked by gesture detection)
-**Deployment**: ❌ 0% (final step)
-
----
-
-## ⏱️ Time Tracking
-
-**Session 1**: 1.5 hours (12:30 AM - 2:00 AM)
-- MediaPipe debugging saga
-- Three failed package attempts
-- Extensive documentation
-
-**Session 2**: 30 minutes (continued session 1)
-- Gesture detection implementation
-- Null coordinate discovery
-- Hardware acceleration investigation
-
-**Session 3**: 8 minutes (2:00 AM - 2:08 AM) 🎯
-- Hardware acceleration enablement
-- Runtime switch to mediapipe
-- SUCCESS!
-
-**Total Time**: ~2 hours (very efficient for the complexity!)
-
-**Estimated Remaining**: 
-- Fist detection tuning: 15 minutes
-- Flight API: 1 hour
-- Winter UI: 2 hours
-- Integration: 1 hour
-- Polish: 1 hour
-- **Total**: ~5-6 hours more
-
----
-
-## 🎯 Success Criteria for Session 4
-
-### Must Have ✅
-1. [ ] Closed fist detection working reliably
-2. [ ] Both gestures (fist + palm) triggering consistently
-3. [ ] Console logs clean (no NaN, no errors)
-4. [ ] Debouncing working (gestures don't spam)
-
-### Nice to Have 🎁
-1. [ ] Flight data API connected
-2. [ ] Basic flight card UI
-3. [ ] Gesture triggers flight navigation (scroll)
-
-### Stretch Goals 🚀
-1. [ ] Winter theme applied
-2. [ ] Snow animations
-3. [ ] Multiple flight cards
-
----
-
-## 🔍 Files to Check for Fist Detection
-
-### Primary File to Edit:
-**`src/utils/gestureDetection.ts`** - Line 97-112
-
+#### 2. **Algorithm Details**
 ```typescript
-export function detectClosedFist(
-  keypoints: Keypoint[],
-  threshold: number = 0.6  // ← Try lowering this to 0.4 or 0.5
-): boolean {
-  // ... finger curl calculations
+calcAvgCurls(samples) {
+  // 1. Calculate averages for each finger
+  const averages = { index, middle, ring, pinky, thumb, avg };
+  
+  // 2. Calculate variance for each finger
+  const variances = samples.map(s => (s.curl - avg)^2);
+  
+  // 3. Calculate standard deviation
+  const stdDevs = sqrt(variance / sampleCount);
+  
+  // 4. Return both
+  return { ...averages, stdDevs };
 }
 ```
 
-### Debug Logs Location:
-**`src/utils/gestureDetection.ts`** - Line 167-168
+**Threshold Calculation Strategy:**
+- **Fist/Palm:** Midpoint between averages (simple separator)
+- **Thumbs Up Finger Curl:** `avg - 0.15 - (stdDev * 0.5)` → Lower = easier to trigger
+- **Thumbs Up Thumb Extend:** `avg + 0.1 + (stdDev * 0.5)` → Higher = easier to trigger
+- **Hard limits:** `Math.max(0.45, ...)` and `Math.min(0.35, ...)` prevent extreme values
 
+### The Problem We Just Solved
+
+**User reported:** "I trained my thumb but it no longer opens the dialog"
+
+**Root Cause:**
+1. User trained thumbs up gesture
+2. Algorithm calculated average finger curl from training samples
+3. If fingers weren't curled enough during training → LOW threshold was learned
+4. Detection requires `fingersCurledCount >= 3` fingers above threshold
+5. Runtime gestures couldn't meet the overly-strict learned threshold
+
+**Solution Applied:**
+- Added standard deviation awareness to thresholds
+- Increased tolerance margins (0.10 → 0.15 base margin)
+- Added variance-based adjustment (+ 0.5 * stdDev)
+- Now accounts for natural hand position variation
+
+### File Structure
+
+**Core Gesture Detection:**
+```
+src/
+├── utils/
+│   └── gestureDetection.ts          # Detection algorithms, threshold management
+├── hooks/
+│   ├── useGestures.ts               # React hook with debouncing
+│   └── useMediaPipe.ts              # TensorFlow.js integration
+└── components/
+    ├── GestureTrainerOverlay.tsx    # ✨ NEW: Training UI with stdDev
+    ├── FlightBoard.tsx              # Main flight list + gesture actions
+    └── FlightDetailModal.tsx        # Thumbs up opens this
+```
+
+**Key Functions in gestureDetection.ts:**
 ```typescript
-const fingerCurls = [/* ... */];
-console.log('👆 Finger curls:', fingerCurls.map(c => c.toFixed(2)).join(', '));
+// Threshold Management (module-level)
+let currentThresholds: GestureThresholds = { ...DEFAULT_THRESHOLDS };
+
+export function loadTrainedThresholds(): GestureThresholds  // Load from localStorage
+export function getCurrentThresholds(): GestureThresholds   // Get current (trained or default)
+export function updateThresholds(new: Partial<...>)        // Update in-memory
+export function resetThresholds()                           // Clear localStorage
+
+// Detection
+export function detectGesture(keypoints, handedness): GestureResult
+export class GestureDebouncer {
+  // Stability tracking: requires 2 consecutive frames
+  // UNKNOWN resets lastEmittedGesture after 2 frames
+  process(gesture): GestureResult | null
+}
 ```
 
-### Gesture Hook:
-**`src/hooks/useGestures.ts`** - Processes detected gestures
+### Data Flow
 
----
+**Training → Storage → Runtime:**
+```
+1. User trains gestures (3+ samples per gesture)
+   ↓
+2. GestureTrainerOverlay.learnThresholds() calculates:
+   - Per-finger averages
+   - Per-finger standard deviations  ← NEW!
+   - Threshold values using avg ± (margin + stdDev)
+   ↓
+3. Save to localStorage:
+   - 'gesture-thresholds': { thumbsUpFingerCurl: 0.52, ... }
+   - 'gesture-samples': { fist: [...], palm: [...], ... }
+   ↓
+4. On page load (index.tsx, gesture-training.tsx):
+   - Call loadTrainedThresholds()
+   - Updates module-level currentThresholds
+   ↓
+5. Runtime detection:
+   - detectGesture() calls getCurrentThresholds()
+   - Uses trained values instead of defaults
+```
 
-## 💡 Quick Wins for Session 4
+### Testing Checklist
 
-If fist detection is stubborn, try these quick alternatives:
+**User should test:**
+1. ✅ Reset training (red button on training page)
+2. ✅ Retrain thumbs up gesture (3+ samples)
+3. ✅ Check console logs to see learned thresholds
+4. ✅ Navigate to main flight board
+5. ✅ Make thumbs up gesture → Should open flight detail modal
+6. ✅ Make thumbs down gesture → Should close modal
+7. ✅ Try slight variations of thumbs up → Should still work (more forgiving now)
 
-### Option 1: Use Thumb Position
+**Console Commands for Debugging:**
+```javascript
+// See current thresholds
+JSON.parse(localStorage.getItem('gesture-thresholds'))
+
+// See raw training samples
+JSON.parse(localStorage.getItem('gesture-samples'))
+
+// Check specific threshold
+const t = JSON.parse(localStorage.getItem('gesture-thresholds'));
+console.log('Thumbs up finger curl threshold:', t.thumbsUpFingerCurl);
+
+// Manual override if needed (shouldn't be necessary now)
+const t = JSON.parse(localStorage.getItem('gesture-thresholds'));
+t.thumbsUpFingerCurl = 0.50;  // Lower = easier to trigger
+localStorage.setItem('gesture-thresholds', JSON.stringify(t));
+location.reload();
+```
+
+### Known Issues / Edge Cases
+
+**None currently blocking! But watch for:**
+- If user trains with very inconsistent samples → stdDev might be too large → thresholds too lenient
+- If training samples are too few (< 3 per gesture) → statistics less reliable
+- Hand-specific training not yet implemented (left vs right hand treated same)
+
+### Next Steps / Future Enhancements
+
+**Potential improvements:**
+1. **Visual feedback on training quality:**
+   - Show stdDev values during training
+   - Warning if variance is too high ("Try to be more consistent")
+   
+2. **Hand-specific training:**
+   - Separate thresholds for left vs right hand
+   - Some people make gestures differently with each hand
+   
+3. **Training validation:**
+   - Require gestures to be distinguishable (sufficient separation)
+   - Warn if thumbs up samples too similar to fist samples
+   
+4. **Sample review UI:**
+   - View/delete individual training samples before finalizing
+   - Re-record specific samples that look wrong
+   
+5. **Export/import training profiles:**
+   - Share trained thresholds between devices
+   - Pre-configured profiles for common hand sizes
+
+### Important Code Locations
+
+**If dialog still doesn't open, check:**
 ```typescript
-// Fist = thumb tip closer to wrist than index MCP
-const thumbToWrist = distance(keypoints[4], keypoints[0]);
-const indexMcpToWrist = distance(keypoints[5], keypoints[0]);
-const isFist = thumbToWrist < indexMcpToWrist * 0.8;
+// FlightBoard.tsx ~line 120
+} else if (gesture === GestureType.THUMBS_UP) {
+  console.log('  👍 Thumbs up - opening modal for selected flight');
+  if (flights && flights[selectedIndex]) {
+    setIsModalOpen(true);  // ← This should fire
+  }
+}
 ```
 
-### Option 2: Count Fingers Extended
+**Detection logging:**
 ```typescript
-// Fist = 0 or 1 fingers extended
-// Palm = 4 or 5 fingers extended
-const extendedFingers = fingerCurls.filter(c => c < 0.5).length;
-const isFist = extendedFingers <= 1;
-const isPalm = extendedFingers >= 4;
+// gestureDetection.ts ~line 360
+console.log('👍 Is thumbs up?', isThumbsUp, 
+  `(fingers > ${thresholds.thumbsUpFingerCurl}: ${fingersCurledCount}/${thresholds.thumbsUpMinFingers}, ...)`);
 ```
 
-### Option 3: Use Hand "Compactness"
-```typescript
-// Measure bounding box area of hand
-// Fist = smaller area, Palm = larger area
-const xs = keypoints.map(k => k.x);
-const ys = keypoints.map(k => k.y);
-const width = Math.max(...xs) - Math.min(...xs);
-const height = Math.max(...ys) - Math.min(...ys);
-const area = width * height;
-// Compare to baseline area
-```
+### Git Status
+**Modified files:**
+- `homecoming-board/src/components/GestureTrainerOverlay.tsx` (major: added stdDev calculation)
 
----
+**No new files created this session**
 
-## 🎨 Visual Mockup (Winter Flight Board)
+### Commands to Resume
 
-```
-╔══════════════════════════════════════════════════════╗
-║  ❄️  WELCOME HOME - ARRIVALS  ❄️                    ║
-║  🎄  Happy Holidays Festival 2024  🎄                ║
-╠══════════════════════════════════════════════════════╣
-║                                                      ║
-║  ✈️  UA 1234  |  Chicago (ORD)  |  ON TIME          ║
-║      Arriving: 3:45 PM  |  Gate B12                 ║
-║  ------------------------------------------------    ║
-║  ✈️  DL 5678  |  New York (JFK) |  DELAYED 20m     ║
-║      Arriving: 4:10 PM  |  Gate A5                  ║
-║  ------------------------------------------------    ║
-║  ✈️  AA 9012  |  Los Angeles   |  LANDED           ║
-║      Arrived: 2:30 PM   |  Gate C3                  ║
-║  ------------------------------------------------    ║
-║                                                      ║
-║  👋 Wave your hand to navigate!                     ║
-║  ✊ Fist = Scroll Down  |  🖐️ Palm = Scroll Up     ║
-╚══════════════════════════════════════════════════════╝
-        ❄️  ❄️  ❄️  ❄️  ❄️  ❄️  ❄️
-```
-
----
-
-## 📞 When You Resume
-
-**First thing to do:**
-1. Open Edge (hardware acceleration on!)
-2. Go to http://localhost:3000
-3. Make a tight fist and check console logs
-4. Look at finger curl values
-5. Adjust threshold if needed
-
-**If dev server not running:**
 ```bash
 cd /Users/nicktaylor/dev/advent-of-ai-2025/day-5/homecoming-board
-npm run dev
+npm run dev  # Start dev server
+# Navigate to http://localhost:3000/gesture-training
+# Click "Reset Training" button
+# Retrain gestures with new algorithm
+# Test thumbs up on main page
 ```
 
-**If something broke:**
-- Check this file for config that was working
-- Reference BLOG.md for troubleshooting steps
-- Verify hardware acceleration still on in Edge
+### User Action Required
+
+**Before continuing:**
+1. Reset existing training via UI button
+2. Retrain gestures (especially thumbs up)
+3. Confirm dialog now opens with thumbs up
+4. Report back if issue persists
+
+**If still not working after retraining:**
+- Check browser console for detection logs
+- Look for "👍 Is thumbs up?" messages
+- Share the logged threshold values
+- Share the fingersCurledCount value when making gesture
 
 ---
 
-**Last Updated**: Dec 6, 2024 2:09 AM  
-**Session Duration**: 8 glorious minutes of breakthrough! 🎉  
-**Next Action**: Debug fist detection threshold  
-**Biggest Win**: Hand tracking WORKS! MediaPipe runtime = the answer  
-**Mood**: 🎉🎉🎉 Celebratory but sleepy  
-**Coffee Level**: ☕☕☕☕☕ (empty, need refill for session 4)
+## Summary for AI Agent
 
----
+**Context:** User was experiencing trained gesture thresholds being too strict (thumbs up gesture not opening modal after training).
 
-*"From null coordinates to real-time hand tracking in 8 minutes. Sometimes the answer is simpler than you think: just use the right runtime!"* 💪
+**Root cause:** Training algorithm used fixed margins without accounting for natural hand position variance.
 
-**Status**: 🟢 95% Working  
-**Blocker**: Minor threshold tuning needed  
-**Confidence**: 💯 High - we're almost there!
+**Solution implemented:** 
+1. Added standard deviation calculation to training algorithm
+2. Made threshold margins variance-aware (more lenient when hand position varies)
+3. Increased base margins from 0.10 → 0.15
+4. Added `0.5 * stdDev` adjustment to thresholds
+
+**Status:** Code changes complete. User needs to reset and retrain for changes to take effect.
+
+**Expected outcome:** Thumbs up gesture should now trigger more reliably while still avoiding false positives.
