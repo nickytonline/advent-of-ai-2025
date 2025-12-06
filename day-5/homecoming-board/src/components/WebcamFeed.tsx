@@ -1,5 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useWebcam } from '../hooks/useWebcam';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 
 interface WebcamFeedProps {
   onVideoReady?: (video: HTMLVideoElement) => void;
@@ -8,12 +9,27 @@ interface WebcamFeedProps {
 }
 
 export function WebcamFeed({ onVideoReady, mirrored = true, className = '' }: WebcamFeedProps) {
-  const { videoRef, error, isLoading, startWebcam, stream } = useWebcam();
+  // Persist camera selection across page reloads
+  const [selectedDeviceId, setSelectedDeviceId] = useLocalStorage<string | undefined>(
+    'homecoming-board-selected-camera',
+    undefined
+  );
+  const [showCameraSelector, setShowCameraSelector] = useState(false);
+  
+  const { videoRef, error, isLoading, startWebcam, stopWebcam, stream, availableCameras, refreshCameras } = useWebcam({
+    deviceId: selectedDeviceId,
+  });
 
+  // Start webcam on mount and when selectedDeviceId changes
   useEffect(() => {
-    console.log('🚀 WebcamFeed mounted, starting webcam...');
-    startWebcam();
-  }, []);
+    console.log('🚀 WebcamFeed effect - selectedDeviceId:', selectedDeviceId);
+    // Small delay to ensure previous stream is fully stopped
+    const timer = setTimeout(() => {
+      startWebcam();
+    }, 50);
+    
+    return () => clearTimeout(timer);
+  }, [selectedDeviceId, startWebcam]);
 
   // Call onVideoReady when stream is attached to video element
   useEffect(() => {
@@ -39,7 +55,17 @@ export function WebcamFeed({ onVideoReady, mirrored = true, className = '' }: We
         video.removeEventListener('loadeddata', handleLoadedData);
       };
     }
-  }, [stream, onVideoReady]); // Depend on stream, not videoRef
+  }, [stream, onVideoReady]);
+
+  const handleCameraChange = async (deviceId: string) => {
+    console.log('🔄 Switching camera to:', deviceId);
+    setShowCameraSelector(false);
+    stopWebcam();
+    // Wait a bit for the stream to fully stop before switching
+    await new Promise(resolve => setTimeout(resolve, 100));
+    // useLocalStorage hook handles saving to localStorage automatically
+    setSelectedDeviceId(deviceId);
+  };
 
   if (error) {
     return (
@@ -78,18 +104,94 @@ export function WebcamFeed({ onVideoReady, mirrored = true, className = '' }: We
   }
 
   return (
-    <video
-      ref={videoRef}
-      autoPlay
-      playsInline
-      muted
-      className={className}
-      style={{
-        transform: mirrored ? 'scaleX(-1)' : 'none',
-        width: '100%',
-        height: '100%',
-        objectFit: 'cover',
-      }}
-    />
+    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+      <video
+        ref={videoRef}
+        autoPlay
+        playsInline
+        muted
+        className={className}
+        style={{
+          transform: mirrored ? 'scaleX(-1)' : 'none',
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          backgroundColor: '#000',
+        }}
+      />
+      
+      {/* Camera selector button */}
+      {availableCameras.length > 1 && (
+        <div style={{ position: 'absolute', top: '1rem', left: '1rem' }}>
+          <button
+            onClick={() => setShowCameraSelector(!showCameraSelector)}
+            style={{
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '0.5rem',
+              padding: '0.5rem 1rem',
+              cursor: 'pointer',
+              fontSize: '0.875rem',
+              fontWeight: 'bold',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+            }}
+          >
+            📹 Switch Camera
+          </button>
+          
+          {/* Camera dropdown */}
+          {showCameraSelector && (
+            <div
+              style={{
+                position: 'absolute',
+                top: '3rem',
+                left: 0,
+                backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                borderRadius: '0.5rem',
+                padding: '0.5rem',
+                minWidth: '200px',
+                zIndex: 1000,
+              }}
+            >
+              {availableCameras.map((camera) => (
+                <button
+                  key={camera.deviceId}
+                  onClick={() => handleCameraChange(camera.deviceId)}
+                  style={{
+                    display: 'block',
+                    width: '100%',
+                    backgroundColor: selectedDeviceId === camera.deviceId ? 'rgba(16, 185, 129, 0.3)' : 'transparent',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '0.25rem',
+                    padding: '0.75rem',
+                    cursor: 'pointer',
+                    fontSize: '0.875rem',
+                    textAlign: 'left',
+                    marginBottom: '0.25rem',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (selectedDeviceId !== camera.deviceId) {
+                      e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (selectedDeviceId !== camera.deviceId) {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                    }
+                  }}
+                >
+                  {selectedDeviceId === camera.deviceId && '✓ '}
+                  {camera.label || `Camera ${camera.deviceId.slice(0, 8)}...`}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
