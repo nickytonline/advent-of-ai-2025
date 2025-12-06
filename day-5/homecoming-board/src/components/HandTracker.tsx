@@ -19,9 +19,9 @@ export function HandTracker({
   className = '',
 }: HandTrackerProps) {
   const [videoElement, setVideoElement] = useState<HTMLVideoElement | null>(null);
-  
+
   console.log('🎬 HandTracker render - videoElement:', videoElement);
-  
+
   const { canvasRef, results, isReady, error, fps } = useMediaPipe(videoElement, {
     onResults: onHandsDetected,
   });
@@ -36,7 +36,7 @@ export function HandTracker({
   console.log('📊 HandTracker state - isReady:', isReady, 'error:', error, 'fps:', fps, 'results:', results);
 
   const handsDetected = results?.multiHandLandmarks?.length || 0;
-  
+
   // Gesture display info
   const getGestureEmoji = (type: GestureType) => {
     switch (type) {
@@ -50,7 +50,7 @@ export function HandTracker({
         return '👋';
     }
   };
-  
+
   const getGestureLabel = (type: GestureType) => {
     switch (type) {
       case GestureType.CLOSED_FIST:
@@ -60,7 +60,7 @@ export function HandTracker({
       case GestureType.THUMBS_UP:
         return 'Thumbs Up';
       default:
-        return 'No gesture';
+        return 'Unknown gesture';
     }
   };
 
@@ -69,7 +69,7 @@ export function HandTracker({
       {/* Webcam Video */}
       <div style={{ position: 'relative', width: '100%', maxWidth: '1280px', margin: '0 auto' }}>
         <WebcamFeed onVideoReady={setVideoElement} mirrored={true} />
-        
+
         {/* Canvas overlay for hand landmarks */}
         {showCanvas && (
           <canvas
@@ -85,7 +85,7 @@ export function HandTracker({
             }}
           />
         )}
-        
+
         {/* Status indicators */}
         <div
           style={{
@@ -114,7 +114,7 @@ export function HandTracker({
               {fps} FPS
             </div>
           )}
-          
+
           {/* Hands detected indicator */}
           {isReady && (
             <div
@@ -136,7 +136,7 @@ export function HandTracker({
               {handsDetected > 0 ? `${handsDetected} Hand${handsDetected > 1 ? 's' : ''} Detected` : 'Show your hand'}
             </div>
           )}
-          
+
           {/* Loading indicator */}
           {!isReady && !error && videoElement && (
             <div
@@ -153,7 +153,7 @@ export function HandTracker({
             </div>
           )}
         </div>
-        
+
         {/* MediaPipe error */}
         {error && (
           <div
@@ -173,7 +173,7 @@ export function HandTracker({
           </div>
         )}
       </div>
-      
+
       {/* Gesture Indicator */}
       {currentGesture && currentGesture.type !== GestureType.UNKNOWN && (
         <div
@@ -199,7 +199,7 @@ export function HandTracker({
           <span>{getGestureLabel(currentGesture.type)}</span>
         </div>
       )}
-      
+
       {/* Instructions */}
       <div
         style={{
@@ -216,7 +216,7 @@ export function HandTracker({
           Try: <strong>closed fist ✊</strong>, <strong>open palm 🖐️</strong>, or <strong>thumbs up 👍</strong>
         </p>
       </div>
-      
+
       <style>{`
         @keyframes gesturePopIn {
           0% {
