@@ -35,8 +35,16 @@ export function WebcamFeed({ onVideoReady, mirrored = true, className = '' }: We
   useEffect(() => {
     console.log('📹 Stream/Video check - stream:', stream, 'videoRef.current:', videoRef.current);
     
-    if (stream && videoRef.current && onVideoReady) {
+    if (!stream || !onVideoReady) return;
+    
+    // Poll for video element to be ready
+    const checkVideoReady = (): (() => void) | false => {
       const video = videoRef.current;
+      
+      if (!video) {
+        console.log('⏳ Video element not yet available, retrying...');
+        return false;
+      }
       
       const handleLoadedData = () => {
         console.log('✅ Video loadeddata event - calling onVideoReady');
@@ -47,14 +55,42 @@ export function WebcamFeed({ onVideoReady, mirrored = true, className = '' }: We
       
       // If already loaded, call immediately
       if (video.readyState >= 2) {
-        console.log('✅ Video already loaded (readyState:', video.readyState, ') - calling onVideoReady');
+        console.log('✅ Video already loaded (readyState:', video.readyState, ') - calling onVideoReady immediately');
         onVideoReady(video);
       }
       
+      // Return cleanup function
       return () => {
         video.removeEventListener('loadeddata', handleLoadedData);
       };
+    };
+    
+    // Try immediately
+    let cleanup: (() => void) | false = checkVideoReady();
+    
+    // If video element wasn't ready, retry with interval
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+    if (cleanup === false) {
+      intervalId = setInterval(() => {
+        const result = checkVideoReady();
+        if (result !== false) {
+          cleanup = result;
+          if (intervalId) {
+            clearInterval(intervalId);
+            intervalId = null;
+          }
+        }
+      }, 50);
     }
+    
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+      if (typeof cleanup === 'function') {
+        cleanup();
+      }
+    };
   }, [stream, onVideoReady]);
 
   const handleCameraChange = async (deviceId: string) => {

@@ -34,7 +34,20 @@ export function useMediaPipe(
 
   useEffect(() => {
     // Only run on client side
-    if (typeof window === 'undefined' || !videoElement) return;
+    if (typeof window === 'undefined' || !videoElement) {
+      console.log('⏸️ Skipping MediaPipe init - no video element yet');
+      return;
+    }
+
+    console.log('🎬 MediaPipe effect triggered - videoElement:', videoElement);
+    
+    // Reset state for new initialization
+    setIsReady(false);
+    setResults(null);
+    setFps(0);
+    frameCountRef.current = 0;
+    lastFrameTimeRef.current = 0;
+    fpsUpdateIntervalRef.current = 0;
 
     const initializeHandDetection = async () => {
       try {
@@ -122,13 +135,12 @@ export function useMediaPipe(
               flipHorizontal: false
             });
 
-            // Debug: Log the actual TensorFlow.js hand data structure
-            if (hands.length > 0 && frameCountRef.current % 30 === 0) {
+            // Debug: Log the actual TensorFlow.js hand data structure (less frequently)
+            if (hands.length > 0 && frameCountRef.current % 60 === 0) {
               console.log('🔍 TF.js hand data structure:', {
                 keys: Object.keys(hands[0]),
                 keypointsExists: !!hands[0].keypoints,
                 keypointsLength: hands[0].keypoints?.length,
-                firstKeypoint: hands[0].keypoints?.[0],
                 handedness: hands[0].handedness,
                 score: hands[0].score
               });
@@ -148,11 +160,9 @@ export function useMediaPipe(
             }
             lastFrameTimeRef.current = now;
 
-            // Log when hands are detected
-            if (hands.length > 0) {
+            // Log when hands are first detected (less spam)
+            if (hands.length > 0 && frameCountRef.current % 30 === 0) {
               console.log(`👋 Detected ${hands.length} hand(s)`);
-              // Debug the actual data structure
-              console.log('🔍 RAW TF.js hand[0]:', JSON.stringify(hands[0], null, 2));
             }
 
             // Convert TensorFlow format to our HandResults format
@@ -173,13 +183,7 @@ export function useMediaPipe(
 
             // Draw on canvas if available
             if (canvasRef.current && hands.length > 0) {
-              console.log('🖌️ About to draw - canvas exists:', !!canvasRef.current, 'hands:', hands.length);
               drawResultsTF(canvasRef.current, videoElement, hands);
-            } else if (hands.length > 0) {
-              console.warn('⚠️ Hands detected but no canvas ref!', {
-                canvasExists: !!canvasRef.current,
-                handsCount: hands.length
-              });
             }
           } catch (err) {
             console.warn('Frame processing error:', err);
@@ -203,12 +207,29 @@ export function useMediaPipe(
 
     // Cleanup
     return () => {
+      console.log('🧹 Cleaning up MediaPipe resources...');
+      
+      // Stop animation frame
       if (animationFrameIdRef.current) {
         cancelAnimationFrame(animationFrameIdRef.current);
+        animationFrameIdRef.current = 0;
       }
+      
+      // Dispose detector
       if (handLandmarkerRef.current) {
         handLandmarkerRef.current.dispose?.();
+        handLandmarkerRef.current = null;
       }
+      
+      // Clear canvas
+      if (canvasRef.current) {
+        const ctx = canvasRef.current.getContext('2d');
+        if (ctx) {
+          ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+        }
+      }
+      
+      console.log('✅ MediaPipe cleanup complete');
     };
   }, [videoElement, options.config?.maxNumHands, options.config?.modelComplexity]);
 
@@ -224,21 +245,11 @@ export function useMediaPipe(
 // Helper function to draw hand landmarks on canvas (TensorFlow.js format)
 function drawResultsTF(canvas: HTMLCanvasElement, video: HTMLVideoElement, hands: any[]) {
   const ctx = canvas.getContext('2d');
-  if (!ctx) {
-    console.warn('❌ No canvas context');
-    return;
-  }
+  if (!ctx) return;
 
   // Set canvas size to match video
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
-  
-  console.log('🎨 Drawing on canvas:', {
-    canvasSize: `${canvas.width}x${canvas.height}`,
-    videoSize: `${video.videoWidth}x${video.videoHeight}`,
-    handsCount: hands.length,
-    firstHandKeypoints: hands[0]?.keypoints?.length
-  });
 
   // Clear canvas
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -246,11 +257,6 @@ function drawResultsTF(canvas: HTMLCanvasElement, video: HTMLVideoElement, hands
   // Draw each detected hand
   for (const hand of hands) {
     if (!hand.keypoints) continue;
-
-    // Debug first keypoint to see actual values
-    if (hand.keypoints.length > 0) {
-      console.log('🔍 First keypoint (wrist):', hand.keypoints[0]);
-    }
 
     // Draw connections between keypoints
     drawConnectionsTF(ctx, hand.keypoints);
@@ -260,9 +266,8 @@ function drawResultsTF(canvas: HTMLCanvasElement, video: HTMLVideoElement, hands
       const x = keypoint.x;
       const y = keypoint.y;
       
-      // Debug if coordinates are null/undefined/NaN
+      // Skip invalid coordinates
       if (x == null || y == null || isNaN(x) || isNaN(y)) {
-        console.warn('⚠️ Invalid keypoint:', keypoint);
         continue;
       }
       
