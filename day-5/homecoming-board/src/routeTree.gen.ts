@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TestFlightsRouteImport } from './routes/test-flights'
+import { Route as GestureTrainingRouteImport } from './routes/gesture-training'
 import { Route as FlightsRouteImport } from './routes/flights'
 import { Route as IndexRouteImport } from './routes/index'
 
 const TestFlightsRoute = TestFlightsRouteImport.update({
   id: '/test-flights',
   path: '/test-flights',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GestureTrainingRoute = GestureTrainingRouteImport.update({
+  id: '/gesture-training',
+  path: '/gesture-training',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FlightsRoute = FlightsRouteImport.update({
@@ -32,30 +38,34 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/flights': typeof FlightsRoute
+  '/gesture-training': typeof GestureTrainingRoute
   '/test-flights': typeof TestFlightsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/flights': typeof FlightsRoute
+  '/gesture-training': typeof GestureTrainingRoute
   '/test-flights': typeof TestFlightsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/flights': typeof FlightsRoute
+  '/gesture-training': typeof GestureTrainingRoute
   '/test-flights': typeof TestFlightsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/flights' | '/test-flights'
+  fullPaths: '/' | '/flights' | '/gesture-training' | '/test-flights'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/flights' | '/test-flights'
-  id: '__root__' | '/' | '/flights' | '/test-flights'
+  to: '/' | '/flights' | '/gesture-training' | '/test-flights'
+  id: '__root__' | '/' | '/flights' | '/gesture-training' | '/test-flights'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FlightsRoute: typeof FlightsRoute
+  GestureTrainingRoute: typeof GestureTrainingRoute
   TestFlightsRoute: typeof TestFlightsRoute
 }
 
@@ -66,6 +76,13 @@ declare module '@tanstack/react-router' {
       path: '/test-flights'
       fullPath: '/test-flights'
       preLoaderRoute: typeof TestFlightsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gesture-training': {
+      id: '/gesture-training'
+      path: '/gesture-training'
+      fullPath: '/gesture-training'
+      preLoaderRoute: typeof GestureTrainingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/flights': {
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FlightsRoute: FlightsRoute,
+  GestureTrainingRoute: GestureTrainingRoute,
   TestFlightsRoute: TestFlightsRoute,
 }
 export const routeTree = rootRouteImport
