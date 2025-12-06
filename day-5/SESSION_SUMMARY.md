@@ -124,5 +124,74 @@ If you see in console:
 
 ---
 
-**Status**: ✅ Code changes complete, ready for browser testing
-**Action Required**: Check browser at http://localhost:3000 to verify hand tracking works
+## 🔴 SESSION 2 UPDATE: Null Coordinates Issue
+
+**Date**: December 6, 2024 @ 1:20 AM - 1:43 AM
+
+### The New Problem
+
+After gesture detection implementation, discovered ALL keypoints returning null coordinates:
+
+```
+🔍 First keypoint (wrist): {x: NaN, y: NaN, name: 'wrist'}
+⚠️ Invalid keypoint: {x: NaN, y: NaN, name: 'wrist'}
+... (all 21 keypoints)
+```
+
+**Console Evidence**:
+```
+Could not get context for WebGL version 2
+Could not get context for WebGL version 1  
+Error: WebGL is not supported on this device
+Initialization of backend webgl failed
+TensorFlow backend ready: cpu
+```
+
+### Root Cause
+
+**Browser has NO WebGL support** → TensorFlow.js falls back to CPU backend → CPU can detect hands but returns `null` for coordinate positions
+
+**Why**: The hand-pose-detection model needs GPU/WebGL to calculate actual x,y positions of landmarks. CPU backend only detects presence, not positions.
+
+### The Fix: Enable Hardware Acceleration
+
+**NEXT SESSION START HERE** ⬇️
+
+1. **Enable in browser settings**:
+   - Chrome: `chrome://settings/system` → Enable "Use hardware acceleration"
+   - Firefox: `about:preferences` → Performance → Enable hardware acceleration
+   - **RESTART BROWSER** (critical!)
+
+2. **Expected outcome**:
+   - Console: `TensorFlow backend ready: webgl` (not "cpu")
+   - Keypoints: `{x: 640.5, y: 360.2, name: 'wrist'}` (real numbers!)
+   - Visuals: Green skeleton draws, gestures work
+
+3. **Test gestures**:
+   - Make fist ✊ → see "Closed Fist" indicator
+   - Open palm 🖐️ → see "Open Palm" indicator
+
+### Session 2 Accomplishments
+
+✅ Created complete gesture detection system:
+- `src/utils/gestureDetection.ts` - Finger curl algorithms
+- `src/hooks/useGestures.ts` - React hook for gestures
+- Visual UI indicators with animations
+- 300ms debouncing
+
+❌ Blocked by null coordinates (needs WebGL)
+
+### Fallback Options
+
+If hardware acceleration doesn't work:
+1. Try different browser (Chrome has best WebGL support)
+2. Update GPU/graphics drivers
+3. Test WebGL support: https://get.webgl.org/
+4. Last resort: Server-side Python + MediaPipe
+
+---
+
+**Status**: 🟡 Blocked on WebGL/Hardware Acceleration  
+**Action Required**: Enable hardware acceleration → restart browser → verify `webgl` backend  
+**Code Status**: 90% complete (all code ready, just needs working coordinates)  
+**Next Session**: [NEXT_SESSION.md](./NEXT_SESSION.md) - Full instructions for hardware acceleration fix

@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { WebcamFeed } from './WebcamFeed';
 import { useMediaPipe } from '../hooks/useMediaPipe';
+import { useGestures } from '../hooks/useGestures';
+import { GestureType } from '../utils/gestureDetection';
 import type { HandResults } from '../types/hand';
 
 interface HandTrackerProps {
@@ -24,9 +26,39 @@ export function HandTracker({
     onResults: onHandsDetected,
   });
 
+  // Detect gestures from hand tracking results
+  const { currentGesture } = useGestures(results, {
+    onGesture: (gesture) => {
+      console.log(`✨ Gesture: ${gesture.type} - ${gesture.hand} hand (${gesture.confidence})`);
+    },
+  });
+
   console.log('📊 HandTracker state - isReady:', isReady, 'error:', error, 'fps:', fps, 'results:', results);
 
   const handsDetected = results?.multiHandLandmarks?.length || 0;
+  
+  // Gesture display info
+  const getGestureEmoji = (type: GestureType) => {
+    switch (type) {
+      case GestureType.CLOSED_FIST:
+        return '✊';
+      case GestureType.OPEN_PALM:
+        return '🖐️';
+      default:
+        return '👋';
+    }
+  };
+  
+  const getGestureLabel = (type: GestureType) => {
+    switch (type) {
+      case GestureType.CLOSED_FIST:
+        return 'Closed Fist';
+      case GestureType.OPEN_PALM:
+        return 'Open Palm';
+      default:
+        return 'No gesture';
+    }
+  };
 
   return (
     <div className={`hand-tracker ${className}`} style={{ position: 'relative' }}>
@@ -138,6 +170,32 @@ export function HandTracker({
         )}
       </div>
       
+      {/* Gesture Indicator */}
+      {currentGesture && currentGesture.type !== GestureType.UNKNOWN && (
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '1rem',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            backgroundColor: 'rgba(16, 185, 129, 0.95)',
+            color: 'white',
+            padding: '1rem 2rem',
+            borderRadius: '1rem',
+            fontSize: '1.5rem',
+            fontWeight: 'bold',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '1rem',
+            boxShadow: '0 10px 25px rgba(0, 0, 0, 0.3)',
+            animation: 'gesturePopIn 0.3s ease-out',
+          }}
+        >
+          <span style={{ fontSize: '2rem' }}>{getGestureEmoji(currentGesture.type)}</span>
+          <span>{getGestureLabel(currentGesture.type)}</span>
+        </div>
+      )}
+      
       {/* Instructions */}
       <div
         style={{
@@ -151,9 +209,22 @@ export function HandTracker({
         <p style={{ margin: 0, color: '#374151' }}>
           <strong>👋 Hand Tracking Active</strong>
           <br />
-          Show your hand to the camera to see real-time tracking
+          Try making a <strong>closed fist ✊</strong> or <strong>open palm 🖐️</strong>
         </p>
       </div>
+      
+      <style>{`
+        @keyframes gesturePopIn {
+          0% {
+            opacity: 0;
+            transform: translateX(-50%) scale(0.8);
+          }
+          100% {
+            opacity: 1;
+            transform: translateX(-50%) scale(1);
+          }
+        }
+      `}</style>
     </div>
   );
 }
